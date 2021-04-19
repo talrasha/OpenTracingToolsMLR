@@ -11,8 +11,8 @@ from difflib import SequenceMatcher
 from PersonalInfo.updateInfo import your_email, getGithubToken, getStackoverflowKey
 import updateFlag
 
-personal_token = getGithubToken(your_email)
-#personal_token = "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"
+#personal_token = getGithubToken(your_email)
+personal_token = "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"
 github_token = os.getenv('GITHUB_TOKEN', personal_token)
 github_headers = {'Authorization': f'token {github_token}'}
 desired_width=320
