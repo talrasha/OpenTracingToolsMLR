@@ -6,12 +6,10 @@ import pandas as pd
 import numpy as np
 import time
 import csv, json
-from requests_oauthlib import OAuth2Session
-from stackapi import StackAPI
 import itertools
 from difflib import SequenceMatcher
 from PersonalInfo.updateInfo import your_email, getGithubToken, getStackoverflowKey
-from datacrawling import updateFlag
+import updateFlag
 
 personal_token = getGithubToken(your_email)
 #personal_token = "368402c51b162c2d3bdad9667b528c2a94579396"
