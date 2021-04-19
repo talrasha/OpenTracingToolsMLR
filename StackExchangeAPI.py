@@ -12,7 +12,7 @@ from PersonalInfo.updateInfo import your_email, getGithubToken, getStackoverflow
 import updateFlag
 
 personal_token = getGithubToken(your_email)
-#personal_token = "368402c51b162c2d3bdad9667b528c2a94579396"
+#personal_token = "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"
 github_token = os.getenv('GITHUB_TOKEN', personal_token)
 github_headers = {'Authorization': f'token {github_token}'}
 desired_width=320
@@ -159,7 +159,7 @@ def getStackOverflowQuestiondata(projectname):
     return thereturnresult
 
 def getStackOverflowDataProjectsInRange(thestackoverflowcsv, fromN, toN):
-    with open("dataset/projectList.txt", 'r', encoding='utf-8') as txtfile:
+    with open("dataset/toollist.txt", 'r', encoding='utf-8') as txtfile:
         projectList = [x.strip('\n') for x in txtfile.readlines()][fromN:toN]
     count = fromN + 1
     features = list(getStackOverflowQuestiondata(projectList[0]).keys())
@@ -242,6 +242,7 @@ def getStackOverFlowQuestionsDAC(projectfullname, stackoverflowdatacsv):
     theProjectQuery = f"https://api.github.com/repos/{projectfullname}"
     p_search = requests.get(theProjectQuery, headers=github_headers)
     project_info = p_search.json()
+    print(project_info)
     project_id = project_info['id']
     themaxpage = getMaxPageNumberStackOverflow(projectfullname)
     params = {
@@ -290,7 +291,7 @@ def getStackOverFlowQuestionsDAC(projectfullname, stackoverflowdatacsv):
         return 0
 
 def getStackoverflowQuestionsDACfromProjectsInRange(fromN, toN):
-    with open("dataset/projectList.txt", 'r', encoding='utf-8') as txtfile:
+    with open("dataset/toollist.txt", 'r', encoding='utf-8') as txtfile:
         projectList = [x.strip('\n') for x in txtfile.readlines()][fromN:toN]
     count = fromN+1
     skipped = []

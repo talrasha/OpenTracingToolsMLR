@@ -4,7 +4,7 @@ import updateFlag
 
 your_email = "xiaozhou.li@tuni.fi"
 
-github_personal_token_input="368402c51b162c2d3bdad9667b528c2a94579396"
+github_personal_token_input="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"
 stackoverflow_key_input="89B5kN5OqCqblqKTWBKkjA(("
 reddit_client_id_input="mSQg7W-mu7jM4Q"
 reddit_client_secret_input="yN4K7PcB2KC7ve_ccO-_YiueFnguOA"
