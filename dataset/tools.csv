@@ -1,0 +1,12 @@
+tool,url,tag
+AppDynamics,https://www.appdynamics.com,appdynamics
+Datadog,https://www.datadoghq.com,datadog
+Elastic APM,https://www.elastic.co/apm,elastic-apm
+Jaeger,https://www.jaegertracing.io,jaeger
+InspectIT,https://www.inspectit.rocks,inspect-it
+Instana,https://www.instana.com,instana
+LightStep,https://lightstep.com,lightstep
+SkyWalking,https://skywalking.apache.org,skywalking
+Stagemonitor,https://www.stagemonitor.org,stagemonitor
+Wavefront VMware,https://www.vmware.com/company/acquisitions/wavefront.htm,
+Zipkin,https://zipkin.io,zipkin
