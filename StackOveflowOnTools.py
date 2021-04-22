@@ -69,7 +69,7 @@ def getStackOverFlowDataset(toollist):
             has_more = 1
             params['page'] = 0
             params[searcharea] = toolsearch
-            if has_more:
+            while has_more:
                 params['page'] = params['page'] + 1
                 print("----> Page "+str(params['page']))
                 theResult = requests.get(theQuery, params=params)
@@ -148,6 +148,7 @@ def getStackOverFlowDataset(toollist):
                                 writer.writerow(answeritem)
                     else:
                         continue
+                has_more = thejson['has_more']
             else:
                 continue
 
