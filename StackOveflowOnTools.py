@@ -10,6 +10,7 @@ import itertools
 from difflib import SequenceMatcher
 from PersonalInfo.updateInfo import your_email, getGithubToken, getStackoverflowKey
 import updateFlag
+import datetime
 
 personal_token = "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"
 github_token = os.getenv('GITHUB_TOKEN', personal_token)
@@ -24,71 +25,94 @@ STACKEXCHANGE = "https://api.stackexchange.com/"
 VERSION = "2.2/"
 endpoint = STACKEXCHANGE+VERSION+'search/advanced'
 
-def getMaxPageNumberStackOverflow(toolname):
+df_toolinfo = pd.read_csv('dataset/tools.csv')
+toolnames = df_toolinfo['tool'].values.tolist()
+toolsearchstr = df_toolinfo['searchstr'].values.tolist()
+tooldict = {}
+for item in toolnames:
+    tooldict[item] = df_toolinfo.loc[df_toolinfo['tool']==item, 'searchstr'].values[0]
+
+question_features = ['toolname','question_id', 'accepted_answer_id', 'answer_count', 'creation_date',
+                     'is_answered', 'last_activity_date', 'last_edit_date', 'owner_id'
+                     'owner_reputation', 'score', 'view_count', 'title', 'body']
+answer_features = ['toolname', 'answer_id', 'question_id', 'comment_count', 'creation_date', 'is_accepted',
+                   'last_activity_date', 'owner_reputation', 'owner_id', 'score', 'body']
+comment_features = ['toolname', 'comment_id', 'answer_id', 'question_id', 'creation_date', 'edited',
+                    'owner_reputation', 'owner_id', 'score', 'body']
+
+def initiateCSVs():
+    with open('questions.csv', 'a') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerow(question_features)
+    with open('answers.csv', 'a') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerow(answer_features)
+    with open('comments.csv', 'a') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerow(comment_features)
+
+def getStackOverFlowDataset(toollist):
     params = {
         "key": key,
         "pagesize": 100,
-        #    "page": 1,
-        #    "order": "desc",
         "sort": "votes",
-        #    "tagged": "visual-studio-code",
         "site": "stackoverflow",
-        #    "title": "996.ICU",
-        #    "filter": "withbody"
-    }
-    params['body'] = toolname
-    theQuery = STACKEXCHANGE + VERSION + 'search/advanced'
-    startpage = 1
-    n = 50
-    maxpage = 0
-    while True:
-        params['page'] = n
-        response = requests.get(theQuery, params=params)
-        try:
-            theItemListPerPage = response.json()['items']
-            if len(theItemListPerPage) == 100:
-                n = n*2
-                continue
-            else:
-                if len(theItemListPerPage)!=0:
-                    return n
-                else:
-                    maxpage = n
-                    break
-        except:
-            return 0
-    while True:
-        guesspage = int((maxpage+startpage)/2)
-        params['page'] = guesspage
-        theResult = requests.get(theQuery, params=params)
-        try:
-            theItemListPerPage = theResult.json()['items']
-            if startpage>maxpage:
-                return maxpage
-            if len(theItemListPerPage) < 100 and len(theItemListPerPage)!=0:
-                return guesspage
-            elif len(theItemListPerPage) == 100:
-                startpage = guesspage+1
-            elif len(theItemListPerPage) == 0:
-                maxpage = guesspage-1
-        except:
-            return 0
-
-def getStackOverFlowQuestionsDAC(toolname):
-    themaxpage = getMaxPageNumberStackOverflow(toolname)
-    params = {
-        "key": key,
-        "pagesize": 100,
-        "sort": "votes",
-        "site": "stackoverflow"
+        "filter": "!LGdawXSMGS0H5KeF1E6_cH"
     }
     theQuery = STACKEXCHANGE + VERSION + 'search/advanced'
-    params['title'] = toolname
-    params['page'] = 1
-    theResult = requests.get(theQuery, params=params)
-    thejson = theResult.json()
-    pprint(thejson)
+    for tool in toollist:
+        toolsearch = tooldict[tool]
+        has_more = 1
+        params['page'] = 0
+        params['title'] = tool
+        if has_more:
+            params['page'] = params['page'] + 1
+            theResult = requests.get(theQuery, params=params)
+            thejson = theResult.json()
+            questionslist = thejson['items']
+            for question in questionslist:
+                questionitem = []
+                #['toolname','question_id', 'accepted_answer_id', 'answer_count', 'creation_date',
+                # 'is_answered', 'last_activity_date', 'last_edit_date', 'owner_id'
+                # 'owner_reputation', 'score', 'view_count', 'title', 'body']
+                questionitem.append(tool)
+                questionitem.append(question['question_id'])
+                questionitem.append(question['accepted_answer_id'])
+                questionitem.append(question['answer_count'])
+                questionitem.append(datetime.datetime.fromtimestamp(question['creation_date']).strftime('%Y/%m/%d, %H:%M:%S'))
+                questionitem.append(question['is_answered'])
+                questionitem.append(datetime.datetime.fromtimestamp(question['last_activity_date']).strftime('%Y/%m/%d, %H:%M:%S'))
+                questionitem.append(datetime.datetime.fromtimestamp(question['last_edit_date']).strftime('%Y/%m/%d, %H:%M:%S'))
+                questionitem.append(question['owner']['user_id'])
+                questionitem.append(question['owner']['reputation'])
+                questionitem.append(question['score'])
+                questionitem.append(question['view_count'])
+                questionitem.append(question['title'])
+                questionitem.append(question['body'])
+                with open('questions.csv', 'a') as csvfile:
+                    writer = csv.writer(csvfile, delimiter=',')
+                    writer.writerow(questionitem)
+                if question['answer_count']>0:
+                    answers = question['answers']
+                    for answer in answers:
+                        # ['toolname', 'answer_id', 'question_id', 'comment_count', 'creation_date', 'is_accepted',
+                        # 'last_activity_date', 'owner_reputation', 'owner_id', 'score', 'body']
+                        answeritem = []
+                        answeritem.append(tool)
+                        answeritem.append(answer['answer_id'])
+                        answeritem.append(answer['question_id'])
+                        answeritem.append(answer['comment_count'])
+                        answeritem.append(
+                            datetime.datetime.fromtimestamp(answer['creation_date']).strftime('%Y/%m/%d, %H:%M:%S'))
+                        answeritem.append(answer['is_accepted'])
+                        answeritem.append(datetime.datetime.fromtimestamp(answer['last_activity_date']).strftime(
+                            '%Y/%m/%d, %H:%M:%S'))
+                        answeritem.append(answer['owner']['reputation'])
+                        answeritem.append(answer['owner']['user_id'])
+                        answeritem.append(answer['score'])
+                        answeritem.append(answer['body'])
+
+    #pprint(thejson)
 
 
 
-print(getMaxPageNumberStackOverflow("AppDynamics"))
