@@ -159,5 +159,6 @@ def getStackOverFlowDataset(toollist):
 #getStackOverFlowDataset(toolnames)
 
 df_questions = pd.read_csv('questions.csv')
+df_answers = pd.read_csv('answers.csv')
 print(df_questions.shape)
-print(df_questions.head(20))
+print(df_answers.shape)
