@@ -85,9 +85,9 @@ def getStackOverFlowDataset(toollist):
                     # 'owner_reputation', 'score', 'view_count', 'title', 'body']
                     questionitem.append(tool)
                     questionitem.append(question['question_id'])
-                    if question['is_answered']:
+                    try:
                         questionitem.append(question['accepted_answer_id'])
-                    else:
+                    except KeyError:
                         questionitem.append(np.NaN)
                     questionitem.append(question['answer_count'])
                     questionitem.append(
