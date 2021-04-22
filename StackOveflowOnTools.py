@@ -101,8 +101,14 @@ def getStackOverFlowDataset(toollist):
                         questionitem.append(datetime.datetime.fromtimestamp(question['last_edit_date']).strftime('%Y/%m/%d, %H:%M:%S'))
                     except KeyError:
                         questionitem.append(np.NaN)
-                    questionitem.append(question['owner']['user_id'])
-                    questionitem.append(question['owner']['reputation'])
+                    try:
+                        questionitem.append(question['owner']['user_id'])
+                    except KeyError:
+                        questionitem.append(np.NaN)
+                    try:
+                        questionitem.append(question['owner']['reputation'])
+                    except KeyError:
+                        questionitem.append(np.NaN)
                     questionitem.append(question['score'])
                     questionitem.append(question['view_count'])
                     questionitem.append(question['title'])
@@ -127,8 +133,14 @@ def getStackOverFlowDataset(toollist):
                                 answeritem.append(datetime.datetime.fromtimestamp(answer['last_activity_date']).strftime('%Y/%m/%d, %H:%M:%S'))
                             except KeyError:
                                 answeritem.append(np.NaN)
-                            answeritem.append(answer['owner']['reputation'])
-                            answeritem.append(answer['owner']['user_id'])
+                            try:
+                                answeritem.append(answer['owner']['reputation'])
+                            except KeyError:
+                                answeritem.append(np.NaN)
+                            try:
+                                answeritem.append(answer['owner']['user_id'])
+                            except KeyError:
+                                answeritem.append(np.NaN)
                             answeritem.append(answer['score'])
                             answeritem.append(answer['body'])
                             with open('answers.csv', 'a') as csvfile:
