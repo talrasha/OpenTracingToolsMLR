@@ -52,7 +52,7 @@ def initiateCSVs():
         writer.writerow(comment_features)
 
 def getStackOverFlowDataset(toollist):
-    params = {
+    paramsorigin = {
         "key": key,
         "pagesize": 100,
         "sort": "votes",
@@ -62,57 +62,81 @@ def getStackOverFlowDataset(toollist):
     theQuery = STACKEXCHANGE + VERSION + 'search/advanced'
     for tool in toollist:
         toolsearch = tooldict[tool]
-        has_more = 1
-        params['page'] = 0
-        params['title'] = tool
-        if has_more:
-            params['page'] = params['page'] + 1
-            theResult = requests.get(theQuery, params=params)
-            thejson = theResult.json()
-            questionslist = thejson['items']
-            for question in questionslist:
-                questionitem = []
-                #['toolname','question_id', 'accepted_answer_id', 'answer_count', 'creation_date',
-                # 'is_answered', 'last_activity_date', 'last_edit_date', 'owner_id'
-                # 'owner_reputation', 'score', 'view_count', 'title', 'body']
-                questionitem.append(tool)
-                questionitem.append(question['question_id'])
-                questionitem.append(question['accepted_answer_id'])
-                questionitem.append(question['answer_count'])
-                questionitem.append(datetime.datetime.fromtimestamp(question['creation_date']).strftime('%Y/%m/%d, %H:%M:%S'))
-                questionitem.append(question['is_answered'])
-                questionitem.append(datetime.datetime.fromtimestamp(question['last_activity_date']).strftime('%Y/%m/%d, %H:%M:%S'))
-                questionitem.append(datetime.datetime.fromtimestamp(question['last_edit_date']).strftime('%Y/%m/%d, %H:%M:%S'))
-                questionitem.append(question['owner']['user_id'])
-                questionitem.append(question['owner']['reputation'])
-                questionitem.append(question['score'])
-                questionitem.append(question['view_count'])
-                questionitem.append(question['title'])
-                questionitem.append(question['body'])
-                with open('questions.csv', 'a') as csvfile:
-                    writer = csv.writer(csvfile, delimiter=',')
-                    writer.writerow(questionitem)
-                if question['answer_count']>0:
-                    answers = question['answers']
-                    for answer in answers:
-                        # ['toolname', 'answer_id', 'question_id', 'comment_count', 'creation_date', 'is_accepted',
-                        # 'last_activity_date', 'owner_reputation', 'owner_id', 'score', 'body']
-                        answeritem = []
-                        answeritem.append(tool)
-                        answeritem.append(answer['answer_id'])
-                        answeritem.append(answer['question_id'])
-                        answeritem.append(answer['comment_count'])
-                        answeritem.append(
-                            datetime.datetime.fromtimestamp(answer['creation_date']).strftime('%Y/%m/%d, %H:%M:%S'))
-                        answeritem.append(answer['is_accepted'])
-                        answeritem.append(datetime.datetime.fromtimestamp(answer['last_activity_date']).strftime(
-                            '%Y/%m/%d, %H:%M:%S'))
-                        answeritem.append(answer['owner']['reputation'])
-                        answeritem.append(answer['owner']['user_id'])
-                        answeritem.append(answer['score'])
-                        answeritem.append(answer['body'])
+        print("----> "+toolsearch)
+        for searcharea in ['title', 'body']:
+            print("----> "+searcharea)
+            params = paramsorigin.copy()
+            has_more = 1
+            params['page'] = 0
+            params[searcharea] = toolsearch
+            if has_more:
+                params['page'] = params['page'] + 1
+                print("----> Page "+str(params['page']))
+                theResult = requests.get(theQuery, params=params)
+                thejson = theResult.json()
+                questionslist = thejson['items']
+                count = 0
+                for question in questionslist:
+                    count = count + 1
+                    print("----> Question "+str(count))
+                    questionitem = []
+                    # ['toolname','question_id', 'accepted_answer_id', 'answer_count', 'creation_date',
+                    # 'is_answered', 'last_activity_date', 'last_edit_date', 'owner_id'
+                    # 'owner_reputation', 'score', 'view_count', 'title', 'body']
+                    questionitem.append(tool)
+                    questionitem.append(question['question_id'])
+                    if question['is_answered']:
+                        questionitem.append(question['accepted_answer_id'])
+                    else:
+                        questionitem.append(np.NaN)
+                    questionitem.append(question['answer_count'])
+                    questionitem.append(
+                        datetime.datetime.fromtimestamp(question['creation_date']).strftime('%Y/%m/%d, %H:%M:%S'))
+                    questionitem.append(question['is_answered'])
+                    try:
+                        questionitem.append(datetime.datetime.fromtimestamp(question['last_activity_date']).strftime('%Y/%m/%d, %H:%M:%S'))
+                    except KeyError:
+                        questionitem.append(np.NaN)
+                    try:
+                        questionitem.append(datetime.datetime.fromtimestamp(question['last_edit_date']).strftime('%Y/%m/%d, %H:%M:%S'))
+                    except KeyError:
+                        questionitem.append(np.NaN)
+                    questionitem.append(question['owner']['user_id'])
+                    questionitem.append(question['owner']['reputation'])
+                    questionitem.append(question['score'])
+                    questionitem.append(question['view_count'])
+                    questionitem.append(question['title'])
+                    questionitem.append(question['body'])
+                    with open('questions.csv', 'a') as csvfile:
+                        writer = csv.writer(csvfile, delimiter=',')
+                        writer.writerow(questionitem)
+                    if question['answer_count'] > 0:
+                        answers = question['answers']
+                        for answer in answers:
+                            # ['toolname', 'answer_id', 'question_id', 'comment_count', 'creation_date', 'is_accepted',
+                            # 'last_activity_date', 'owner_reputation', 'owner_id', 'score', 'body']
+                            answeritem = []
+                            answeritem.append(tool)
+                            answeritem.append(answer['answer_id'])
+                            answeritem.append(answer['question_id'])
+                            answeritem.append(answer['comment_count'])
+                            answeritem.append(
+                                datetime.datetime.fromtimestamp(answer['creation_date']).strftime('%Y/%m/%d, %H:%M:%S'))
+                            answeritem.append(answer['is_accepted'])
+                            try:
+                                answeritem.append(datetime.datetime.fromtimestamp(answer['last_activity_date']).strftime('%Y/%m/%d, %H:%M:%S'))
+                            except KeyError:
+                                answeritem.append(np.NaN)
+                            answeritem.append(answer['owner']['reputation'])
+                            answeritem.append(answer['owner']['user_id'])
+                            answeritem.append(answer['score'])
+                            answeritem.append(answer['body'])
+                            with open('answers.csv', 'a') as csvfile:
+                                writer = csv.writer(csvfile, delimiter=',')
+                                writer.writerow(answeritem)
+                    else:
+                        continue
+            else:
+                continue
 
-    #pprint(thejson)
-
-
-
+getStackOverFlowDataset(toolnames)
