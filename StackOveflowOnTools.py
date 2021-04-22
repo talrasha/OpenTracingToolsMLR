@@ -83,6 +83,10 @@ def getStackOverFlowDataset(toollist):
                     # ['toolname','question_id', 'accepted_answer_id', 'answer_count', 'creation_date',
                     # 'is_answered', 'last_activity_date', 'last_edit_date', 'owner_id'
                     # 'owner_reputation', 'score', 'view_count', 'title', 'body']
+                    #toolname, question_id, accepted_answer_id, answer_count, creation_date,
+                    # is_answered, last_activity_date, last_edit_date, owner_id,
+                    # owner_reputation, score, view_count, title, body
+
                     questionitem.append(tool)
                     questionitem.append(question['question_id'])
                     try:
@@ -152,4 +156,8 @@ def getStackOverFlowDataset(toollist):
             else:
                 continue
 
-getStackOverFlowDataset(toolnames)
+#getStackOverFlowDataset(toolnames)
+
+df_questions = pd.read_csv('questions.csv')
+print(df_questions.shape)
+print(df_questions.head(20))
