@@ -11,6 +11,8 @@ from difflib import SequenceMatcher
 import datetime
 import matplotlib.pyplot as plt
 import operator
+from nltk.tokenize import sent_tokenize
+
 
 desired_width=320
 pd.set_option('display.width', desired_width)
@@ -48,11 +50,33 @@ def displayQuestionAnswerDistribution():
     plt.xlabel("Tools")
     plt.ylabel("Number")
     ax.set_xticks(x)
-    ax.set_xticklabels(toollabels)
+    ax.set_xticklabels(toollabels, rotation='vertical')
     ax.legend()
     ax.bar_label(rect1, padding=3)
     ax.bar_label(rect2, padding=3)
     fig.tight_layout()
-    #plt.savefig('methoddistribution.png', bbox_inches='tight')
+    plt.savefig('QAdistribution.png', bbox_inches='tight')
     plt.show()
+
+testingString = df_questions.loc[df_questions['question_id']==53397807, 'body'].values[0]
+
+def fromParagrph2SentenceList(thestring):
+    plist = [x.split('<p>')[1] for x in thestring.split('</p>')[:-1]]
+    sentences = []
+    for p in plist:
+        tsents = sent_tokenize(p)
+        for sent in tsents:
+            if '<a' in sent:
+                if sent.split('<a')[0]:
+                    sentences.append(sent.split('<a')[0] + sent.split('/a>')[-1])
+                else:
+                    continue
+            elif '<img' in sent:
+                if sent.split('<img')[0]:
+                    sentences.append(sent.split('<img')[0] + sent.split('/img>')[-1])
+                else:
+                    continue
+            else:
+                sentences.append(sent)
+    return sentences
 
