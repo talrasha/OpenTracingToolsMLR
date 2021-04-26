@@ -24,6 +24,8 @@ df_answers = pd.read_csv('answers.csv')
 df_questions.drop_duplicates(subset=['question_id'], inplace=True)
 df_answers.drop_duplicates(subset=['answer_id'], inplace=True)
 
+testingString = df_questions.loc[df_questions['question_id']==36596678, 'body'].values[0]
+
 def displayQuestionAnswerDistribution():
     a4_dims = (11.7, 8.27)
     smaller_dim = (8, 4.5)
@@ -58,13 +60,12 @@ def displayQuestionAnswerDistribution():
     plt.savefig('QAdistribution.png', bbox_inches='tight')
     plt.show()
 
-testingString = df_questions.loc[df_questions['question_id']==53397807, 'body'].values[0]
-
 def fromParagrph2SentenceList(thestring):
-    plist = [x.split('<p>')[1] for x in thestring.split('</p>')[:-1]]
+    prelist = thestring.split('</p>')[:-1]
+    plist = [x.split('<p>')[1] for x in prelist]
     sentences = []
     for p in plist:
-        tsents = sent_tokenize(p)
+        tsents = sent_tokenize(str(p))
         for sent in tsents:
             if '<a' in sent:
                 if sent.split('<a')[0]:
@@ -79,4 +80,23 @@ def fromParagrph2SentenceList(thestring):
             else:
                 sentences.append(sent)
     return sentences
+
+def getSentenceLevelDataset():
+    question_features = ['toolname', 'question_id', 'accepted_answer_id', 'answer_count', 'creation_date',
+                         'is_answered', 'last_activity_date', 'last_edit_date', 'owner_id', 'owner_reputation', 'score',
+                         'view_count', 'title', 'sentence']
+    answer_features = ['toolname', 'answer_id', 'question_id', 'comment_count', 'creation_date', 'is_accepted',
+                       'last_activity_date', 'owner_reputation', 'owner_id', 'score', 'sentence']
+    with open('questions_sents.csv', 'a') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerow(question_features)
+    questionlen = df_questions.shape[0]
+    for i in range(questionlen):
+        questionitem = df_questions.iloc[i].values.tolist()
+        sentences = fromParagrph2SentenceList(questionitem[-1])
+        for sent in sentences:
+            with open('questions_sents.csv', 'a', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',')
+                questionitem = questionitem[:-1]+[sent]
+                writer.writerow(questionitem)
 

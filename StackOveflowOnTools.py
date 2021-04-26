@@ -33,7 +33,7 @@ for item in toolnames:
     tooldict[item] = df_toolinfo.loc[df_toolinfo['tool']==item, 'searchstr'].values[0]
 
 question_features = ['toolname','question_id', 'accepted_answer_id', 'answer_count', 'creation_date',
-                     'is_answered', 'last_activity_date', 'last_edit_date', 'owner_id'
+                     'is_answered', 'last_activity_date', 'last_edit_date', 'owner_id',
                      'owner_reputation', 'score', 'view_count', 'title', 'body']
 answer_features = ['toolname', 'answer_id', 'question_id', 'comment_count', 'creation_date', 'is_accepted',
                    'last_activity_date', 'owner_reputation', 'owner_id', 'score', 'body']
