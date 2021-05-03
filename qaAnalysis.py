@@ -12,6 +12,7 @@ import datetime
 import matplotlib.pyplot as plt
 import operator
 from nltk.tokenize import sent_tokenize
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
 
 desired_width=320
@@ -101,27 +102,6 @@ def displayQuestionAnswerMediumDZoneDistribution():
     plt.savefig('QAMDdistribution.png', bbox_inches='tight')
     plt.show()
 
-def fromParagrph2SentenceList(thestring):
-    prelist = thestring.split('</p>')[:-1]
-    plist = [x.split('<p>')[1] for x in prelist]
-    sentences = []
-    for p in plist:
-        tsents = sent_tokenize(str(p))
-        for sent in tsents:
-            if '<a' in sent:
-                if sent.split('<a')[0]:
-                    sentences.append(sent.split('<a')[0] + sent.split('/a>')[-1])
-                else:
-                    continue
-            elif '<img' in sent:
-                if sent.split('<img')[0]:
-                    sentences.append(sent.split('<img')[0] + sent.split('/img>')[-1])
-                else:
-                    continue
-            else:
-                sentences.append(sent)
-    return sentences
-
 def fromParagrph2SentenceListUpdated(thestring):
     prelist = thestring.split('</p>')[:-1]
     plist = []
@@ -194,4 +174,27 @@ def getSentenceLevelDataset4Answers():
                 writer = csv.writer(csvfile, delimiter=',')
                 answeritem = answeritem[:-1]+[sent]
                 writer.writerow(answeritem)
+
+def sentimentanalysis(np_textarray):
+    sid = SentimentIntensityAnalyzer()
+    ss = sid.polarity_scores(np_textarray)
+    return ss
+
+def addsentimentvalues(pd_reviews):
+    pd_reviews['ss'] = pd_reviews['sentence'].apply(str).apply(sentimentanalysis)
+    np_ss = list(pd_reviews['ss'].as_matrix())
+    neg = []
+    pos = []
+    neu = []
+    com = []
+    for item in np_ss:
+        neg.append(item['neg'])
+        pos.append(item['pos'])
+        neu.append(item['neu'])
+        com.append(item['compound'])
+    pd_reviews['neg'] = neg
+    pd_reviews['pos'] = pos
+    pd_reviews['neu'] = neu
+    pd_reviews['com'] = com
+    return pd_reviews.drop(['ss'], axis=1)
 
