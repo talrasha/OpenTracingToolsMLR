@@ -122,6 +122,46 @@ def fromParagrph2SentenceList(thestring):
                 sentences.append(sent)
     return sentences
 
+def fromParagrph2SentenceListUpdated(thestring):
+    prelist = thestring.split('</p>')[:-1]
+    plist = []
+    for item in prelist:
+        if '<p>' not in item:
+            plist.append(item)
+        elif len(item.split('<p>'))>1:
+            plist.append(' '.join(item.split('<p>')[1:]))
+        else:
+            plist.append(item.split('<p>')[1])
+    #plist = [x.split('<p>')[1] for x in prelist]
+    sentences = []
+    for p in plist:
+        temp = str(p).split('>')
+        temp_cleaned = []
+        for piece in temp:
+            if '<' in piece:
+                if piece.split('<')[0]:
+                    temp_cleaned.append(piece.split('<')[0])
+                else:
+                    continue
+            else:
+                temp_cleaned.append(piece)
+        cleanedsent = ' '.join(temp_cleaned)
+        tsents = sent_tokenize(str(cleanedsent))
+        for sent in tsents:
+            if '<a' in sent:
+                if sent.split('<a')[0]:
+                    sentences.append(sent.split('<a')[0] + sent.split('/a>')[-1])
+                else:
+                    continue
+            elif '<img' in sent:
+                if sent.split('<img')[0]:
+                    sentences.append(sent.split('<img')[0] + sent.split('/img>')[-1])
+                else:
+                    continue
+            else:
+                sentences.append(sent)
+    return sentences
+
 def getSentenceLevelDataset():
     question_features = ['toolname', 'question_id', 'accepted_answer_id', 'answer_count', 'creation_date',
                          'is_answered', 'last_activity_date', 'last_edit_date', 'owner_id', 'owner_reputation', 'score',
@@ -141,4 +181,3 @@ def getSentenceLevelDataset():
                 questionitem = questionitem[:-1]+[sent]
                 writer.writerow(questionitem)
 
-displayQuestionAnswerMediumDZoneDistribution()
