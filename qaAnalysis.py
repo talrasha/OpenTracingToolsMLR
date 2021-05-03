@@ -60,6 +60,47 @@ def displayQuestionAnswerDistribution():
     plt.savefig('QAdistribution.png', bbox_inches='tight')
     plt.show()
 
+def displayQuestionAnswerMediumDZoneDistribution():
+    a4_dims = (11.7, 8.27)
+    smaller_dim = (8, 4.5)
+    fig, ax = plt.subplots(figsize=smaller_dim)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    df_questions_gbtools = df_questions.groupby('toolname').count()
+    df_questions_gbtools.reset_index(inplace=True)
+    df_answers_gbtools = df_answers.groupby('toolname').count()
+    df_answers_gbtools.reset_index(inplace=True)
+
+    toollabels = df_questions_gbtools.loc[:,'toolname'].values.tolist()
+    toolquestioncount = []
+    toolanswercount =[]
+    for tool in toollabels:
+        toolquestioncount.append(df_questions_gbtools.loc[df_questions_gbtools['toolname']==tool, 'question_id'].values[0])
+        toolanswercount.append(df_answers_gbtools.loc[df_answers_gbtools['toolname']==tool, 'answer_id'].values[0])
+    x = np.arange(len(toollabels))
+    width = 0.15
+    rect1 = ax.bar(x - width*1.5, toolquestioncount, width, label='StackOverflow Qs.')
+    rect2 = ax.bar(x - width/2, toolanswercount, width, label='StackOverflow As.')
+
+    mediumpostcount = [25,132,4,1,7,63,1,2,1,26,51]
+    dzonepostcount = [370,197,35,3,45,122,48,22,2,12,188]
+    rect3 = ax.bar(x + width/2, mediumpostcount, width, label='Medium Articles')
+    rect4 = ax.bar(x + width*1.5, dzonepostcount, width, label='DZone Articles')
+
+    plt.title("Social Media Content Volume for each Tool")
+    plt.xlabel("Tools")
+    plt.ylabel("Number")
+    ax.set_xticks(x)
+    ax.set_xticklabels(toollabels, rotation='vertical')
+    ax.legend()
+    ax.bar_label(rect1, padding=3, rotation='vertical', fontsize=8)
+    ax.bar_label(rect2, padding=3, rotation='vertical', fontsize=8)
+    ax.bar_label(rect3, padding=3, rotation='vertical', fontsize=8)
+    ax.bar_label(rect4, padding=3, rotation='vertical', fontsize=8)
+    fig.tight_layout()
+    plt.savefig('QAMDdistribution.png', bbox_inches='tight')
+    plt.show()
+
 def fromParagrph2SentenceList(thestring):
     prelist = thestring.split('</p>')[:-1]
     plist = [x.split('<p>')[1] for x in prelist]
@@ -100,3 +141,4 @@ def getSentenceLevelDataset():
                 questionitem = questionitem[:-1]+[sent]
                 writer.writerow(questionitem)
 
+displayQuestionAnswerMediumDZoneDistribution()
