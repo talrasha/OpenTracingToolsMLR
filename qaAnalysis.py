@@ -162,22 +162,36 @@ def fromParagrph2SentenceListUpdated(thestring):
                 sentences.append(sent)
     return sentences
 
-def getSentenceLevelDataset():
+def getSentenceLevelDataset4Questions():
     question_features = ['toolname', 'question_id', 'accepted_answer_id', 'answer_count', 'creation_date',
                          'is_answered', 'last_activity_date', 'last_edit_date', 'owner_id', 'owner_reputation', 'score',
                          'view_count', 'title', 'sentence']
-    answer_features = ['toolname', 'answer_id', 'question_id', 'comment_count', 'creation_date', 'is_accepted',
-                       'last_activity_date', 'owner_reputation', 'owner_id', 'score', 'sentence']
     with open('questions_sents.csv', 'a') as csvfile:
         writer = csv.writer(csvfile, delimiter=',')
         writer.writerow(question_features)
     questionlen = df_questions.shape[0]
     for i in range(questionlen):
         questionitem = df_questions.iloc[i].values.tolist()
-        sentences = fromParagrph2SentenceList(questionitem[-1])
+        sentences = fromParagrph2SentenceListUpdated(questionitem[-1])
         for sent in sentences:
             with open('questions_sents.csv', 'a', encoding='utf-8') as csvfile:
                 writer = csv.writer(csvfile, delimiter=',')
                 questionitem = questionitem[:-1]+[sent]
                 writer.writerow(questionitem)
+
+def getSentenceLevelDataset4Answers():
+    answer_features = ['toolname', 'answer_id', 'question_id', 'comment_count', 'creation_date', 'is_accepted',
+                       'last_activity_date', 'owner_reputation', 'owner_id', 'score', 'sentence']
+    with open('answers_sents.csv', 'a') as csvfile:
+        writer = csv.writer(csvfile, delimiter=',')
+        writer.writerow(answer_features)
+    answerlen = df_answers.shape[0]
+    for i in range(answerlen):
+        answeritem = df_answers.iloc[i].values.tolist()
+        sentences = fromParagrph2SentenceListUpdated(answeritem[-1])
+        for sent in sentences:
+            with open('answers_sents.csv', 'a', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',')
+                answeritem = answeritem[:-1]+[sent]
+                writer.writerow(answeritem)
 
