@@ -24,6 +24,8 @@ df_questions = pd.read_csv('questions.csv')
 df_answers = pd.read_csv('answers.csv')
 df_questions.drop_duplicates(subset=['question_id'], inplace=True)
 df_answers.drop_duplicates(subset=['answer_id'], inplace=True)
+df_questions_sent = pd.read_csv('questions_sents.csv')
+df_answers_sent = pd.read_csv('answers_sents.csv')
 
 testingString = df_questions.loc[df_questions['question_id']==36596678, 'body'].values[0]
 
@@ -182,7 +184,7 @@ def sentimentanalysis(np_textarray):
 
 def addsentimentvalues(pd_reviews):
     pd_reviews['ss'] = pd_reviews['sentence'].apply(str).apply(sentimentanalysis)
-    np_ss = list(pd_reviews['ss'].as_matrix())
+    np_ss = list(pd_reviews['ss'].to_numpy())
     neg = []
     pos = []
     neu = []
@@ -198,3 +200,5 @@ def addsentimentvalues(pd_reviews):
     pd_reviews['com'] = com
     return pd_reviews.drop(['ss'], axis=1)
 
+addsentimentvalues(df_questions_sent).to_csv('questions_sentiment.csv', index=False, encoding='utf-8')
+addsentimentvalues(df_answers_sent).to_csv('answers_sentiment.csv', index=False, encoding='utf-8')
