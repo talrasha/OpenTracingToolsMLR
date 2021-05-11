@@ -34,6 +34,7 @@ df_questions_sent = pd.read_csv('questions_sents.csv')
 df_answers_sent = pd.read_csv('answers_sents.csv')
 
 testingString = df_questions.loc[df_questions['question_id']==36596678, 'body'].values[0]
+testingDzoneLink = "https://dzone.com/articles/appdynamics-introduces-support-for-sap"
 
 def displayQuestionAnswerDistribution():
     a4_dims = (11.7, 8.27)
@@ -209,5 +210,17 @@ def addsentimentvalues(pd_reviews):
 def readStaticHTMLArticle(thelink):
     html = urlopen(thelink, context=context)
     bsObj = BeautifulSoup(html.read(), 'lxml')
-    print(bsObj.prettify())
+    textitems = bsObj.find('script', {'type': 'application/ld+json'}).contents
+    #jsondata = json.load(textitems[0])
+    #print(type(textitems[0]))
+    #print(bsObj.prettify())
+    data = json.loads(textitems[0].strip())
+    return data['articleBody']
+    #for item in textitems:
+    #    print(item)
 
+with open('appdynamics.txt', 'r', encoding='utf-8') as txtfile:
+    linklist = [x.strip('\n') for x in txtfile.readlines()]
+
+#print(len(linklist))
+#print(len(list(set(linklist))))
