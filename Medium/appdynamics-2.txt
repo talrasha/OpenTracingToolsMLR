@@ -1,0 +1,222 @@
+Installing AppDynamics Cluster Agent On OpenShift 3.11
+Vinayak Pandey
+Vinayak Pandey
+
+Oct 29, 2020·5 min read
+
+
+
+
+Reference: https://docs.appdynamics.com/display/PRO45/Install+the+Cluster+Agent
+AppDynamics cluster agent can be used to monitor OpenShift/Kubernetes cluster. We’ll refer to the reference link mentioned above to setup cluster agent on OpenShift 3.11.
+Step 1: Create a new project using oc new-project appdynamics
+Step 2: Download cluster agent 20.7 from https://download.appdynamics.com/download/ and unzip it on the server. You’ll need to create an account with appdynamics before you can download packages.
+Step 3: If Dockerhub registry is not allowed in your cluster, you need to modify /etc/sysconfig/docker and allow it temporarily. Edit /etc/sysconfig/docker file and allow docker hub by adding
+--add-registry docker.io
+in ADD_REGISTRY line. You need to restart docker by executing sudo service docker restart command.
+Step 4: Now we’ll pull some images from docker hub and store it in our local repository. Execute following commands on the host:
+sudo docker pull docker.io/appdynamics/cluster-agent-operator:0.5.2
+sudo docker pull docker.io/appdynamics/cluster-agent:20.7.0
+sudo docker pull docker.io/appdynamics/machine-agent-analytics:latest
+sudo docker pull docker.io/appdynamics/machine-agent-netviz:latest
+sudo docker pull docker.io/appdynamics/java-agent:latest
+Step 5: Now we’ll push all these images to our local OpenShift registry.
+oc login
+
+docker login -u `whoami` -p `oc whoami -t` docker-registry.default.svc:5000
+docker tag docker.io/appdynamics/cluster-agent-operator:0.5.2 docker-registry.default.svc:5000/appdynamics/cluster-agent-operator:0.5.2
+docker push docker-registry.default.svc:5000/appdynamics/cluster-agent-operator:0.5.2
+Execute these commands for all 5 images we pulled from docker hub. After this you can remove docker.io from allowed registries in /etc/sysconfig/docker
+Step 6: Now edit cluster-agent-operator-openshift-1.14-or-less.yaml file which we got when we unzipped cluster-agent package and change image to docker-registry.default.svc:5000/appdynamics/cluster-agent-operator:0.5.2
+Now deploy cluster-agent-operator using oc project appdynamics && oc create -f cluster-agent-operator-openshift-1.14-or-less.yaml
+Once done, verify that the AppDynamics Operator is running using oc -n appdynamics get pods
+Step 7: Login to AppD controller url and create a user in controller console named api-user with Account Owner permission.
+Step 8: Create a secret with the Controller access key using oc -n appdynamics create secret generic cluster-agent-secret — from-literal=controller_key=<controller_access_key> — from-literal=api-user=”api-user@<account_name>:<password>”
+Step 9: Add necessary permission to appdynamics-cluster-agent service account so that pod can start process with the specified UID. For this, execute
+oc adm policy add-scc-to-user anyuid -z appdynamics-cluster-agent
+Step 10: Now we need to download controller SSL certificate .Login to Enterprise Console-Configurations-AppServer Configurations-SSL Certificate Management-Edit Certificate and copy the content of certificate into a file named custom-ssl.pem.
+This is required only for hosted AppDynamics. If you are using AppDynamics as SaaS, then you don’t need to do this.
+Step 11: Create a secret using following command
+oc -n appdynamics create secret generic ssl-cert --from-file=custom-ssl.pem
+Step 12: Now edit cluster-agent.yaml. You can refer to https://docs.appdynamics.com/display/PRO45/Configure+the+Cluster+Agent for all the available specs. You can use given yaml file as reference. Provide values for controllerUrl, account and nsToInstrumentRegex
+apiVersion: appdynamics.com/v1alpha1
+kind: Clusteragent
+metadata:
+  name: k8s-cluster-agent
+  namespace: appdynamics
+spec:
+  appName: "openshift_prod"
+  controllerUrl: "https://xyz.com:443"
+  account: <account_name>
+  customSSLSecret: "ssl-cert"
+  # docker image info
+  image: "docker-registry.default.svc:5000/appdynamics/cluster-agent:20.7.0"
+  serviceAccountName: appdynamics-cluster-agent
+  ### Uncomment the following two lines if you need pull secrets
+  #imagePullSecrets:
+  #  name: "<your-docker-pull-secret-name>"
+  instrumentationMethod: Env
+  defaultAppName: App
+  nsToInstrumentRegex: project1|project2
+  resourcesToInstrument: [DeploymentConfig]
+  imageInfo:
+    java:
+      image: "docker-registry.default.svc:5000/appdynamics/java-agent:latest"
+      agentMountPath: /opt/appdynamics
+  instrumentationRules:
+    - namespaceRegex: project1|project2
+      env: JAVA_OPTIONS
+  netvizInfo:
+    bciEnabled: true
+    port: 3892
+Step 13: Now deploy cluster-agent using oc create -f cluster-agent.yaml. Check pod logs using oc logs and ensure there is no error while registering cluster-agent.
+Once cluster agent is up, it will automatically instrument agent as init container to the pods running in the projects which you mentioned in cluster-agent.yaml file. You can check the status of instrumentation using oc get pods -n <project1>-w command.
+Once registration process is successful, you’ll see cluster listed in AppDynamics controller console by selecting Servers-Clusters
+By default pods in default namespace are monitored. You can add additional namespaces in cluster-agent.yaml file itself or via controller console.Go to controller console and click on Settings-AppDynamics Agents-Cluster Agents-Select Agent-Configure and add Namespaces
+Step 14: Next we’ll install infra monitoring agent. Execute following command to add necessary permission to service account.
+oc adm policy add-scc-to-user privileged -z appdynamics-infraviz
+Step 15: Use following infraviz.yaml file. Make sure to change values for controllerUrl, account and globalAccount which you can get from AppDynamics Controller settings.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: appdynamics-infraviz
+  namespace: appdynamics
+---
+apiVersion: policy/v1beta1
+kind: PodSecurityPolicy
+metadata:
+  name: appdynamics-infraviz
+  annotations:
+    seccomp.security.alpha.kubernetes.io/allowedProfileNames: '*'
+spec:
+  privileged: true
+  allowPrivilegeEscalation: true
+  allowedCapabilities:
+  - '*'
+  volumes:
+  - '*'
+  hostNetwork: true
+  hostIPC: true
+  hostPID: true
+  hostPorts:
+  - min: 0
+    max: 65535
+  runAsUser:
+    rule: 'RunAsAny'
+  seLinux:
+    rule: 'RunAsAny'
+  supplementalGroups:
+    rule: 'RunAsAny'
+  fsGroup:
+    rule: 'RunAsAny'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: appdynamics-infraviz
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  - nodes
+  - events
+  - namespaces
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups:
+  - apps
+  resources:
+  - statefulsets
+  - deployments
+  - replicasets
+  - daemonsets
+  verbs:
+  - get
+  - watch
+  - list
+- apiGroups: 
+  - "batch"
+  - "extensions"
+  resources: 
+  - "jobs"
+  verbs: 
+  - "get"
+  - "list"
+  - "watch"
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: appdynamics-infraviz
+subjects:
+- kind: ServiceAccount
+  name: appdynamics-infraviz
+  namespace: appdynamics
+roleRef:
+  kind: ClusterRole
+  name: appdynamics-infraviz
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: appdynamics-infraviz
+  namespace: appdynamics
+rules:
+- apiGroups:
+  - extensions
+  resources:
+  - podsecuritypolicies
+  resourceNames:
+  - appdynamics-infraviz
+  verbs:
+  - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: appdynamics-infraviz
+  namespace: appdynamics
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: appdynamics-infraviz
+subjects:
+- kind: ServiceAccount
+  name: appdynamics-infraviz
+  namespace: appdynamics
+---
+apiVersion: appdynamics.com/v1alpha1
+kind: InfraViz
+metadata:
+  name: appd-infraviz
+  namespace: appdynamics
+spec:
+  controllerUrl: "https://xyz.com:443"
+  image: "docker-registry.default.svc:5000/appdynamics/machine-agent-analytics:latest"
+  account: <account>
+  globalAccount: <global_account>
+  netVizImage: "docker-registry.default.svc:5000/appdynamics/machine-agent-netviz:latest"
+  netVizPort: 3892
+  enableDockerViz: "false"
+  enableMasters: true
+  stdoutLogging: true
+  resources:
+    limits:
+      cpu: 500m
+      memory: "1G"
+    requests:
+      cpu: 200m
+      memory: "800M"
+Step 16: Execute oc apply -f infraviz.yaml command. Check whether all pods are up and running using oc get pods -n appdynamics command.
+Once this setup is done, you can verify agent details.
+
+Note: If new pods in your monitored projects are getting restarted, you may need to raise CPU limits for your deployment config.
+In cluster-agent pod logs, if you see Failed to send agent registration request: Post “https://xyz.com:443/sim/v2/agent/clusterRegistration": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
+then check if your server is using a proxy to connect to external urls. In that case add below property in cluster-agent.yaml
+proxyUrl: <protocol>://<host>:<port>
+Then redeploy the cluster agent. This should resolve the issue.

@@ -1,0 +1,25 @@
+How I fell in love with VMware back again
+Venkat Kapisetti
+Venkat Kapisetti
+
+Aug 21, 2020·2 min read
+
+
+
+
+I have been introduced to VMware in early days of my career and there used to be wow factor with VMware (VMotion, HA and DRS and getting to know the Internals of VMware).
+I took a loan from HDFC to complete my VCP certification in 2008. Do you need to take a loan to get certified :) ( These days you can do it as low as 100–200$, training and examination cost is 2000$ in 2008). So happy to attend the VMware conferences in Chennai and one time received below from Krishnan- the Apac Technical coordinator.
+
+I have built VMware clusters on IBM x3850 and testing on my laptop at least 10–20 times( High end laptops at that time with 8 GB RAM and VMware Worksattion) to test and validate each & every scenario before, I deploy it in production.
+The early success came to our internal IT, when we migrated HRMS system of 16,000 employees to VMware and it worked like a charm and tested HA with fun.
+I have got the oppurtunity for the next 2008–2014 years on variours VMware products — VMware Lab Manager, vCloud Director, ESXi, Vrealize suite and lately with Vrealize Automation and NSX ( Vsheild Manager).
+Slowly, The innovation of VMware slipped during 2015–2019 and I thought VMware have slowed down after NSX flagship.
+There are very few highlights with each VMworld — Openstack VMO and with version 1 — Kubernetes and not impressed as before and started thinking that VMware will die. VMware realized and did M&A and got back on track.
+Which helped VMware to come back with lot of new innovations which includes
+VMware HCX — Hybrid extension — Cloud Mobility ( VM migrations across clouds)
+VMware on AWS ( Now on Azure, Oracle, GCP and IBM clouds)
+Tanzu Kubernetes Grid
+Aquring Carbon Black
+VMware dimensions — edge solution
+Now, VMware gained my love back and I am happy to create new solutions to solve Business problems.
+Solve Hybrid & Edge & cloud problems and you will be there forever.

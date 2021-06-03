@@ -1,0 +1,22 @@
+Buddy v1.5.54 Released
+Buddy
+Buddy
+
+Nov 28, 2017·1 min read
+
+
+
+
+
+New features
+New integration: Rollbar
+New integration: Datadog
+You can now use SSH keys defined in the environment variables in actions using SSH authorization (SFTP, SSH, Rsync, Git push, etc.)
+New version of Sandboxes released for private beta testers
+Improvements
+Rsync deployments now support Buddy keys
+Cloning a pipeline will now clone static files and visibility settings, too
+It is now possible to set up the mount path for the pipeline filesystem in build actions with YAML/API
+Bugfixes
+Fixed browsing in the Rsync action (didn’t work as Rsync was authorized with an SSH key)
+Fixed bug with testing and sending Slack attachments

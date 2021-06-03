@@ -1,0 +1,97 @@
+Hacking your way to Observability — Part 3
+A distributed tracing quick start with Jaeger and OpenTelemetry
+Jonathan Burmester
+Jonathan Burmester
+
+16 hours ago·8 min read
+
+
+
+
+Last time, we used Prometheus Alert Manager to configure rules that would send notifications via Slack when triggered. Even though having alerts and notifications it’s great, can metrics help you troubleshoot or explain a problem by themselves?. This is where the problem arises; metrics are good to tell you that something happened with a single instance, according to the boundaries you defined for their values, but as soon as you start working with a distributed system, metrics won’t tell you the story of a request that goes through multiple components. With the microservices boom, systems are becoming more complex, and to understand pathological behavior we need to understand the requests end to end. This is where distributed tracing helps you; it captures the activities performed in a request giving you the context missing in metrics and logs.
+In this post, we will extend our application observability capabilities by generating spans and export them into an open-source distributed system named Jaeger. But first, let’s start by defining what a trace is.
+You will find all the resources in this repository: https://github.com/jonathanbc92/observability-quickstart/tree/master/part3
+Tracing
+A trace is a collection of spans, where each span is a record of an operation performed by a single service; they have a name, start time, duration, context, and additional metadata to bring additional information. Traces allows you to observe the journey of a request as it goes through all the services of a distributed system.
+
+With the analysis of trace data, you can see the behavior of a request, identify issues, bottlenecks, and potential areas for improvement and optimizations. To generate spans, you rely on instrumentation, using an API or SDK provided by a tracer client library.
+Instrumentation
+You can manually instrument your application by coding the start and finish of spans in pieces of code that provide meaningful information to you. As an alternative, some frameworks offer automatic instrumentation, which saves time and reduces effort by avoiding the need to modify your codebase.
+Manual and automatic instrumentation are not exclusive; in fact, you might end up combining both; automatic instrumentation to leverage the advantage of using less or no code and manual instrumentation where you need more control within a service.
+There are many tracing solutions out there that include their own client libraries to perform instrumentation in many different languages, some of them are:
+Jaeger: Developed by Uber and now a CNCF graduated project.
+Zipkin: Initially developed by Twitter based on Google Daper paper.
+AWS X-Ray: AWS Distributed Tracing System.
+Google Cloud Trace: Distributed Tracing System for Google Cloud (Formerly Stackdriver Trace).
+Azure Application Insights: Feature of Azure Monitor.
+If you want to go for a more agnostic option, you have OpenTelemetry, which provides manual and auto instrumentation SDK. It has exporters for Jaeger and Zipkin, and many vendors are working to support it on their platforms.
+Jaeger
+Jaeger is an open-source distributed tracing system initially developed by Uber. It is used for monitoring and troubleshooting microservices-based distributed systems.
+
+Jaeger architecture has the following components:
+Jaeger Client: Implementation of OpenTracing API used to instrument applications.
+Jaeger Agent: Network daemon that listens for spans sent over UDP.
+Jaeger Collector: Receives the traces from the agents and runs them through a processing pipeline.
+Storage: Component on which the traces are stored.
+Jaeger Query: Service that retrieves traces from the storage and presents them on the UI.
+Deploying Jaeger
+There are many strategies to deploy Jaeger in Kubernetes:
+All in One: All Jaeger components are deployed in a single pod that uses in-memory storage.
+Production: The components are deployed separately. The collector and query are configured to work with Cassandra or Elasticsearch, being Elasticsearch recommended over Cassandra.
+Streaming: Replicates the production strategy, but it also includes the streaming capabilities of Kafka; it sits between the collector and storage to reduce the pressure on the storage under high load situations.
+For the sake of simplicity, we will use the all-in-one deployment strategy, using Helm with the Operator, although take into consideration that this is for testing purposes only. If you are in a production deployment, it is highly recommended to deploy with any of the remaining strategies.
+To deploy, we add the helm repository and install Jaeger custom resources with the operator.
+helm repo add jaegertracing https://jaegertracing.github.io/helm-charts
+helm repo update
+helm install jaeger jaegertracing/jaeger-operator -n observability
+Then, create the Jaeger custom resource with kubectl apply -f
+
+On previous posts we used kubectl port forward command to expose the UIs. From now on, as a persistent alternative, we will create a NodePort service.
+If you are using minikube, to get your node IP run minikube ip
+
+Jaeger UI on port 30007
+We are ready to start instrumenting our NodeJS services, but we need to do some OpenTelemetry preparation first.
+Configuring OpenTelemetry
+Fortunately, configuring OpenTelemetry is a straightforward task. First, you need to choose which instrumentation you are going to use and instantiate it.
+For manual instrumentation: use Tracing SDK.
+For automatic instrumentation: use Node SDK. Automatic instrumentation includes OpenTelemetry API, so we also have the ability to generate custom spans anytime.
+Then, we need to define where we are going to send our spans. We will export the spans to Jaeger, but there are many additional exporters available that you can use. Each exporter has its own configuration; Jaeger Exporter, by default, sends the spans to localhost:6832 which is the jaeger agent URL. In a production deployment, this is expected because you deploy the Jaeger agent alongside your services, but in this case, we will use the agent that is already included within the jaeger pod.
+When we are done configuring the exporter, we need to add it to a span processor and initialize the provider with register(). To automate the instrumentation, you need to register the right modules; for example, if you want to instrument HTTP calls, there’s an http module; if you want to instrument the MySQL calls, there’s a mysql module, and many more. This time we will be instrumenting HTTP requests, Express Framework, and MySQL library automatically.
+Lastly, your export the tracer to be used in your service.
+
+If you noticed, we have configured HttpInstrumention to ignore any requests to the /metrics endpoint. Don't forget that Prometheus pulls the metrics from it; by ignoring it, we avoid having unwanted traces from Prometheus.
+Now, go ahead and test the services:
+kubectl port-forward service/hello-service-svc -n applications 8080
+curl http://localhost:8080/sayHello/iroh #On a different terminal
+Hey! this is iroh, here is my message to you:  It is important to draw wisdom from many different places
+Back in Jaeger UI, you should see that the services are available in the Service dropdown. Select hello-service and click on Find Traces.
+
+Jaeger Seach Form
+If you can’t see the services, double check OpenTelemetry configuration, it should point to Jaeger agent service using UDP port.
+We should see three span colors, one per service. There will be at least two kinds of spans on each of the services, GET spans representing the requests instrumented by the HTTP instrumentation, and Middleware and Route spans instrumented by Express instrumentation. Some of the middleware spans are from the middleware functions we created to gather values for the metrics on part1 of this series.
+
+If we click on any of the spans, we should see some attributes that give us more context about that Span.
+
+Jaeger’s HTTP span
+Don't forget that we also instrumented MySQL. Notice that it includes very useful attributes like the database statement and user.
+
+Jaeger’s MySQL span
+So far, we have a lot of information available. But what if we want more fine-grained control of what happens in our service? How do we combine automatic and manual tracing?
+Context Propagation
+Before creating our custom spans, we need to answer first: How do you correlate the spans?. For the spans to be correlated, they should share some information; that information is shared through the context. The context contains information that can be passed between functions within the same process (in-process propagation) and between different processes (inter-process propagation).
+Then, propagation is the mechanism by which a context is moved across different services or processes.
+By now, you already saw both. Did you wonder how the spans from the three services belong to the same trace? Or how the spans from different functions in the same service can be related as parent and child?. The answer: context propagation.
+There are many protocols for context propagation; the most common are:
+W3C Trace-Context HTTP Propagator
+B3 Zipkin Propagator
+OpenTelemetry can use both, but in some cases, you may be forced to use one specifically. For example, to propagate context in Istio, you are required to use the B3 Headers.
+Manual Instrumentation
+To create your first span, you need to import the tracer from the file where we configured OpenTelemetry and call startSpanmethod. The span needs a name, and optionally you can include custom attributes and the context. In this case, we are retrieving the current context with context.active() ; if there is an active context, the span will be created within that context. After you start a span, you do some stuff with your code, and then you must end the span.
+To propagate the context between different functions, either to add attributes to the span or create a child span, you need to wrap up the calls in context.with but also set the desired span in the current context with setSpan. In the code below, we create a Router GET span, and then we set it as the current span before calling the getPerson function. As a result, the getPerson span will be created as a child of Router GET span.
+
+If we do some tests, the result will be:
+
+This time, we have HTTP, MySQL, and Express Framework spans automatically generated, and custom spans manually generated from the functions in our code using OpenTelemetry.
+Conclusion
+Distributed tracing may sound scary initially, but everything will make sense as soon as you get started. Also, the OpenTelemetry community it’s making things even easier for us, and it's improving very fast. You just saw how easy it is to combine automatic and manual instrumentation to get the best of your services tracing data.
+Happy Tracing 🔎!

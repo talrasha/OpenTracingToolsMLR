@@ -1,0 +1,600 @@
+AppDynamics for SAP is available today.
+For more information, please review the AppDynamics blog.
+Think more connected cities and smart cars, and less smartwatches (sorry Apple Watch and Android Wear).
+Thus, it’s application performance management is essential for microservices.
+Check out the AppDynamics blog for more information.
+Below is a deep dive into each of the integration1.
+Be sure to follow us on Twitter @AppDynamics for the latest developments on AppDynamics and AWS.AppDynamics at AWS re:InventGlobal Partner SummitOctober 6, 2015AWS leadership will discuss about the future of the business and the AWS Partner Network (APN) at the Global Partner Summit at AWS re:Invent.
+Join us during the following session:Topic: Realizing the Benefits of Cloud: Cloud Migration & Application OptimizationSpeaker: Tom Laszewski, Global Partner Solution Architect Senior Manager at Amazon Web Services.Tom will discuss application optimization and highlight the value AppDynamics brings to our joint customers.Wait.
+It’s Just the Beginning.
+The AppDynamics ADVANTAGE at AppSphere 2015November 30 – December 4, 2015Las VegasWe’re happy to exclusively announce that Stephen Orban, Global Head of Amazon Web Services Enterprise Strategy, will serve as AppSphere Keynote on Tuesday, December 1.
+Stephen will discuss the Future of Enterprise IT.
+Customers who register by 11/6 with promo code AWSCUST will enter to win a free trip to Vegas.To learn more, AppDynamics solution for AWS ecosystem, please visit appdynamics.com/aws and sign up for a 60-day free trial of AppDynamics designed exclusively for AWS customers.The AppDynamics Team and I are looking forward to sharing these customer stories, best practices and demonstrating the AppDynamics solution at re:Invent 2015 in Las Vegas.
+Viswanathan will present monitoring tips and tricks, troubleshooting info, and talk about fixing .NET performance issues.Sign up for the webinar here.
+Each exit point is treated exactly like JMS, .NET messaging, etc.
+During the holiday season, this is particularly necessary.
+Take a listen to Steve Sturtevant who recently joined AppDynamics as he explains the role AppDynamics plays in the DevOps universe.
+Stay-tuned for next time when we learn about NewRelic.
+More information on Microservices iQ can be found at this link.
+In this blog, I will discuss five things you can do to delight your customers by delivering exceptional end-user experience from your Python applications.
+or on-premise virtual machines, containers, servers, network or storage.
+Learn more at the Python AppDynamics Application Performance Management web page and join the beta program.
+What is APM anyhow?
+1.
+It’s the only buzzword you’ll read in this article, promise.
+Well, maybe also DevOps, but that’s it.
+Let’s see what AppDynamics and New Relic have in store for us.
+New Relic: Java, Scala, .NET, PHP, Node.js, Ruby and Python.
+We’ll dig in deeper with extensions later on.
+Let’s split these to backend, mobile and frontend to do a quick runthrough over the main offerings.
+The bread and butter of performance management - reporting stats, graphs and insights of your applications performance under the hood.
+Is it a low error rate?
+Responsiveness?
+Throughput?
+AppDynamics on the other hand, doesn’t believe in Apdex (as they explained in an article called ”Apdex is Fatally Flawed”).
+We’ve also seen the difference in alerting with Apdex and a dynamic baselines.
+Moving on to other components in your stack, the first thing that comes to mind is the database.
+Java or Scala developers?
+Whether you're using an APM tool or not, try Takipi.
+5.
+Your customers will not tolerate failure, and expect technology to just work.
+IBM’s survey data confirms this trend.This accelerating trend is what will differentiate those businesses who learn to engage in new and differentiated ways across multiple channels.
+Similarly, these first-mover companies see the need to enter into new or adjacent markets.
+For this reason you see most companies creating labs or innovation centers.
+These experiments can only be done promptly when the organization adopts smaller agile teams across the business and technology groups.
+Breaking up large, and likely slow moving monolithic organizations, software, and systems into smaller units which operate independently.
+The ability to experimentation and make decisions on their own.
+It will be interesting to see how this progresses with IBMs new survey data.
+I sat down with Ankur Jalpota, practice head of strategic and transformation programs at Wipro, and asked him a few questions about the application performance challenges Wipro faced, and why an APM solution like AppDynamics was the key to increasing IT agility and resolving tickets faster.
+We broke it down: in one year, the number of end-user facing applications increased 15 percent.
+Q: Why did you choose AppDynamics?
+What value does its solution offer that you weren’t finding in other monitoring tools?
+Q: What overall improvements did Wipro see from incorporating AppDynamics?
+How has IT agility increased?
+Also attending is a slew of AppDynamics experts like Jonah Kowall, VP of Market Development and Insights.
+long ret = map.applyToKey(“key”, v -> v + 1); // ret == 2I don't need to know where the data is stored.
+(Function<String, String> & Serializable) (s -> s + star);I don't like having to do this, because it rather defeats the objective of reducing boiler plate code.
+A way around this is to define your own interface which is Serializable.
+.subscribe(System.out::println); // executed on the client.The Queryable interface is required so that the filter Predicate and the map Function are implicitly Serializable..
+If you used the Streams API, you would have to use the complex cast used earlier.Performance of Serializing Lambdas.I used JMH to sample the latency of both serializing and deserializing a simple lambda to append a “*” to a string.
+An example is MapFunction which was originally lots of different lambdas which have now been grouped into one class.
+We use enums in some places for this reason.
+An example is MapFunction which was originally lots of different lambdas which have now been grouped into one class.
+Note: using enums are not as clean to implement.ConclusionYou can use lambdas for distributed applications cleanly if the API you use supports it.
+You can also switch to using enums if you need the extra performance.
+Site Reliability Engineering: DevOps 2.0Has there ever been a better time to be in DevOps?
+TV shows like “Person of Interest” and “Mr. Robot” are getting better at showing what developers actually do, using chunks of working code.
+Movies like Michael Mann’s “Blackhat” (2015) won praise from Google’s security team for its DevOps accuracy in a few scenes.
+To learn more about AppDynamics Microservices iQ, refer here.
+Why IT People Hate Their JobsEarlier this year, Cisco company AppDynamics fostered a global study polling CIOs and senior to mid Information Technology (IT) professionals over the topic of digital transformation.
+The full report can be found here and provides insight into why some IT professionals hate their jobs.
+What emerged from the research were five distinct typologies of technologists (The Five Types of Technologist eBook).
+Mark Zuckerberg has since expressed his disappointment in the launch failure by the aerospace company founded by Elon Musk.
+The satellite belonged to Facebook’s Internet.org project to bring connectivity to unconnected parts of the world and was meant to be a key milestone for the project.
+If the launch had been successful, the satellite would have reached more than a dozen countries.
+For those of you who have been out of the loop, the election system in Arizona was breached earlier in May, and the same happened to Illinois in late June.
+In both incidents, the voter registration systems had to be taken offline for a number of days after the FBI first discovered the attacks.
+The FBI assessed that up to 200,000 voter records had been compromised in Illinois.
+These records contain names, addresses, sex, birthdays, and, in some cases, even the last four digits of a voter’s social security number.
+In Arizona, officials reported that no data has been compromised.
+While the investigation is still ongoing, officials assert that this will not affect the upcoming election.
+The hackers are believed to be based overseas, possibly in Russia.
+Have a suggestion or preferred topic you would like to see next week?
+Tweet at us or leave a comment!
+with AppDynamics Pro today!
+The post Part Dev, Part Ops = DevOps [INFOGRAPHIC] written by Dustin Whittle appeared first on Application Performance Monitoring Blog from AppDynamics.
+Video: Monitoring Netflix's JVMs on AWSLast weekend, Bhaskar Sunkara (VP Product Experience at Appdynamics) gave the following presentation on the partnership between Netflix and and App Dynamics.
+time returns to normal.
+rotation.
+regularly.
+service has been restored.
+company resources any more.
+Stop the “all hands on deck” madness and see how AppDynamics can help your company today.
+As a relative newcomer to the world of Application Performance Management (APM) and the larger category of Application Intelligence, I knew I had a lot to learn.
+I came into this market having spent the last 15 years in the Analytics space.
+The idea of taking large volumes of disparate data and turning it into actionable insight is something I’ve always found compelling.
+Though people generally think of a flashy dashboard, Analytics is so much more.
+Given my background, getting into the APM space seemed like a huge leap.
+My impression was I’d be working with IT organizations more than the business owners.
+I’d be in a much more technical space, solving technology problems more than business issues.
+Clearly, I had a lot to learn.
+in the network.
+application, but was added specifically for this test.
+transaction saw only a 6% decrease in time.
+increments a counter on each loop.
+form enabling opcode caching.
+each transaction.
+and a snapshot contains the call graph.
+production PHP environments.
+primarily depend on two things: 1.
+4:00pm, as OPCache was enabled at 12:10pm on March 14th.
+OPCache, it may be less than you were expecting.
+a manual mistake?
+Do you still need to worry?
+around Healthcare IT (HIT), chief among those is Meaningful Use (MU).
+Electronic Medical Records (EHR) technology.
+everyone was ready to walk out.
+The patients however, could not walk way.
+ED was only growing longer.
+was affecting every patient’s safety!
+I will try to explain some of the newer architectural approaches, trends, and provide insight towards AIOps and how it helps to solve this very problem.
+Cisco AppDynamics: AppDynamics is an application performance management (APM) and IT operations analytics (ITOA) company based in San Francisco.
+Technical Solutions Used for Performance and MonitoringTo gather insights for DZone's Performance and and Monitoring Research Guide, scheduled for release in June, 2016, we spoke to 10 executives, from nine companies, who have created performance and monitoring solutions for their clients.Here's who we talked to:Dustin Whittle, Developer Evangelist, AppDynamics | Michael Sage, Chief DevOps Evangelist,Blazemeter | Rob Malnati, V.P.
+Marketing and Pete Mastin, Product Evangelist, Cedexis | Charlie Baker, V.P.
+Product Marketing, Dyn | Andreas Grabner, Technology Strategist, Dynatrace | Dave Josephson, Developer Evangelist, and Michelle Urban, Director of Marketing, Librato | Bob Brodie, CTO, SUMOHeavy | Christian Beedgen, CTO and Co-Founder, Sumo Logic | Nick Kephart, Senior Director Product Marketing, ThousandEyesWe asked these executives, "What technical solutions do you use?
+"Here's what they told us: We build our own.
+Marketing and Pete Mastin, Product Evangelist, Cedexis | Charlie Baker, V.P.
+Pokemon Go: A Developer’s PerspectiveEvery app developer dreams of the kind of success that Pokémon Go is enjoying right now.
+A month ago, it was just a rumor.
+Just 24 hours after it was released, it was the number one top grossing app, even though it was free to download and play.
+Even Facebook can’t hold up against the Pokémon onslaught.
+By any mobile app performance metrics you want to use, Pokémon Go has been a smashing success.
+It’s also at the center of a media firestorm.How did they do it?
+It’s a game where you capture little monsters and make them fight each other – part insect collection and part sci-fi gladiator arena.
+Kids continued to love it as they grew up and then came the anime manga, the trading cards, the TV cartoons, the dolls and the movies.
+What could go wrong?
+A lot, it turns out.
+A few days after Pokémon Go’s official release, Forbes posted an analysis that declared, “The launch has been an unmitigated disaster.
+In this case, the users kept coming, but not every app maker will be so lucky.
+In this blog post we will explore a real world example of how to avoid finger pointing and get right down to figuring out how to fix the problem.
+This story dates back to June of 2012 but I just came across it so it is new to me.
+One of our customers had an event which impacted the performance of multiple databases.
+As it turns out dw_logvol was used as a temporary storage location for web logs.
+Back-to-School Retail Web Site Performance AnalysisIt’s somehow time to mark the end of summer with Labor Day weekend.
+And with that time, comes the rush we remember well as Back to School season.
+To no one’s surprise, Oracle was the most frequently mentioned.
+Oracle, Java Advisory Committee, Google, Spark, Mozilla, Cloudera and Netflix.
+Oracle since they own the JDK, lead development and standards.
+IBM is committed to all of those things as well.
+Oracle is the main driver.
+A good healthy community and contributors like IBM, Red Hat, Azul and even SAP.
+IBM is on the governing board for openJDK.
+Oracle drives the features.
+This is unchartered territory for Java and Typesafe can be very influential to its success.
+IBM, Eclipse, Red Hat, and Google.
+Android has changed a lot.
+They are using homegrown scripts or legacy solutions like Loggly or Splunk.
+We used some Groovy in the past (but not extensively).
+We use a servlet container to run some of our REST services.
+We’re fond of the Rhino JS engine from the JVM and use it extensively.
+Nick Kephart, Senior Director Product Marketing, ThousandEyes.
+Kunal Agarwal, CEO, Unravel Data.
+Len Rosenthal, CMO, Virtual Instruments.
+What components should we focus on when the transaction performance has degraded?
+What will be the effect of upgrading or changing a particular application component?
+What mobile transactions would it affect?
+To support the new app functionality, the back-end applications are also changing at a very rapid rate.
+If you want to try out the AppDynamics mobile solution, click here.
+Dynamic Digest: Week of 3/28Welcome to the Dynamic Digest, a weekly recap of the latest news happening in our industry.
+The announcement was made yesterday at Build, the company’s annual user conference, welcoming both BMW and Microsoft.Key takeaway: BMW has been a long time customer of Amazon Web Services (AWS), which made the announcement extra noteworthy.
+Apparently, the Justice Department learned of a new way to break into the encrypted iPhone without Apple’s assistance, but with the help of an Israeli forensics firm, Cellebrite,instead.
+Check it out.
+There are quite a few things we like to do with our free time, they include drinking tea, walking along the beach and crunching numbers.
+On the bright side, it looks like we share a passion with our readers, who love to read about the data we analyze.
+In it, we’ve collected 13 different projects that range from problem-solving, through data exploring and all the way up to a Java music player.
+reports that mobile users represented 40 percent of ebay’s 36 million new users in 2013, accounting for $35 billion in enabled commerce volume (ecv) — an astounding increase of 88 percent over the prior year.
+the last i heard the itunes app store has 1.2 million apps.
+for the android user, there are about 1.3 million apps to try from.
+there is no such thing as bug-free code.
+any sufficiently complex code will have bugs, and so will your mobile app.
+Suggested actions could include "Provide more information," "Notify IT," "Snooze alert for 30 minutes," or other options.
+Sample value: 2 weeks development process 800 lines of code.
+Tools: You can get row number information by using Gitlab, Bitbucket, Sonarqube.
+In this case, the second developer may have written his algorithm more intensely.
+For example, resolving a place where System.out.println is used instead of logging is identified as a minor issue and can be given 2 minutes by Sonarqube to fix it.
+Unit Test Coverage: This metric expresses how much of the code is covered by unit tests in percentage.
+Consider for example the 3G data for a popular retailer of video games whose home page had 248 resources, a page weight of 4.13 MB, and took just under 30 seconds to be visually complete due to the time it took to download all the images of games whereas another retailer of sports equipment had a homepage with a similar total page weight of 4.12 MB, but only 140 resources and a visually complete time about one third (10.3 seconds) of the video game retailer.
+Now is the time to get ready and prepare your website or app for the expected crowds.Here are 6 load testing tips — relevant for load testing in general and especially Black Friday.1.
+This includes the communication equipment, databases, networks, etc.
+Cabot (https://github.com/arachnys/cabot) seems to be a popular choice, though you will not need it when using StackState.
+StackState can provide the same functionality.
+I created a company in 1998 for the Java enterprise, another in 2008 and now a Java package for all players and open source.
+Java is easy to maintain while esoteric systems are not as they move in and out of favor.After being stuck on Java 6 during the transition from Sun to Oracle, we now have a sound release schedule with significant improvements made to each edition.Incredible evolution from Java 1.5 and parallel computations to Lambda in Java 8.
+If you want low latency and low footprint then throughput will degrade.
+Throughput and Latency can be obtained from analyzing Garbage collection Logs.
+Upload your application’s Garbage Collection log file in http://gceasy.io/ tool.
+You should also be sure to check out this list from DevOps.com that gives 15 suggestions for increasing Jenkins productivity and management.3.
+2 / 60 * 100)It means application throughput is 96.67% (i.e.
+Take a look a CA’s article about the CA APM Jenkins plugin, which “not only allows you to pull APM performance data into Jenkins but also allows you to publish key attributes like build number, status etc to CA APM.” You can also find Jenkins plugins for AppDynamics, Dynatrace AppMon, and New Relic.5.
+that took us a week!
+you are not afraid to show your product.
+If we're all going to use it, what's the problem?
+Interested in entering your own project?
+Our full list of rules and FAQs can be found in this article.
+Which Serverless Platform Should You Use?
+We previously discussed core serverless concepts in an Intro to Serverless Computing.
+Each function is typically deployed as a Docker container.
+As long as that container meets the interface requirements, it will run.
+Serverless COBOL functions, anyone?
+Utilising a third party gateway enables the swapping out of serverless endpoints with minimum configuration.
+Serverless Gateway flow.
+For example the client calls the Event Gateway via HTTP, the event is initially routed to AWS Lambda and processed.
+With a simple change of configuration, the same client call could be routed to Google Cloud Functions to be processed; the client client would not need to be reconfigured.
+Is "Cloud Native" just another overhyped, marketing driven buzzword, or is there real meaning and importance behind the term?
+You've probably heard at least a dozen people in the last week say the words "Cloud Native" when talking - or writing some blog.
+And you probably have some picture in your head of what that is.
+But do you really, truly know what Cloud Native computing is?
+Because Cloud Native is more than just a buzzword.
+For each host, there are multiple infrastructure  components to monitor ( OS, process, VM, network, container, etc.).
+We'll go with a low estimate of 5 different infrastructure monitors per host.
+Of course, these hosts exist so that you can run application components.
+In our example, we have 10 different services spread across these 5 hosts.
+The following table indicates the parameters that decide the probability and impact of failure.
+No.
+Is this a Strategic change?
+From Akka to Zookeeper, over the last year, I have hello-worlded my way through the entire Java ecosystem; I even got to write EJBs for all the servers!
+And I had to make sense of Sun’s CORBA implementation.
+(Spoiler: There is no sense.
+I think that I spend as much time dealing with concurrency as I do recording entries and exits.The Impact on Garbage CollectionBut how does all this impact garbage collection?
+To be honest, this is where most of my objects end up as I often value code readability over the small improvements that escape analysis offers.
+Currently, escape analysis quickly hits its boundary.
+Yet, I hope for future HotSpots to improve to get the best of both worlds even without changing my code.
+Every such task is represented by a single, stateful object.
+An active fork join pool can spawn millions of such objects every minute.
+At this time, I was prototyping a new stitching instrumentation to track context switches between such fork join tasks.
+Following the path of a fork join tasks is not trivial.
+Each worker thread of a fork join pool applies work stealing and might grab tasks out of the queue of any other task.
+Also, tasks might provide a feedback to their parent task on completion.
+Carefully evaluate existing technologies in your organizations and if you can find ways to fully automate using these solutions you should.
+Nevertheless, you will likely be forced into upgrading some older technologies or outright replacement for others.
+If setting up or defining your build process requires any sort of manual intervention it will not be sustainable.
+A small team of engineers (10) can produce several new microservices a month.
+There is no time for GUIs in this brave new world.
+As your organization has begun revolutionizing their software engineering teams by institutionalizing DevOps practices such as continuous deployment, testing, and integration.
+leveraging cloud-native 12-factor applications, Docker containers, and serverless, always keep in mind that you need a solution in place to monitor and observe these new systems.
+What to Expect from DevOps World 2019The clock is ticking.
+DevOps World | Jenkins World – the world’s biggest annual gathering of Jenkins users and DevOps practitioners – is just around the corner, scheduled for Aug. 12-15 in San Francisco.
+The agenda is set.
+The DevOps Community is rolling out the red carpet.
+Are you coming?
+You should.
+On the Wednesday night of the conference, grab your capes and masks and celebrate with the industry.
+Join us for our superhero-themed party!
+Are you ready for this year’s show?
+Learn more about DevOps World | Jenkins World.
+There is an important difference between correlation and causation.
+You can find correlation between all kinds of unrelated statistics.
+It's utterly ridiculous to think that the divorce rate in Maine is a direct result of how much margarine is consumed per capita.
+Yet there it is, the data shows a high level of correlation.
+), application servers (JBOSS, Tomcat, .NET, etc.
+What was the end user doing?
+What infrastructure components are involved in delivering each service?
+What software versions are we running?
+How are my services connected?
+What configuration changes were made recently?
+What availability zone is this host running in?
+What pod does this container belong to?
+Meta-data is available in many places.
+It's often overlooked and does not get collected or associated with the relevant components.
+This meta-data, when associated with the proper application and infrastructure components creates a wealth of context.
+So now that we understand the need for correlation and context, what is their connection with expertise?
+But it doesn't end there.
+Looking at the man page, the description of the metric leaves you alone with the interpretation of its operational meaning, for example judging if it's good or bad, when to ignore it, and when it will have an impact and on what parts of the system.
+Namely, it states: "The total number of segments retransmitted per second - that is, the number of TCP segments transmitted containing one or more previously transmitted octets [tcpRetransSegs]".
+Expert knowledge is accumulated over time through experience.
+Any single team that manages an application or service has a finite amount of expert knowledge and can only develop expertise in new technologies at a limited pace.
+We'll explore the problem and uncover the solution.
+There's a dirty little secret in the legacy monitoring world.
+It can take 5-10 minutes for an alert to fire in most monitoring tools.
+That's 5-10 minutes before you have any indication that there is a problem.
+Here's the good news: there's a better, faster way.
+Welcome to Part 5 of the "9 New Issues Facing Cloud Applications" blog series.
+Incident prioritization - is this a high enough priority to work on right now?
+Incident resolution - Declare Victory!
+Every step above contributes to the overall time it takes to restore service.
+About a year ago we have analyzed our value chain and mapped it onto a Kanban board using Blossom.
+Since then it has been iteratively refined to make sure it maps out our actual flow.Incoming requirements are captured in an “Alignment required” column.
+This is the triage point for our product management and business engineering people.
+We inspect this column at least once per week and together decide on ownership.
+From there, our requirements take a rather standard path: specification, solution architecture, implementation, testing, deployment.
+Sounds like a waterfall?
+Not so much!
+I’m sure they’ll release the app later.
+This is a mix of ‘testing notes’ and ‘thoughts on how to test’ this type of app.
+I spent about an hour or so looking at the app, so the notes are a little scrappy.
+I spent about 40 mins or so tidying them up for publication, in the hope that they help someone.
+e.g.
+I could at this point, resize, hover for tool tip text etc.
+And I could test it blind, but what if I get more information first?
+How can I observe more about what this app is doing?
+It has logging built in.
+Try that first.
+Turn on logging.
+Do something.
+Hunt for the file.
+Look in the running directory first.
+Found file.
+Is that random enough?
+Don’t know - how could I test that from the GUI?
+Is auto copy into clipboard same as copy paste?
+Is that random enough?
+Don’t know.
+Is it 200?
+Need to copy and check (into my Test Tool Hub, is 200).
+No generation.
+No log output.
+Obvious bug.
+I could carry on like this, but I really want to be able to interrogate and manipulate the system effectively.
+I really want to work with the source.
+But we don’t have to wait for the code.
+We already have the code.
+Hint: Most apps come with the source.
+It is hard to hide the source if it is on your machine.
+Web Client - the source is in your browser.
+We need to learn to read it and debug it using the built in browser tools.
+Java applications are pretty easy to decompile.
+There are tools to do this e.g.
+jd.benow.ca (but I use IntelliJ, as you’ll see later).
+Ruby executables often are a self-extracting zip with a Ruby interpreter that runs source from a temporary directory - use a file monitor and you’ll probably find where it runs the source from.
+Basically, it is very hard to protect your source.
+Assume you always have it.
+Assume your users and hackers always have it.
+It has ever been thus.
+Back in the olden days, we used disassemblers and monitors with debuggers to gain access to the assembly version.
+Now it is just easier.
+If you want to protect your code then you run it on a server.
+And have a client server system.
+Open IntelliJ.
+Create a blank maven project.
+Add crappy_little_datagenerator_v_1.0.jar to project as a dependency using the IDE.
+OK.
+Now we can really see what this is about.
+I can see there is a GUI by default, but also a command line tool version.
+I can run that from the command line.
+We can have multiple main methods in a jar file.
+The manifest file controls which one runs by default.
+But we can start any one of them we want.
+There may well be more bugs in this interface since it is not the one promoted but, it might make it easier to automate for someone who does not know how to code, but knows how to use the command line well.
+But, we won’t do that.
+We’ll work from the IDE.
+I can write unit tests to explore the Data Generator library.
+I now have a way of checking if the data generation is statistically valid.
+I could call the data generator say 10,000 times, and count each occurrence of the characters and see if they level out.
+If not then there might be something wrong with the generation code.
+We could view this as unit testing.
+Or view the ‘app’ as a client server with the TestDataGUI as the client and the DataGeneration class as the server.
+I often do this with web applications.
+There are the simple models of “client -> http -> server,” and we use a proxy to mess with the messages; or send messages directly to the server.
+This is typically done with an API.
+But I also use the concept of App as API.
+This is where I send through the HTTP form messages that a GUI would POST, as though it were an API, even if there is no API, and simulate GUI testing without the GUI.
+Even though I’m targeting the DataGeneration  class, I’m not thinking of Unit testing, I’m thinking of testing the server without going through the GUI.
+This means that I will jump back and forwards between the @Test code, and the GUI while I’m testing.
+If I was just doing Unit testing then I probably would not have the app running at the same time.
+It might look superficially like I’m Unit testing, but the thought processes are different - try it and see.
+I could have just decompiled the app.
+A few people on Twitter mentioned this when the competition was running.
+I have decompiled the app, but since I have it as a .jar in my project, the decompiled version is essentially a source view so I can do more than if I had simply decompiled it.
+Debug the GUI so we can breakpoint it and fiddle, etc.
+Breakpoint and evaluate the code while running.
+But, what we’ll do is quickly investigate the “International C…” error we found earlier.
+Now we could have seen that in the decompiled code as well.
+While we are looking at the DataGeneration code we can see that the lowercase chars set will not generate a statistically valid set of chars since there are multiple o’s.
+This bug would have been very hard to find from the GUI.
+I might have been able to find it from the CLI had I scripted something to analyze all the output.
+But sometimes a code review will reveal things.
+Certainly, I can scan the code now and find all the spelling errors quite easily without having to scan the app.
+Or you can hex dump the binary and you’ll often find the strings tucked away at the end of the file.
+OK, get back on track.
+The strings of ‘valid’ data to choose from for each of the categories are concatenated together.
+This will also skew the statistical ‘randomness’ of the generated output.
+Perhaps that was intended?
+The loops all use pre increment, which confuses my code reading since I’m really not used to that.
+Is this doing what it is meant to?
+nextInt is 0 -> var10 (not including var10).
+charAt indexes from 0, so would end at the upper level.
+e=0; while less than length, increment.
+OK, seems OK.
+But I might have wrapped it with a unit test if I couldn’t read it.
+Something I would be unlikely to do if I had just decompiled it.
+And I still might because I haven’t ruled out that I have read it incorrectly, but I’ll do that later.
+A lot of string concatenation.
+I wonder if the counterstring does that or if it uses a string builder?
+Note: a side thought because I’m in ‘tester’ mode and I’m still learning the app.
+OK, it uses a string builder in generateCounterString wWhich is good because that is more efficient.
+In theory, we know exactly how long the string should be so StringBuilder could be initialized to the length, rather than 100, that would reserve enough memory for the full counterstring at the start of the process and might be faster, it might also trigger an out of memory error early in the generation rather than late.
+Hmmm, jumped back to GUI and tried 20000000000 as the counter string, and it dropped to 200.
+Look at code to see why.
+James Bach has a counterstring app.
+I could compare Martin’s to that.
+But I have one too, so I’ll compare it to mine since mine uses a different algorithm to James Bach’s.
+Gonna try a quick counter string race with my algorithm.
+Let us try 2000000 - that should be visible time.
+Mine is about 16 seconds faster.
+helplightning.com — Help over video with augmented reality.
+evernote.com — Tool for organizing information.
+doodle.com — The scheduling tool you’ll actually use.
+sendtoinc.com — Share links, notes, files and have discussions.
+zoom.us — Secure Video and Web conferencing, add-ons available.
+Once it’s created, open the Installation tab, select Keycloak OIDC JSON and copy its contents into /tmp/conf/keycloak.json.
+Note that this JSON contains a secret field: we’ll need this later!
+Then, we’ll create another client that will represent our instrumented application (microservice).
+We’ll name it instrumented-application, but you should probably name it after your service’s name.
+It’s very similar to the first one, except that we’ll turn on the option.
+Finally, open the “Credentials” tab and copy the “Secret.” We’ll need this later as well.
+At this point, you should have a configuration file located at /tmp/conf/keycloak.json, which is the Keycloak Open ID Connect (OIDC) JSON file for the proxy-jaeger client.
+Note that both the auth-server-url and the credentials.secret values should match the ones from the keycloak.json.
+The curl command should return a JSON including a property named access_token (the very first one in the JSON).
+This is the token we need for our JAEGER_AUTH_TOKEN.
+With the appropriate environment variables in place, you should now start your application!
+Note that the sender property is set to HttpSender, indicating that the endpoint environment variable was recognized and an appropriate sender was selected.
+As always, join our mailing list or Gitter channel and let us know if you use this feature and whether your use case is covered by it.
+The Life of a SpanIn the OpenTracing realm, as well as in other parts of the distributed tracing world, a “span” is the name given to the data structure that stores data related to a single unit of work.
+In most cases, developers just worry about instantiating a tracer and letting the instrumentation libraries capture interesting spans.
+How they actually reach a backend like Jaeger’s can be somewhat of a mystery.
+Let’s try to clear out some of this magic.
+For this article, let’s focus on what happens when we assume the defaults for all components involved.
+So you’ll have to remember that what actually happens in the background in your own implementation might differ from what we describe here, depending on your configuration.
+We’ll use a sample application with the Jaeger Java Client, but other Jaeger client libraries for other languages act in a very similar manner.
+The application used in this blog post is very simple and won’t register the tracer with the GlobalTracer as would be usual.
+Instead, it just brings an Eclipse Vert.x verticle up and creates a simple span for each HTTP request our handler receives.
+req.response().putHeader("content-type", "text/plain").end("Hello from Vert.x!
+This reporter will build an instance of the UdpSender, which just sends the captured span using Thrift via UDP to a Jaeger Agent running on localhost.
+Depending on the Tracer’s configuration, an HttpSender could have been used instead.
+Once an instrumentation library or the “business” code starts a span, the Jaeger Java Client will use the JaegerTracer.SpanBuilderto generate an instance of JaegerS.
+This instance includes a reference to a context object ( JaegerSpanContext), including a TraceIDand SpanID.
+Both hold the same value for our span, as it’s the root of the tree, also known as the “parent span”.
+Our instrumented code starts a span and does the required processing, like adding a specific HTTP header and writing the response to the client.
+Once that is done, the try-with-resourcesstatement will automatically call the close()method, which ends up calling JaegerSpan#finish().
+The span is then delivered by the JaegerTracerto the RemoteReporter.
+reporters=...
+beta - This is the second of 4 "slave" microservices.
+It is served on http://localhost:8082 and has one endpoint: /v1/beta, which queries alpha endpoint /v1/alpha/beta.
+This needs to be done for all microservices.
+At the time of writing this post, the latest version of KumuluzEE OpenTracing was 1.3.1.
+Exceptions are handled automatically by KumuluzEE OpenTracing.
+To demonstrate this, we will throw an exception in the delta microservice.
+throw new RuntimeException("Something went wrong here.
+We now have to restart the delta microservice and refresh the page.
+We can see from the trace that exception was added to the trace as a log.
+We will cover adding logs in the next section.
+If we look back to our project structure, we added some simulated lag to our application in the beta microservice.
+Basically, we added a random delay from 1 to 1000 milliseconds to the request.
+We will add this parameter to the trace to see how long we have to wait for the request.
+We start by moving the wait time to a new variable.
+Then we inject the Tracer instance (we also added @RequestScoped for CDI injection).
+After that, we can access the current span with tracer.activeSpan and add our delay to it.
+We can do it in three ways: with adding a tag, adding a log entry or adding a baggage item.
+tracer.activeSpan().log("Waited " + waitDelay + " milliseconds.
+Choosing a method of storing custom data is up to the developer.
+Tags are often used for storing metadata information (such as IP addresses, span types, versions, etc.
+), logs are used for storing messages (such as exceptions) and baggage is used for storing data, which can be retrieved later with the getBaggageItem() method.
+A trace tells you when one of your flows is broken or slow along with the latency of each step.
+However, traces don't explain latency or errors.
+Logs can explain why.
+Metrics allow deeper analysis into system faults.
+Traces are also specific to a single operation, they are not aggregated like logs or metrics.
+request.
+tag.
+this dashboard includes three graphs, the first showing the number of spans created (i.e.
+method, and we can use it to track how many times this business operation has been executed.
+the second showing the average duration of the spans, and third showing the ratio between successful and erronous spans.
+the metrics reported by prometheus are based on a range of labels - a metric exists for each unique combination of those labels.
+Daily Dose - Scala 2.8 Blasts OffStick a fork in it - Scala 2.8 is done.
+The GA release hit this morning with sweeping changes that include a revamped collection library, named and default arguments, optimized array handling, and more.
+See the full list of features on Javalobby.
+Note that 2.8 is not binary compatible with the 2.7 branch, but the Fresh Scala Initiative should keep all of the libraries updated.I'll Take My Redis To GoJames Bracy has announced his startup around Redis, a NoSQL key-value store.
+His product, "Redis To Go", mitigates the pain involved when adding a new Redis server to manage.
+This software can get a new Redis server up and running in under a minute.
+Redis To Go is currently available as a Heroku add-on.
+And to get a dashboard up.
+MicroK8s can work with Mac OSX and Windows with some hacks using multipass.
+Minikube is the oldest and often first choice solution to start playing with Kubernetes.
+For Windows and Mac users, Minikube must run in a Virtual Machine.
+You will need VirtualBox, VMware Fusion, or Hyper-V.
+Now, if we want to check that container in our browser, we need to open the container and make it available.
+There are a few ways to do this, but a port-forward will illustrate how we can view our container.
+First, get the pod name through the terminal or via the dashboard.
+Then run the kubectl port-forward  with an external port map to the internal port.
+Here, I use 9696, which is an open and available port.
+There you have it.
+Now pointing to http://localhost:9696 in the browser, you will see the hello-world echo server container running NGINX with some impressive stats.
+Congratulations, you now have a local Kubernetes environment running, so it is time to run your first application.
+You will want to get an application running with one or more nodes.
+You can experiment with popular Helm package manager that allows you to run apps like Mattermost, a Slack clone.
+Install Helm, then download and run the team-edition.
+Helm will give you additional information you may need.
+It even provides additional commands to expose your new application.
+Wait a few minutes and voila, you now have an open-source Slack clone for team messaging.
+Have in mind, running locally versus production are two different things.
+Running locally here, we didn’t get into security, persistent storage, and subjects like routing.
+In production, you want to make sure your passwords to databases are secured with K8 secrets and that users are locked down with ACL (Access Control List) policies.
+Persistent storage means the data saved by your app will not be erased the next time your pod restarts.
+Lastly, you want to allow your users to reach your apps through valid URLs versus localhost:8001.
+In part 1, I showed that with sidecar auto-injection, your app's pods are automatically festooned with Envoy proxies without ever having to change the application's deployments.
+However, there are issues with it that currently prevent us from using it.
+For now, we'll do manual injection.
+Manually injecting has the obvious drawback that you have to do the injection, but it has a big benefit as well: you need to do it only once (per release of Istio), and once it's done you can check in the results to your source code management system- infrastructure as code and all that.
+Let's first set a few environment variables in our Linux shell so we can reference them later on.
+(Just copy and paste all of these commands into your Linux terminal.
+# The name of the OpenShift project into which you installed Istio.
+Now comes the big bang.
+The Coolstore microservice demo comes with a giant OpenShift template that will create the microservices and associated databases in your new project.
+It will fire off a number of builds that should eventually succeed, but like many real-world projects, ours does not adhere fully to best practices for container-based microservices, so we'll need to work around these issues.
+So in this case, our Coolstore gateway has failed to declare port 8081 (the port on which its health probes are exposed), so the health checks will fail.
+Wow; that's a lot of hacking.
+With our newly minted and Istio-ified project, it's time to redeploy everything.
+If the above command reports timeouts, just rerun the for loop until all deployments report success.
+This will set up Istio Ingress to route requests for /api/* to our Coolstore gateway, and all other requests will just go to the web UI front end.
+You can also access the web consoles of various services such as Prometheus and Grafana.
+We will explore these in the next post, but feel free to play around, access the page, generate some load, and inspect the results.
+For added fun and value, access the Web front-end URL a few times in your browser, and then check out the D3 Force Layout endpoint above.
+The diagram is pretty confusing because some of the non-HTTP/S accesses (for example, to databases) aren't properly linked to the services calling them because Istio cannot interpret these calls.
+You should name all of your container and service ports.
+You may have noticed in the hacks above we brute-force named all services on port 8080 as http, but non-HTTP services (most notably PostgreSQL and MongoDB, both of which use non-HTTP protocols) were skipped/ignored.
+for a hypervisor, i'm using virtualbox, which is supported on mac, linux, and windows.
+when running istio and your own applications, you need more memory and cpus than you get by default.
+can take several minutes when starting for the first time.
+be patient.
+doesn't work for me.
+directory, restart my machine and start it again.
+be patient.
+this screenshot shows all istio pods running or completed (ignore the kiali one for now).
+note: for some reason the script didn't work for me.
+functionality to build cloud-native applications.
+i'll blog more about this soon.
+for now you can install two sample microservices from this project.
+Addition of Configuration 1.0.
+Addition of Health Check 1.0,Metrics 1.0, Fault Tolerance 1.0,and JWT Propagation 1.0.Updating to Configuration 1.1.
+Addition of Open Tracing 1.0, Open API 1.0, and REST Client 1.0.
+The MicroProfile @Health annotation publishes health information using a standard format at a standard URL.
+The returned HealthCheckResponse includes a field to indicate if a service is up or down.
+You can also add arbitrary metadata that might be helpful in understanding service health (such as perhaps remaining free space in our case).
+There are simple factories in the API to easily create and populate a HealthCheckResponse.
+In the code example, two application specific metrics are added.
+@Timed measures the average time required to get all memberships while @Counted measures how many new memberships were added.
+Other such MicroProfile Metrics annotations include @Gauge and @Metered.
+A standalone Milvus instance can easily handle vector search for billion-scale vectors.
+However, for 10 billion, 100 billion or even larger datasets, a Milvus cluster is needed.
+The cluster can be used as a standalone instance for upper-level applications and can meet the business needs of low latency, high concurrency for massive-scale data.
+A Milvus cluster can resend requests, separate reading from writing, scale horizontally, and expand dynamically, thus providing a Milvus instance that can expand without limit.
+Mishards is a distributed solution for Milvus.
+This article will briefly introduce components of the Mishards architecture.
+More detailed information will be introduced in the upcoming articles.
+Metadata service: All Milvus nodes use this service to share metadata.
+Currently, only MySQL is supported.
+do_search also invokes search_127.0.0.1.
+OpenTracing has been integrated to Milvus.
+More information will be covered in the upcoming articles.
+Milvus has integrated Prometheus to collect metric data.
+Grafana implements metric-based monitoring and Alertmanager is used for alerting.
+Mishards will also integrate Prometheus.
+For clustering service, log files are distributed in different nodes.
+To pinpoint problems, you need to log to the corresponding servers to get the logs.
+A single “Admin” service fronts these services in order to create a unified interface for the website to interact with the backend.
+So the “Admin” service will be the main orchestrator in connecting the backend services.
+Some of the services will have their own databases for persistence.
+In our implementation, we have not always persisted data in databases where we should have, but rather created in-memory data stores for this task.
+It’s generally a good idea to not share databases between services in order to keep the functionality loosely coupled.
+So whenever some information is required, we would always go through the relevant service in order to access them.
+This service represents the shopping cart features.
+The basic functionality we have implemented is to add items to the cart, get all the items, and clear the cart.
+These are mapped to HTTP resources, with the respective HTTP verbs in order to resemble the operations we are doing.
+The persistence is done using an RDBMS database and we use the Ballerina JDBC connector in order to execute the SQL statements.
+The Ballerina services share some common data types that will be used in multiple services.
+These are defined in a common module that is imported as required.
+The code for the general structure is shown in Listing 2.
+The search resource uses data binding to take in the parameter “query”, which is used to do a search operation in the database using an SQL query.
+The result set from the query is converted to a JSON value and returned to the caller.
+Listing 3 shows the code that is used to implement the service.
+The order management service takes in the order details, which are mainly the items and their quantities included in the order, and persists it to be queried later for information lookup.
+Here, for the sake of simplicity, we use an in-memory data storage mechanism to store the information.
+The service code for this can be found in Listing 4.
+The billing service simply responds to the calls from the admin by looking up the order details using the order management service, creating a receipt for the payment by the user and returning it back.
+The actual operations are mocked here, where the implementation does the interactions with the required services.
+The code for this can be found in Listing 5.
+The shipping handling service, similar to the billing service, takes in the directive from the admin service, contacts the order management service to retrieve the details, and does the shipping operation.
+The response from the service is a generated delivery tracking number to be presented to the user.
+The code for this service is shown in Listing 6.
+Transparent, zero-config proxying for HTTP, HTTP/2, and arbitrary TCP protocols.
+Automatic layer-4 load balancing for non-HTTP traffic.
+Multi-cluster deployment is experimental as of release 2.7.
+Native for traffic splitting and metrics, not for traffic access control.
+Also, if for some reason it turns out you can't use it, then if you just google  zipkin scala  you'll see things like  https://github.com/lloydmeta/zipkin-futures  ,  https://github.com/bizreach/play-zipkin-tracing  etc.
+You'll find all of it on GitHub.
+The current version requires you to &quot;opt-in&quot; which headers you want transported in this way.
+Documentation here .
+The list of custom headers that will be transported by the binder.
+Default: empty.
+... to register a custom  HystrixConcurrencyStrategy  that uses your own  Callable  ...
+This means that there is a  &lt;dependencyManagement&gt;  entry in your POM or your Parent POM that sets the version to  2.2.0 .

@@ -1,0 +1,49 @@
+Push vs. Pull Monitoring Configs
+Steve Mushero
+Steve Mushero
+
+Aug 2, 2019·7 min read
+
+
+
+
+How will monitoring agents know what & how to monitor?
+
+(This is part 1 of a multi-part series on modern monitoring system design, considerations, and tradeoffs. Other forthcoming parts include Collection & Transmission, Ingest & Storage, Alerting & Notifications, and Visualizations.)
+Push vs. Pull is a long-running conflict in monitoring system design, i.e. should agents push their data to the monitoring system or should the system pull from the agents?
+Various systems & vendors are on either side, notably Prometheus pulling & Nagios/Zabbix usually pushing. But that’s about the metrics themselves, and which way they flow in the system.
+Equally interesting (to me) is how & where the monitoring configurations are set and then moved around, i.e. pushed or pulled. Therein lies complexity, tradeoffs, and possibilities.
+We’re building a new version of the underlying monitoring and metric storage systems for our Siglos.io Platform, and are trying to think deeply about the best architectures, paradigms, and methods — ideally a blend of traditional & modern DevOps to best serve any & all types of environments & customers.
+I’m using my own definitions of pull vs. push, as seen from the central monitoring system storing & acting on the data.
+Push configs are common in traditional systems like Nagios and our beloved Zabbix, on which we’ve been based for more than 10 years. Metrics are defined centrally and PUSHED out to assigned hosts and agents. These systems can often auto-discover, but even that is defined centrally and flows up and back down via the monitoring system. The central system is the boss and the agents follow orders, like an army. Stuff never just arrives.
+Pull, on the other hand, is when the agents themselves contain the monitoring configuration, such as in Datadog, collectd, and Prometheus. The agents somehow know what they need to collect and push the metrics (and often any metadata like units, plus tags) to the central system. From the central monitoring system it’s getting, or pulling, the configs & metric metadata, from the agents. The agents are the boss, and the central system follows them and what they send, like a magazine with stringers. Stuff just arrives.
+The key difference is that in the Push system, the central monitoring system know all about the metrics, who has them, what they are, and so on. In the Pull system, it knows nothing (or very little) about what’s coming in, when, or even from who. They are left to imply a lot from the names (i.e. Prometheus) or from shared knowledge of what the agent sends (Datadog).
+Push Configs are great …
+Central configuration and pushing metric collection configs down to the agents is a very nice architecture, with at some key benefits:
+Everything is centralized, so it’s very easy to make global & wide or narrow-range changes. We often add (or disable) metrics in our Zabbix system, and they roll out to thousand-host fleets in minutes. Likewise, we can add or change monitoring metrics or frequencies, etc. on single groups of hosts that are having issues. New information arrives nearly instantly.
+Push is especially useful with generic monitoring agents such as JMX and MySQL (or CloudWatch), which can get any of hundreds of possible metrics, so all we have to do is specify which we’d like at any given time on any given set of servers and services. It’s very flexible & dynamic, in near real-time.
+Central systems often have templates, allowing new hosts and services to be very quickly & easily defined, inheriting all they need from existing templates. This lets us setup complex new host monitoring in seconds, automatically inheriting our years of approved best practices.
+Central config allows for well-defined graphs, maps, and alerts, since all the data, types, units, etc. is known in advance, and often defined by service experts such as DBAs.
+Pull Configs are great …
+Pull (agent-defined configs) are great too, as centralized management pushing configs to agents is not problem-free, nor the perfect solution :
+Pull systems usually accept ad hoc and unplanned metrics at any time, or even the ‘same’ metric with different units, tags, etc. This is a big advantage of Pull, especially in the DevOps world when developers can decide any time to add metrics to the mix. Just send stuff, any time.
+Pull systems tend to be more ‘modern’, and better at accepting tags and additional metadata with the metrics. They are also starting to blur the line between metrics, events, and even logs (which are just semi-structured events), mixing them all together. This allows for much richer querying, visualizations, and problem-solving.
+A real problem in the Pull world is that the central system has no idea what data it’s getting, nor how to visualize or alert on it. That info has to be provided somehow, often manually at consumption time, or via a ‘release’ process along with code releases.
+Some systems like Datadog avoid this in the standard case by having ‘shared’ knowledge between the agent and the central system. When you add the MySQL or Apache Integration, both sides know what to expect and you get both useful best-practice data and pretty pre-defined dashboards.
+To some extent, that’s the best of both worlds, but still very rigid and hard to extend, as it’s still really a pull system with limited central knowledge. This became painfully obvious to us a couple years ago while testing Datadog’s API, as we had no way to figure out what metrics it had for any given host; it has no idea, so you just query for a given metric and see what you get. Dynamic, but a tad disorganized (note Datadog is a great system, we’re just picking on the model a bit).
+Best of both words?
+We are left trying to see if we can find a middle path that gives us mostly central control we are used to, with lots of benefits, but flexible dynamic ad hoc behavior everyone would love to have.
+Note we are well-aware that “cloud-native” folks will tell us to forget the central model, go all-in on DevOps, monitoring-as-code, etc. However, we think this foregoes considerable benefits, plus the vast majority of enterprise and more traditional or mixed-mode IT folks will like central definitions.
+Thus, we are tending towards a central model that also allows dynamic updates, essentially a Zabbix-like system that accepts, even loves, ad hoc data. Plus, of course, tags and all the extra dimensions users want to send.
+This gets us central templated and well-defined control, including lots of best-practice standards, alerts and graphs, plus the ability to make large-scale changes, improvements, etc. New host/service discovery would be defined centrally, so as new things are found, the central system adds their templates and monitoring.
+At the same time, we want to accept ad hoc metrics in the Prometheus or InfluxDB style, finding ways to infer their metadata like type, period, units, etc. We’ll probably do that by creating a definition record on first receipt and then a semi-automated follow-up process to nail down how to deal with them for alerting and other things (ideally the release process will use our API to configure graphs & alerts, but dashboards, etc. are still likely issues).
+Thus dynamic metrics will go through phases from first arrival through fully ‘defined’, which is a bit messy and creates overhead, but seems unavoidable for long-term data. Fortunately, we have a large common data platform that already deals with most of this across metric & non-metric sources like configs, billing, governance and more, so we’ll probably handle it there.
+For developer support, we need to think about how to push changes into the system during DevOps deployments, for ad hoc stuff as noted above, but also ideally for more pre-defined services like nginx. The latter can be discovered, but hopefully ad hoc stuff can have enough hints & metadata to be integrated automatically (and later dropped when users lose interest).
+For globally-distributed and on-premise systems, this whole process also has to support proxies, agents, and agent-less systems like our Local Management Server (similar to the ServiceNow MID, which I’ll write about soon.)
+Decoupling Metric Configuration & Storage
+Future articles will talk more about metric & time series storage, but an important part of all this is the likely decoupling of metric storage from the metric configuration.
+This means using near-native storage in modern dynamic time series stores such as InfluxDB, Prometheus, ElasticSearch, or even DynamoDB, driven by a flexible keyset of host, metric, tags, etc. Collection, enrichment, ingest, and querying / graphing can be driven by the config system, but storage can flexibly use a variety of diverse choices.
+Monitoring is an ever-changing area, a mix of many traditional things that work in diverse environments, coupled to new-fangled ideas that provide great value in today’s fast-moving dynamic, microservice, and serverless worlds.
+We’re always thinking about how to do both old & new things all along the way. Ideas and feedback are most welcome as we work our way along this odyssey.
+I’m Steve Mushero, CEO & CTO of Siglos.io — Siglos is a Unified Cloud & Operations Platform, built on 10+ years of large-scale global system management experience. Siglos includes Full-Stack Design, Build, Management, Monitoring, Governance, Billing, Automation, Troubleshooting, Tuning, Provisioning, Ticketing and much more. For Managed Service Providers and selected end users.
+See www.Siglos.io for more information.

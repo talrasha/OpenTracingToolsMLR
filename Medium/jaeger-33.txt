@@ -1,0 +1,42 @@
+Introducing Distributed Tracing to a Docker Swarm based Container Landscape
+Klaus Dobbler
+Klaus Dobbler
+
+Jan 9, 2020·3 min read
+
+
+
+
+When it comes to analyzing processes across multiple services in a microservice-architecture based application, one approach is to use a tracing tool.
+The principle of a tracer is simple. Services are instrumented with a client implementing the OpenTracing API specification in order to report calls of defined endpoints to a central collector unit.
+One widely used tracer is called ‘Jaeger’, its architecture shown below.
+jaeger architecture
+https://www.jaegertracing.io/img/architecture-v1.png
+Jaeger clients report so called ‘Spans’, which are logical units of work and contain the useful information about requests, to a network daemon ‘jaeger-agent’ that listens for this information on UDP. It then batches the information and sends it to the jaeger-collector, which acts as the central data collector for all distributed agents. In a docker swarm landscape this component is designed to be deployed on all swarm nodes as an infrastructure component.
+Across a microservice architecture the propagation of requests during a process through the various services is called ‘trace’ in jaeger-terminology. It can be thought of the path of execution and represents a directed acyclic graph of spans.
+principle of a trace and a span
+https://www.jaegertracing.io/img/spans-traces.png
+Jaeger provides an easy to use all-in-one docker image, with all components integrated. Note, that this is only reasonable when getting started with using jaeger. Be aware, that it is using a in-memory database — tracing information will not be persisted. For production environments you should configure one of the storage backends Cassandra, Elasticsearch or Kafka.
+Docker Hub — all-in-one jaeger-tracing image
+hub.docker.com
+
+Supposing, the jaeger-all-in-one.ymlconfiguration file
+
+docker swarm configuration file
+by executing docker stack deploy -c jaeger-all-in-one.yml jaeger-stack the whole ‘jaeger’-stack, consisting of agent, collector, query and UI, is deployed into the stack jaeger-stack. By default an overlay-network is created where the services reside in.
+It is very easy to instrument a Spring-Boot 2 App with the Jaeger-OpenTracing API implementation.
+Let’s demonstrate distributed tracing by a very simple example of two apps AppA (runs on port 8080) and AppB (9080) that have the same REST-endpoint called greeting . Compared to AppA — greeting which just returns a simple JSON-object, AppB — greeting calls AppA — endpoint and also returns a simple object.
+Add the the current opentracing-spring-jaeger-web-starter to the maven POM in order to ensure that Spring Boot will auto configure a Jaeger implementation of OpenTracing’s Tracer when the application starts.
+
+The first one ensures that, the @RestController — API gets spans ‘serverside’. In order to propagate the trace-information across micro-services we manually instrument the Feign — client with a tracer like:
+
+which is enabled by the second dependency.
+Configure the tracing-settings in the application configuration file (.yml) by setting the opentracing.jaeger properties. By default, Jaeger clients are reporting spans over UDP to localhost .
+When you run your app in a container within a swarm, your localhost is isolated by the networking namespace from the actual host where Jaeger agent is running. Therefore it is required to set the host of the jaeger-agent accordingly.
+
+After calling the ‘greeting’-endpoint of AppB we see the corresponding trace on our jaeger-UI http://localhost:16686
+Jaeger UI trace example overview
+summary of the ‘greeting’-trace of AppB
+A closer look reveals exact timings of our request-trace:
+jaeger UI tracing example details
+Checkout the whole demo-project on github!

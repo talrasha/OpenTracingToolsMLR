@@ -1,0 +1,92 @@
+Collecting Logs for a Docker Rails Application with Datadog
+Farhad Ajaz
+Farhad Ajaz
+Follow
+Jun 3, 2020 · 4 min read
+
+
+
+
+
+
+Logs are an essential part of understanding what is occurring in our infrastructure and applications. They provide run-time activity for our applications, which makes it easier for us to diagnose problems in the event of a failure or other performance issues. At Bloom & Wild, we rely on Datadog for our infrastructure monitoring and log collection for our applications. In this blog post, I will give a brief overview of how we can use Datadog to collect logs from Rails applications running inside Docker containers.
+The Rails Application
+The application I will be using is a simple Rails API only application with PostgreSQL both running inside Docker as separate services. Additionally, I will use the Datadog Docker Agent to collect logs.
+
+The Rails application has a single resource called Orders, which returns a JSON response about the orders in the database. I am using Active Model Serializers to serialise the response. Also, I used the Lograge logger to customise the Rails default log format into a JSON format. Now let’s Dockerize the application.
+Dockerizing Our Rails Application
+In order to Dockerize our application, we will need a Dockerfile. A Dockerfile contains all of the commands that you would need to install the programs and libraries.
+You should create a Dockerfile in the root of your project or inside a sub-directory. For this application, I have created a containers/app directory inside the config folder which contains our Dockerfile for the application.
+I will include the GitHub repo link for the application at the end of this post.
+
+Dockerfile for the Rails Application
+Now we need a docker-compose file to orchestrate our containers.
+
+docker-compose.yml file for managing our containers
+Configuration options
+We are passing a few configuration options as environment variables to our Docker Datadog Agent.
+DD_API_KEY=${DD_API_KEY}. This is your Datadog API key (required).
+DD_LOGS_ENABLED=true . This enables log collection with the Logs Agent.
+I have removed the option DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true which enables log collection for all containers. Instead, we will use the DD_AC_INCLUDE option to select the container we want to use for log collection.
+DD_AC_INCLUDE=”name:rails_api”. I am passing the name of our Rails application container which I set above in the application services section.
+DD_SITE=datadoghq.eu. This is the destination site for our logs. My account is in the EU region so I have passed the value “datadoghq.eu”.
+You can read more about the Docker Agent and configuration options on Datadog Docker Log Collection
+In the docker-compose services application section, we leveraged Autodiscovery to activate log integrations. Integration templates can be stored as Docker labels. With Autodiscovery, the Agent detects if it’s running on Docker and automatically searches labels for integration templates.
+You can read more about on Docker Integrations Autodiscovery
+We provided the value of the source and the service we want to target.
+labels:
+ com.datadoghq.ad.logs: ‘[{“source”: “ruby”, “service”: “app”}]’
+Running Everything
+Now we will put everything together and start-up our stack by running the following command:
+docker-compose up --build
+Testing the Logs collection
+Once everything is running locally, you can open the browser and list some orders.
+http://localhost:3001/orders
+{
+    "data":[
+        {
+            "id":"1",
+            "type":"orders",
+            "attributes":{
+                "user-id":"254",
+                "shipping-address":"Suite 211 72358 Treutel Pines, South Ieshashire, CT 35385",
+                "total-cost":10,
+                "order-number":"8b3e2268",
+                "item":"Spilt Extract",
+                "state":"pending"
+            }
+        },
+        {
+            "id":"2",
+            "type":"orders",
+            "attributes":{
+                "user-id":"640",
+                "shipping-address":"90174 Feil Grove, East Tamica, WI 50272",
+                "total-cost":10,
+                "order-number":"19dc3db2",
+                "item":"Joe Cake",
+                "state":"complete"
+            }
+        },
+        {
+            "id":"3",
+            "type":"orders",
+            "attributes":{
+                "user-id":"140",
+                "shipping-address":"Suite 889 96552 Davis Circle, Hellerview, CA 60302",
+                "total-cost":10,
+                "order-number":"5dacb493",
+                "item":"Café Forrester",
+                "state":"complete"
+            }
+        }
+    ]
+}
+Logs Collection
+Now if you log in to the Datadog dashboard and go to the logs section, you should be able to see some activity from your application.
+
+
+We will raise an exception in the controller to see the logs for that.
+
+Conclusion
+Datadog is a great tool for collecting logs from your applications. There are a lot of other features in Datadog which can provide you with better insights into your applications.

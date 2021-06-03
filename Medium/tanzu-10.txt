@@ -1,0 +1,208 @@
+Deploying VMware Tanzu Data for K8S on GCE Part 1: Postgres
+Yuwei Sung
+Yuwei Sung
+
+Dec 19, 2020·7 min read
+
+
+
+
+
+Photo by James Pond on Unsplash
+This article is a demo of getting Tanzu Data (SCDF/Gemfire/Postgresql/MySQL) for K8S on a “non-supported” platform. Why? If you have the license to run Tanzu Postgresql, you don’t need to worry about the k8s control plane. Why bother? I want to understand how Tanzu Data interacts with the K8S control plane,e.g., how to setup network policy/service mesh to secure Tanzu Data and automate Tanzu Data releases to my K8S operation lifecycle.
+First, if you don’t have a K8S cluster (1.16+), you can follow my GitHub https://github.com/vmware-ysung/cks-centos create one in GCE or consider using kubespray, kind, or kop.
+Once the cluster is ready, you can “pre-requisite” your k8s env for Tanzu Data. These pre-requisites include 1) accessing GCR, Nexus, Harbor, or Dockerhub from your cluster so that k8s can pull images from those repositories, 2) cert-manager installed 3) helm v3 in your local env.
+I use my terraform/ansible/kubeadm to deploy one control-plane and three worker nodes env with cert-manager and Nginx ingress. It should look like this:
+ysung@ysung-a01 kubectl % k get nodes
+NAME          STATUS   ROLES                  AGE   VERSION
+cks-master1   Ready    control-plane,master   24h   v1.20.0
+cks-worker1   Ready    <none>                 24h   v1.20.0
+cks-worker2   Ready    <none>                 24h   v1.20.0
+cks-worker3   Ready    <none>                 24h   v1.20.0
+ysung@ysung-a01 kubectl % k get svc
+NAME                                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+kubernetes                          ClusterIP   10.96.0.1       <none>        443/TCP    7h16m
+pg-instance-1                       ClusterIP   10.97.198.100   <none>        5432/TCP   6h11m
+pg-instance-1-agent                 ClusterIP   None            <none>        <none>     6h11m
+postgres-operator-webhook-service   ClusterIP   10.103.143.54   <none>        443/TCP    6h13m
+Next, let’s get the images from network.pivotal.io (You need to register and agree on the license). In network.pivotal.io, search for “Postgres for Kubernetes” and download the file (postgres-for-kubernetes-v1.0.0.tar.gz) to your desktop, then unzip the file.
+ysung@ysung-a01 Downloads % tar zxvf postgres-for-kubernetes-v1.0.0.tar.gz
+x postgres-for-kubernetes-v1.0.0/
+x postgres-for-kubernetes-v1.0.0/images/
+x postgres-for-kubernetes-v1.0.0/images/postgres-instance
+x postgres-for-kubernetes-v1.0.0/images/postgres-instance-id
+x postgres-for-kubernetes-v1.0.0/images/postgres-instance-tag
+x postgres-for-kubernetes-v1.0.0/images/postgres-operator
+x postgres-for-kubernetes-v1.0.0/images/postgres-operator-id
+x postgres-for-kubernetes-v1.0.0/images/postgres-operator-tag
+x postgres-for-kubernetes-v1.0.0/operator/
+x postgres-for-kubernetes-v1.0.0/operator/crds/
+x postgres-for-kubernetes-v1.0.0/operator/crds/postgres-instance.yaml
+x postgres-for-kubernetes-v1.0.0/operator/templates/
+x postgres-for-kubernetes-v1.0.0/operator/templates/postgres-operator-cluster-role-binding.yaml
+x postgres-for-kubernetes-v1.0.0/operator/templates/postgres-operator-cluster-role.yaml
+x postgres-for-kubernetes-v1.0.0/operator/templates/postgres-operator-mutating-webhook-configuration.yaml
+x postgres-for-kubernetes-v1.0.0/operator/templates/postgres-operator-self-signed-issuer.yaml
+x postgres-for-kubernetes-v1.0.0/operator/templates/postgres-operator-service-account.yaml
+x postgres-for-kubernetes-v1.0.0/operator/templates/postgres-operator-serving-cert.yaml
+x postgres-for-kubernetes-v1.0.0/operator/templates/postgres-operator-validating-webhook-configuration.yaml
+x postgres-for-kubernetes-v1.0.0/operator/templates/postgres-operator-webhook-service.yaml
+x postgres-for-kubernetes-v1.0.0/operator/templates/postgres-operator.yaml
+x postgres-for-kubernetes-v1.0.0/operator/values.yaml
+x postgres-for-kubernetes-v1.0.0/operator/Chart.yaml
+x postgres-for-kubernetes-v1.0.0/pg-instance-example.yaml
+x postgres-for-kubernetes-v1.0.0/s3-secret-example.yaml
+x postgres-for-kubernetes-v1.0.0/sample-app/
+x postgres-for-kubernetes-v1.0.0/sample-app/Dockerfile
+x postgres-for-kubernetes-v1.0.0/sample-app/spring-music.yaml
+x postgres-for-kubernetes-v1.0.0/sample-app/start.sh
+Inside the directory, you can load the images to your local docker, tag the local/remote docker image, then push them to remote gcr, nexus, harbor, or dockerhub.
+ysung@ysung-a01 Downloads % cd postgres-for-kubernetes-v1.0.0
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % ls
+images    operator   pg-instance-example.yaml s3-secret-example.yaml  sample-app
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % clear
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % docker load -i ./images/postgres-operator
+805802706667: Loading layer [==================================================>]  65.61MB/65.61MB
+3fd9df553184: Loading layer [==================================================>]  15.87kB/15.87kB
+7a694df0ad6c: Loading layer [==================================================>]  3.072kB/3.072kB
+fd7061d31ad3: Loading layer [==================================================>]  5.632kB/5.632kB
+4b4bd574e49b: Loading layer [==================================================>]  401.9kB/401.9kB
+e152edc8bead: Loading layer [==================================================>]  44.66MB/44.66MB
+Loaded image: postgres-operator:v1.0.0
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % docker load -i ./images/postgres-instance
+070c04821d66: Loading layer [==================================================>]  273.3MB/273.3MB
+07a8a652fcf1: Loading layer [==================================================>]  32.04MB/32.04MB
+9ab2a722e995: Loading layer [==================================================>]  20.48kB/20.48kB
+18c84f97a1eb: Loading layer [==================================================>]  2.048kB/2.048kB
+77381640e952: Loading layer [==================================================>]  433.7kB/433.7kB
+3ba6bbc85c04: Loading layer [==================================================>]  26.62kB/26.62kB
+9b3241d6c479: Loading layer [==================================================>]  26.62kB/26.62kB
+Loaded image: postgres-instance:v1.0.0
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % docker images "postgres-*"
+REPOSITORY          TAG       IMAGE ID       CREATED       SIZE
+postgres-operator   v1.0.0    0c0838dfb622   7 weeks ago   108MB
+postgres-instance   v1.0.0    3224e25506df   7 weeks ago   361MB
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % docker push gcr.io/vmware-ysung/postgres-operator:v1.0.0
+The push refers to repository [gcr.io/vmware-ysung/postgres-operator]
+e152edc8bead: Layer already exists
+4b4bd574e49b: Layer already exists
+fd7061d31ad3: Layer already exists
+7a694df0ad6c: Layer already exists
+3fd9df553184: Layer already exists
+805802706667: Layer already exists
+v1.0.0: digest: sha256:3af37b693cae737f4e2b89d2e086b295d8db66d8fbe074cc2531cce096ff4bbf size: 1571
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % docker push gcr.io/vmware-ysung/postgres-instance:v1.0.0
+The push refers to repository [gcr.io/vmware-ysung/postgres-instance]
+9b3241d6c479: Layer already exists
+3ba6bbc85c04: Layer already exists
+77381640e952: Layer already exists
+18c84f97a1eb: Layer already exists
+9ab2a722e995: Layer already exists
+07a8a652fcf1: Layer already exists
+070c04821d66: Layer already exists
+7a694df0ad6c: Layer already exists
+3fd9df553184: Layer already exists
+805802706667: Layer already exists
+v1.0.0: digest: sha256:8117fe2bd7d8b121a91bf3615c3665cc8bad808b4cb8f9397d77b82fbbc076df size: 2407
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 %
+Once the images are ready in your gcr repository, you need a “docker-registry” type secret in your k8s cluster, so your k8s resource can pull images. Here is the example:
+ysung@ysung-a01 cks_kubeadm % k get secret
+NAME                  TYPE                                  DATA   AGE
+default-token-2dwfj   kubernetes.io/service-account-token   3      53m
+ysung@ysung-a01 cks_kubeadm % k create secret docker-registry regsecret --docker-server=gcr.io --docker-username=_json_key --docker-password="$(cat ~/.ssh/vmware-ysung.json)"
+secret/regsecret created
+ysung@ysung-a01 cks_kubeadm % k describe secret regsecret
+Name:         regsecret
+Namespace:    default
+Labels:       <none>
+Annotations:  <none>
+Type:  kubernetes.io/dockerconfigjson
+Data
+====
+.dockerconfigjson:  5568 bytes
+Now we are ready to deploy Tanzu SQL Postgres. There are two components of Postgres for K8S: Postgres operator and Postgres instance. We first deploy operator, then we direct operator how our Postgres instance should look like using the YAML file.
+Go back to the Tanzu SQL Postgres folder you just unzipped.
+Review the “values.yaml” file in the operator subdirectory. Ensure that the dockerRegistrySecretName matches the one you just created, and the operatorImageRepository/postgresImageRepository matches the URIs you did push.
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % cd operator
+ysung@ysung-a01 operator % ls
+Chart.yaml crds  templates values.yaml
+ysung@ysung-a01 operator % cat values.yaml
+---
+# specify the url for the docker image for the operator, e.g. gcr.io/<my_project>/postgres-operator
+operatorImageRepository: gcr.io/vmware-ysung/postgres-operator
+operatorImageTag: v1.0.0
+# specify the docker image for postgres instance, e.g. gcr.io/<my_project>/postgres-instance
+postgresImageRepository: gcr.io/vmware-ysung/postgres-instance
+postgresImageTag: v1.0.0
+# specify the name of the docker-registry secret to allow the cluster to authenticate with the container registry for pulling images
+dockerRegistrySecretName: regsecret
+Now we are ready to deploy Postgres Operator.
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % helm install postgres-operator operator/
+W1219 13:10:37.912424   27721 warnings.go:67] apiextensions.k8s.io/v1beta1 CustomResourceDefinition is deprecated in v1.16+, unavailable in v1.22+; use apiextensions.k8s.io/v1 CustomResourceDefinition
+W1219 13:10:39.968536   27721 warnings.go:67] apiextensions.k8s.io/v1beta1 CustomResourceDefinition is deprecated in v1.16+, unavailable in v1.22+; use apiextensions.k8s.io/v1 CustomResourceDefinition
+NAME: postgres-operator
+LAST DEPLOYED: Sat Dec 19 13:10:41 2020
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+Wait for a couple seconds to get operator “READY”.
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % k get all
+NAME                                     READY   STATUS    RESTARTS   AGE
+pod/postgres-operator-55cb44f597-p7hwg   1/1     Running   0          40s
+NAME                                        TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)   AGE
+service/kubernetes                          ClusterIP   10.96.0.1       <none>        443/TCP   63m
+service/postgres-operator-webhook-service   ClusterIP   10.103.143.54   <none>        443/TCP   40s
+NAME                                READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/postgres-operator   1/1     1            1           40s
+NAME                                           DESIRED   CURRENT   READY   AGE
+replicaset.apps/postgres-operator-55cb44f597   1         1         1       40s
+Once the Postgres Operator is ready, we can create a Postgres instance using a YAML manifest like this:
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % cat pg-instance-1.yaml
+apiVersion: sql.tanzu.vmware.com/v1
+kind: Postgres
+metadata:
+  name: pg-instance-1
+  namespace: default
+spec:
+  memory: 800Mi
+  cpu: "0.8"
+  storageClassName: fast
+  storageSize: 100M
+  pgConfig:
+     dbname: dev1
+     username: pgadmin
+  serviceType: ClusterIP
+  highAvailability:
+     enabled: false
+  backupLocationSecret:
+     name:
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % k apply -f pg-instance-1.yaml
+postgres.sql.tanzu.vmware.com/pg-instance-1 created
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % k get pod
+NAME                                 READY   STATUS              RESTARTS   AGE
+pg-instance-1-0                      0/1     Init:0/1            0          5s
+pg-instance-1-monitor-0              0/1     ContainerCreating   0          5s
+postgres-operator-55cb44f597-p7hwg   1/1     Running             0          2m17s
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % k get pod -w
+NAME                                 READY   STATUS    RESTARTS   AGE
+pg-instance-1-0                      1/1     Running   0          34s
+pg-instance-1-monitor-0              1/1     Running   0          34s
+postgres-operator-55cb44f597-p7hwg   1/1     Running   0          2m46s
+For testing, you can use “kubectl exec” to run psql in the pod once the pod is ready.
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % k get pod
+NAME                                 READY   STATUS    RESTARTS   AGE
+pg-instance-1-0                      1/1     Running   0          3m28s
+pg-instance-1-monitor-0              1/1     Running   0          3m28s
+postgres-operator-55cb44f597-p7hwg   1/1     Running   0          5m40s
+ysung@ysung-a01 postgres-for-kubernetes-v1.0.0 % k exec -it pg-instance-1-0 -- psql
+psql (11.9 (VMware Postgres 11.9.3))
+Type "help" for help.
+postgres=# \q
+As you can see in the following, there is a ClusterIP service, pg-instance-1. Other resources can use this service to connect to our Postgres instance. Next article, I will show you how to set up another deployment to connect the Postgres instance. Stay tuned.
+ysung@ysung-a01 kubectl % k get svc
+NAME                                TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+kubernetes                          ClusterIP   10.96.0.1       <none>        443/TCP    7h16m
+pg-instance-1                       ClusterIP   10.97.198.100   <none>        5432/TCP   6h11m
+pg-instance-1-agent                 ClusterIP   None            <none>        <none>     6h11m
+postgres-operator-webhook-service   ClusterIP   10.103.143.54   <none>        443/TCP    6h13m

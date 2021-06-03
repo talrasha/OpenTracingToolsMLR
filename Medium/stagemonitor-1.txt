@@ -1,0 +1,53 @@
+Using Stagemonitor with hybris
+pradeep p
+pradeep p
+
+Jan 23, 2017·3 min read
+
+
+
+
+
+Stagemonitor is an opensource solution for performance monitoring of Java applications.It provides insights about the call stack ,Method execution time, page load time,JVM,JDBC, Request metrics and helps to better understand and improve the performance of applications.
+Stagemonitor can be used for both development and production environments.It imposes a very low overhead on the application.
+Stagemonitor for Development
+
+hybris storefront with Stagemonitor widget
+For development environments, Stagemonitor provides a widget which is injected into the webpage which is being monitored.This widget gives the details about the Call stack, time spent in each method,Web Requests and JVM metrics.
+
+Stagemonitor widget-Call Tree tab
+Call Tree tab provides the call stack and the time spent in each method.
+
+Stagemonitor widget-Request tab
+Request tab shows the total Page load time and also shows time taken for network,Server processing and DOM Processing.
+
+Stagemonitor widget-Metrics tab
+Metrics tab provides the details about the JDBC,JVM and Web Requests.
+Stagemonitor for Production
+Stagemonitor can be configured to send the performance metrics to time series databases like ElasticSearch, Grafana.This allows the flexibility to monitor requests/metrics over a period of time and helps in understanding the application performance issues.
+Multiple application instances running on different hosts can be monitored at a time using Stagemonitor.
+
+Elasticsearch — JVM Metrics
+Integrating with hybris
+Download and install the below extension and add entry in the localextensions.xml . This extension contains all the dependencies and properties for running stagemonitor.
+stagemonitor.zip
+Stagemonitor hybris extension drive.google.com
+2. The stagemonitor.properties file at the below path is where the configuration can be controlled.
+${HYBRIS_BIN_DIR}/bin/custom/stagemonitor/resources/stagemonitor.properties
+stagemonitor.instrument.include=org.training, de.hybris
+stagemonitor.profiler.active = true
+stagemonitor.web.widget.enabled=true
+stagemonitor.applicationName=Electronics storefront
+stagemonitor.instanceName=Electronics storefront
+stagemonitor.active=true
+stagemonitor.web.widget.enabled=true
+stagemonitor.requestmonitor.http.collectHeaders=true
+stagemonitor.requestmonitor.collectRequestStats=true
+stagemonitor.profiler.logCallStacks=true
+stagemonitor.profiler.active=true
+stagemonitor.instrument.jdbc.dataSource.implementations=com.mysql.jdbc.jdbc2.optional.MysqlDataSource, org.apache.tomcat.jdbc.pool.DataSource, org.apache.tomcat.dbcp.dbcp.PoolingDataSource, org.apache.tomcat.jdbc.pool.DataSourceProxy, org.apache.commons.dbcp2.PoolingDataSource, org.apache.commons.dbcp.PoolingDataSource, org.springframework.jdbc.datasource.AbstractDriverBasedDataSource, org.hsqldb.jdbc.jdbcDataSource, org.apache.commons.dbcp.BasicDataSource, de.hybris.platform.jdbcwrapper.HybrisDataSource
+#stagemonitor.elasticsearch.url= http://localhost:9200
+3. The tomcat general options property needs to be modified to include the below java agent.
+tomcat.generaloptions=
+-javaagent:${HYBRIS_BIN_DIR}/bin/custom/stagemonitor/lib/byte-buddy-1.5.7.jar
+4. Once hybris is restarted after the above changes, stagemonitor starts collecting the metrics and depending on the configuration, either the widget can be used from the browser or the the metrics can be sent to the Elasticsearch server for further analysis.

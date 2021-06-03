@@ -1,0 +1,200 @@
+Confident Cloud Migrations — Lifting and shifting SAP business applications is expensive, time-consuming and error-prone.
+S/4HANA Adoption — The movement towards S/4HANA is of high strategic importance to most SAP users for performance and support requirements, but the transition can introduce technical and business challenges.
+It’s able to also beefy enough to deal with asynch, which often presents a challenge for APMs.
+Microservice architectures are by nature more complicated, with many more services than traditional applications.
+Issues with database query or stored procedures and database optimization issues are some of the top reasons for poor performance performance.
+New AppDynamics Software Hunts Memory Leaks, Finds Root Cause, and it's All in Production Java memory issues are common and often difficult to diagnose.
+Profilers and other tools are great, but they have their blind-spots.
+For production environments, profilers can constitute a lot of overhead.
+They rely on heap dumps instead of runtime data, and the heap dump approach is not suitable for large heap sizes that are commonly found today.
+Some profilers have non-heap dump approaches, but they only capture shallow object sizes.
+“Best case scenario, a memory leak causes your system to slow down, dragging application performance well below established SLAs.
+Worst case scenario, your servers crash completely and you don’t know why.
+So application Performance Management has been around for a while, though it seems like many developers are not comfortable with it yet.
+One of the thorny issues here is alerting and reporting, with so many metrics and moving parts, it’s hard to identify which matters most.
+Simply put, they require you to manually set the threshold.
+For example, the definition of a slow transaction might vary under low and high loads on the system.
+However, there is still more work to be done to unify these platforms more seamlessly.
+These trends will continually take hold, personalization and fast touch points are valued by today’s users who seemingly have less time than ever before.The level of patience and complexity involved in making these channels seamless is an increasing challenge with today’s IT complexity.
+With existing application monitoring tools, we were having difficulty handling higher numbers of business transactions, huge volumes of data, and complex applications.
+Meanwhile, 40 percent of incident alerts were false positives.
+A: Before using AppDynamics, it was hard to handle huge volumes of data and business transactions, in addition to complex applications, with other APM tools.
+Manually instrumenting these large number of microservices and setting static threshold for altering can be a very difficult task if not impossible.
+response time is up, errors are up and network I/O is down.
+poor performance.
+from the load balancer so that it will not receive any more traffic.
+That’s an expensive and time consuming process that only offered the insight you’re looking for hours, days or even weeks later.
+We were discussing database performance and I was surprised when he told me that the most common cause of database performance issues (from his experience) was a direct result of contention on shared storage arrays.
+Workloads can be really unpredictable and can change considerably over time within a given application.
+Databases that once played nicely together on the same spindles can become the worst of enemies and sink the performance of multiple applications at the same time.
+no agent required) to your NetApp controllers and collects the performance and configuration information that you need to identify the root cause of performance issues.
+Setting static response time thresholds too low and your team will be inundated with alerts.
+On the inverse, setting them too high and your team will miss a lot of issues and as a result will anger a lot of users.
+The challenges with this approach are several-fold:Tools have minimal integration or common context, which makes it near impossible to manage the application or its business transactions.
+Tools are designed for subject-matter experts, so it’s hard to provide value to the ops team as a whole.
+Tools have high total cost of ownership, since every tool has to be independently procured, installed and managed, and staff have to be trained in their use.
+However, Gartner points out that the hardest part is often defining what we can collect, take action upon, audit, and use to drive a lifecycle.
+The second challenge (which Gartner does not discuss), is how these metrics should be linked together to offer meaningful insights.
+And unfortunately, many enterprises today analyze metrics that have a lack of linkage or relationship between them.
+Another common pitfall is when customers test their websites with the same exact request repeatedly.
+Addtionally, the microservices APM maintains a low overhead.
+If a user can't access the system, it can lead to a whole mess of problems for everyone involved.
+One of the thorny issues here is alerting and reporting, with so many metrics and moving parts, it’s hard to identify which matters most.
+Why IT People Hate Their JobsEarlier this year, Cisco company AppDynamics fostered a global study polling CIOs and senior to mid Information Technology (IT) professionals over the topic of digital transformation.
+Which is all nice, but not exactly what we were looking for.As our goal was to let AppDynamics help us finding a root cause of memory leak we have suffered for so long we switch to “Automatic Leak Detection” tab and activate it (it is switched off by default).
+Databases that once played nicely together on the same spindles can become the worst of enemies and sink the performance of multiple applications at the same time.
+Imagine being able to detect an end user problem, drill down through the code execution, identify the slow SQL query, and isolate the storage volume that is causing the poor performance.
+If there’s a performance issue, the corresponding node will intuitively flag the problem and illustrate the affected nodes.Along with your application flowmap, we know it’s important to monitor and communicate your applications’ health to a wider internal audience.
+ERROR should contain technical issues that need to be resolved for proper functioning of the system (ex: couldn’t connect to database)
+Bounded Context: Deciding the boundaries of a microservice is not an easy task.
+This is very difficult without a sufficient upfront investment in a tracing strategy.
+They realized that while their developers were using TDD and agile methodologies, work spent far too long in queue, flowing from isolated workstations—product management, UX, developers, QA, various admins, etc.—until finally it was deployed into production.
+Of course, sometimes it is not so easy to deploy our changes to production.
+First of all, you have dozens of applications running with several instances each on different nodes, which are very often assigned dynamically, and finding the place where something went wrong is a very tough task.
+If there are no errors, but your users experience very long response times, then you can probably profile your application, and look for bottlenecks in one place.
+A failure in a monolithic application usually means total unavailability.
+Secondly, even if you identify bounded contexts perfectly, but some of your services use the same database (schema) your applications will still be coupled, and you won't be able to deploy them independently, and in case of a database failure all of them will be unavailable.
+You won't find any concrete solutions here, but rather a high-level overview of how many different, and complex problems we need to solve before we go for microservices.
+Currently, Milvus does not support sharing data for multiple writable instances.
+There are two problems with this: first, the request will keep going to the down service, exhausting network resources and slowing performance.
+Second, the user experience will be bad and unpredictable.
+When the number of consecutive failures crosses a threshold, the circuit breaker trips, and for the duration of a timeout period, all attempts to invoke the remote service will fail immediately.
+When microservice architecture has been implemented, there is a chance that a service might be up but not able to handle transactions.
+Then, how do we trace a request end-to-end to troubleshoot the problem?
+When the service portfolio increases due to microservice architecture, it becomes critical to keep a watch on the transactions so that patterns can be monitored and alerts sent when an issue happens.
+Moreover, EMA’s research concluded that when several APMs are in place, the overload is actually making monitoring more difficult.The majority of these solutions lack proper integrations.
+Once we implement database-per-service, there is a requirement to query, which requires joint data from multiple services — it's not possible.
+There is a problem of how to define database architecture for microservices.
+But if the application is a monolith and trying to break into microservices, denormalization is not that easy.
+When an application is broken down to smaller microservices, there are a few concerns that need to be addressed:
+Applying all the above design patterns to them will be difficult because breaking them into smaller pieces at the same time it's being used live is a big task.
+Decomposing an application using business capabilities might be a good start, but you will come across so-called "God Classes" which will not be easy to decompose.
+As a general rule, it's not a good idea to push directly from CI to production.
+Performance - including failure scenarios retries timeouts, fault injection, and circuit breaking.
+When something goes wrong, the older version can be rolled out, and you can iterate on the canary deployment branch and keep rolling that out until it meets expectations.
+If Linkerd is failing to connect with a specific service, it is probably a clear indicator of issues.
+The worst failures are the ones which happen quietly without any indication of an issue having happened.
+One of the challenges with moving to microservice-based architecture is that the call stack between microservices can grow tall and it can get difficult to know where the performance bottlenecks are, or to get a view of the dependencies between the various services.
+Failure costs time and money to fix and ruins brand value.
+It is easy to fall into the trap that many errors raise alerts, and by that, the alerts mechanism is being abused and becomes irrelevant.
+One way to mitigate this problem by re-playing messages in a testing environment, but sometimes physical or regulatory limitations do not allow it.
+A service’s failure might be hidden or seem negligible, but it can greatly impact the system’s functionality.
+It may require quite a large learning curve, especially for people without experience in these kinds of tools.
+Understanding the complete flow of the data is arduous, not to mention understanding where errors stem from.
+Similarly, a service can be flagged as down or unavailable after clients fail to interact with it.
+Failing to receive a valid response can be due to an error or timeout.
+Lastly, to consume fewer resources and supply the demand, the service can continue providing service but with reduced quality; for example, lower resolution video streaming rather than cease the streaming totally.
+It hurts if the services differ by their tech-stack, which means this logic should be implemented across different technologies.
+Instances are automatically assigned to the network location, so maintaining a central configuration is not efficient and almost not practical.
+However, if the environment is dynamic and frequent changes of services' paths are required, choosing DNS may not be the best solution since updating the DNS entries can be painful.
+Changing one microservice does not impact the other microservices, so altering our solution's behavior can be done only in one place while leaving the other parts intact.
+Cons: Difficult to configure
+Not surprisingly, when asked, engineers list monitoring as one of the main obstacles for adopting Kubernetes.
+After all, monitoring distributed environments have never been easy and Kubernetes adds additional complexity.
+Time series data is great for determining when there is a regression but it's nearly impossible to use it to determine which service was the cause of the problem.
+As hardware failure became the common case rather than the exception, Google engineers needed to design accordingly.
+Without alerts, you don't get notified of incidents, which in the worst case means that companies don't know that there have been problems.
+Secret management is essential for cloud-native solutions but is often neglected at smaller scales.
+Ultimately, organizations that ignore secret management could increase the surface area for credential leakage.
+Prices may be a little high for small infrastructures.
+Unfortunately, however, those short-cuts can lead to costly performance testing mistakes and oversights.
+insight from what are essentially infrastructure metrics is difficult.
+Simple DevOps strategy will not be enough to manage such a complex system.
+It’s sometimes the case that less monitoring is advantageous simply to avoid extraneous data, but here we’re talking about having fewer APM tools.
+Moreover, EMA’s research concluded that when several APMs are in place, the overload is actually making monitoring more difficult.The majority of these solutions lack proper integrations.
+Individual APMs offer a decent portrait of one aspect of a company’s operation, but using 10 or more which don’t integrate with one another is similar to staring at fractured pieces of a jigsaw puzzle.
+Thus while each tool offers comprehensive monitoring, these all-in-one packages can make for rigidity.
+Essentially, those many monitoring platforms aren’t doing their job.
+Rather, this amalgamation of monitoring tools can even degrade the state of monitoring.
+People understand elements of performance but very few understand the end-to-end experience.
+Everyone has a niche but there’s not enough regimen and certification.As tools become more powerful and complex they become harder to use and you have to hire people to manage the tools.
+Clients don’t want to just know there’s a problem, they want to know how to mitigate it and see what happened.
+How well do these tools we're creating play together for clients and end users?There are still a lot of companies that do not view performance and monitoring as integral to the development process.
+let’s say some issue arises after a new deployment: if you’d like to produce a timely response, dealing with gbs of unstructured data from multiple sources and machines is close to impossible without the proper tooling.
+release cycles are down, log files grow large, user requests explode, and… the margin for error simply doesn’t exist.
+while some errors may be trivial, others break critical application features and affect end-users without you knowing it.
+release cycles, log files, user requests, no margin for error and… how you’re going to follow up on it all?
+you might think this category overlaps with the other’s and the truth is that you’re probably right, but when all of these tools have their own pipelines for letting you know what went wrong - it gets quite cluttered.
+especially in the soft spot after a new deployment when all kinds of unexpected things are prone to happen.
+The complexity and scale issues presented by IoT on both the backend (in the cloud) and the frontend (things themselves) is a major challenge for not only the systems themselves, but for the management tooling of these interconnected and fluid systems.
+There’s a lack of expertise of what to look for and how to look for it.
+Development Efficiency and MeasurementSeeing and improving the efficiency of Software Development teams is a problem for every technical team manager.
+Ignoring the underlying performance bottlenecks and tricking the user with a UI band-aid is akin to placing tape over a crack in your drywall — you’re only covering up the symptom of an underlying problem.
+one of the biggest annoyances in writing php is having to write a long list of needed includes at the beginning of each script (one for each class).
+In my mind it’s not enough to just observe the behavior of these platforms from the outside.
+Neither is sufficient to ensure their business counterpart, as humans are an important part of the mix, but without software agility or velocity, the business is doomed to being inflexible and slow.
+Such modern development is iterative, but it’s still slow and hard to maintain for rapidly changing apps.AppDynamics has solved these problems.
+When applications are emitting thousands, millions, perhaps even billions of data points, it can be impossible to sift through all the noise to find the signal.
+We don’t have any storage available and the EMC storage we ordered is still stuck in customs…” The frustration drove us to look for more agile alternatives and eventually led us to migrate to the cloud.
+However, it also makes cost forecasting much more challenging.
+The problem is even greater with Infrastructure-as-Code since developers actually write and maintain the infrastructure in their git repositories.
+This was a painful experience for both engineering teams trying to piece together what caused a bug, and also for the user who experienced the bug and was responsible for reporting it.
+Since then, engineering teams have standardized on error monitoring software that automatically captures and alerts on errors, but this still requires lots of engineering overhead to triage the list of errors continually.
+The challenge with performance monitoring most teams face is knowing when is fast really “fast enough”.
+With so many variables affecting the performance metrics of any system, it can turn into a rabbit hole of tweaks.
+Performance bottlenecks in your code base can produce downstream effects on multiple services, sometimes leading to a cascading failure.
+Not only does this mean that the APM User Experience must better meet the expectations and use cases of a developer, but also that APM needs a new interface to this end user: Code.
+In fact, tracing is not much different from logging except that it has predefined semantics and an approach for correlating the "log messages" - which is the trace context discussed earlier.
+In microservices architectures, understanding dynamic dependencies using topology and graph analysis is more difficult than in traditional architecture.
+Modern application delivery has shifted to CI/CD, containerization, microservices, and polyglot environments creating a new problem for APM vendors and for observability in general.
+New software is deployed so quickly, in so many small components, that the production profilers of the SOA generation have trouble keeping pace.
+They have trouble identifying and connecting dependencies between microservices, especially at the individual request level.
+Those production profilers employ various algorithms that limit the amount of data collected and therefore provide only partial data or meta-data for most of the requests flowing through the system.
+This strategy MIGHT be acceptable for SOA applications, but is completely unacceptable in the microservices world.
+The problem is so pervasive that the Cloud Native Computing Foundation (CNCF) has multiple open source observability projects in either the Incubation or Graduated phase.
+The burden of monitoring as code results in valuable programming resource being consumed writing instrumentation rather than functional (business) code.
+The set up and maintenance of the data collection, dashboarding, and alerting systems takes operators away from running core systems.
+Unfortunately, there is no gain without pain; in this case, the pain is the extra resources required from both developers and operators to collect and manage this extra data.
+Issues in the middle of the organization has held a couple of applications held back.
+There so many new patterns and tooling to learn people have realized it’s not as easy, simple, or immediately rewarding.
+Deploying and testing on the architecture can be challenging.
+This methodology only works with high-level automation, it cannot scale manually.
+In our world, microservices were still relatively sparse one to two years ago, especially when you’re dealing with enterprise IT organizations that were used to different, more traditional software.
+Monitoring from the cloud simply doesn’t make sense; your end users are not there.
+If you use Amazon or Azure for DNS, you certainly don’t want to also use them for monitoring.
+Furthermore, you can’t monitor DNS solely using inferred DNS metrics by monitoring HTTP URLs, as you are not truly monitoring the DNS service and the vendor infrastructure providing the service.
+The most common real-world problem we hear from customers is how they can stay relevant to their end-users and customers.
+You cannot get by with long outages or poor user experience regardless of the vertical you’re in.
+People are concerned about cloud lock-in.
+If all servers aren't equally loaded, traffic is not being distributed efficiently.
+Try adjusting the weights, because their absence might be causing the imbalance rather than a problem with the load-balancing technique.
+Errors and failed requests – You need to make sure that the number of failed requests and other errors is not larger than is usual for your site, otherwise you’re testing error conditions instead of realistic traffic.
+These problems, like a mobile carrier experiencing an outage, may be due to our errors or to external conditions; but they should nevertheless be discovered as early as possible.
+However, it only runs on AWS, so can't be used in hybrid cloud architectures, and only works with Java, Node.js, and .NET applications running on specific AWS services.
+From a theoretical perspective, the fundamental issue with building workable distributed systems comes down to the problem of consensus – agreement on the distributed state.
+In my opinion, the benefits are small, rarely obtained in practice, and come at the expense of vastly increased implementation complexity.
+As most engineers know, changing the data model after the fact is a lot of work and may require migrating old data.
+A downside of time-based metrics is that it’s next to impossible to look at user behavioral trends by looking at multiple events together.
+Even the simplest query like finding the average session length will cripple time-based stores with out-of-memory errors as session length has to be derived from the first and last event for each user.
+More sophisticated analytics like funnel and cohort retention analysis cannot be done unless you wait for a long-running job to load and transform the data over hours or days eliminating the advantages of self-serve interactive analytics.
+Of course, with user-centric data stores, a negative is that expiring data or moving specific time periods to beefier nodes is harder.
+A second downside is building a pipeline to store data in a user-centric way is more complicated.
+Log aggregation pipelines like Logstash and Fluentd won’t be able to perform the shuffle and transform required to insert data in-order for the right user.
+Choosing the Right SRE ToolsImplementing SRE practices and culture can be challenging.
+Security: As most companies store and process their data over the cloud, the chances of a data breach are high.
+This is also the main issue: frameworks like Hadoop and MPI are developed independently — thus it’s not possible to do fine-grained sharing across frameworks.
+Keeping up with high-speed deployments and ephemeral instances in a microservices model is a huge challenge for today’s monitoring tools.
+It’s also difficult to visualize the complex flow of tasks through various services and to deal with the highly dynamic scale [2].
+Unfortunately, it’s clear that current monitoring tools have not been designed around this microservice- centric model, and most suffer from poor usabilityand adoption in teams outside operations.
+There is nothing more frustrating than when you get an alert saying “All your base are belong to us” and you have no idea what bases are missing or who “us” is referencing.
+Especially when you’ve got a bunch of developers all pushing to a single code base, it is difficult to realize when you’ve impacted the response times of another endpoint.
+This can be difficult to apply to systems because they are always changing.
+Similarly, it's much more difficult to correlate the behavior of a single service to the user's experience  since partial failure becomes more of an everyday thing.
+It’s very difficult to choose the right path in the middle of so many tools and practices.
+It enables users to pinpoint the service or granular, the specific request path, that is causing the issue.
+Many companies are struggling to achieve the flawless canary deployment strategy due to lack of Automation skills.
+Another topic for log reviews is the challenge to balance between logging relevant information and not exposing personal data or security-related information.
+Acting on security issues is crucial - so you should always have an eye on audit logs.
+Similarly, it's much more difficult to correlate the behavior of a single service to the user's experience  since partial failure becomes more of an everyday thing.
+These numbers are difficult to estimate without some real-world testing.
+Another common issue is identifying SQL queries that are being called too often.
+I have faced several problems while trying to use the Debian package and would not recommend that method.
+First of all, there is no instrumentation on the OS level, and even resource monitoring becomes less reliable due to the virtualization layer.
+Second, systems are not completely isolated from the performance point of view, and they could impact each other, and we mostly have multi-user interactive workloads, which are difficult to predict and manage.
+Generally, it’s difficult to set a minimum absolute value for the available memory, and you should instead base it on observing the trends of your particular application.
+With traditional monitoring tools, it's either extremely difficult or impossible to isolate and compare the performance of individual application features as required when introducing new client functionality.
+The most difficult form of observability is distributed tracing within and between application services.
+Performance analysis expertise for new technologies is hard to find making it difficult to troubleshoot problems
+Alerts take too long to trigger making the impact on business too costly.
+)Things do however quickly become more difficult when tracing asynchronous executions.
+And the same way that debugging asynchronous execution is difficult, this is quite a bit of work for us too.

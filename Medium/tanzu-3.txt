@@ -1,0 +1,90 @@
+Enable Redis(Remote Dictionary Server) Cache for .Net Core Apps in PCF(i.e. TAS)Platform
+RamanaReddy V
+RamanaReddy V
+
+Apr 18·4 min read
+
+
+
+
+Redis is a fast, open source in-memory data structure store, used as a database, cache, and message broker. Redis provides data structures such as strings, hashes, lists, sets, sorted sets with range queries, bitmaps, hyper loglogs, geospatial indexes, and streams.
+While implementing cloud native applications we mostly implemented only stateless applications so there is no option to persist the session. Some of web systems rely on sticky sessions that means maintaining user session in app server memory It’s violation of 12 factor rules. To store this kind of sticky session we can use Redis.
+Here I’m focusing on how to connect Redis with help of Steeloe Redis Service connector on Cloud Foundry (i.e. PCF | TAS)
+
+Tech Stack
+Use case:
+For example: Let’s take a Redis List. It’ll hold the list of strings & we can push the elements from Left or Right. Let’s assume if User insert the data in form once submitted, we can push the data in to Redis list & display All inserted records & provide an option to user to delete record from Redis Cache DB.
+Note: It’s not a valid business use case But here I’m focusing How to push data into Redis List & Consume those records. How to utilize the steeltoe service connector on Tanzu application service | PCF Platform.
+Prerequisites:
+1. PCF account (i.e. PCF part of VMware Tanzu https://login.run.pivotal.io/login It may differ )
+2. CF CLI Installation (i.e. https://docs.run.pivotal.io/cf-cli/install-go-cli.html ) — Windows Platform choice.
+3. .Net 5 with Blazor Framework (i.e. we can choose lower versions also)
+4. steeltoe Packages from NuGet.
+5. Create a .net core supported version of build packs with PCF.
+Note: I’m using previous BlazorApp1 project for redis cache insert, delete & get all keys related information . for more details about code visit below articles.
+Service Registry pattern
+Config server
+Create a Redis service using CF CLI. Please make sure to enable the Redis service option on marketplace within your ORG.
+cf create-service p.redis CACHE_PLAN SERVICE_NAME // Syntax 
+Example : 
+cf create-service REDISSERVICE Trial  redisCacheTempDb
+Example:
+Add below NuGet packages:
+
+NuGet packages
+Update the Startup.cs file like below.
+
+Startup.cs
+Update the Program.cs file
+
+Program.cs
+Create a ProductInfo model class like below
+
+Product Info Model class
+Add sample blazor Form like below
+
+M1service.razor
+Update M1service.cs file like below
+
+M1service.cs
+Update Ms1.cs like below
+
+Ms1.cs
+Display inserted Redis DB data
+
+M2service.razor
+Update M2service.cs file
+
+M2service
+Update Ms2.cs get all
+
+Ms2.cs -1
+
+Ms2.cs -2 Delete
+Update manifest.yml file
+
+manifest.yml
+Update Appsettings.json file with Redis Key Name & Enable Redis connection within app.
+
+Appsettings.json
+Redis client connector settings we can customized with different values based on use case.
+
+Redis Client Connector Options
+Publish the BlazorApp1 into PCF by using CF CLI . If you’re using CI/CD pipeline means we need to configure according to pipeline rules.
+For now we can deploy through manual by using CF CLI.
+a. Publish BlazorApp1 into any local directory (i.e. C:\Blazor\). Make sure manifest.yml should be in published location.
+b. Login CF CLI & select corresponding Space with help of CMD.
+c. After login into PCF navigate to published location within same CMD CF CLI login session (i.e. cd C:\Blazor\ )
+d. After navigated into published location BlazorApp1 App then type cf push
+e. You’re able to see deployment completed status logs of PCF in CMD.
+Bound services of BlazordemoUI App like below
+
+Bound services
+Go To settings of Environment Variables VCAP_SERVICES of Deployed App we’re able to see bounded service details.
+
+Environment Variables
+After deployment UI like below
+
+Sample Blazor Form
+
+List page Redis Cache Data

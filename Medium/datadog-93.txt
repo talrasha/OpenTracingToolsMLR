@@ -1,0 +1,23 @@
+Monitoring Hashicorp Vault Requests with Datadog
+Rocky Olsen
+Rocky Olsen
+
+May 21, 2019·1 min read
+
+
+
+
+The paid for version of Hashicorp Vault is licensed on a per-request basis. As a FOSS user salivating over their enterprise feature sets, it’s good to know what I’m getting into heading into negotiations.
+Thankfully Datadog recently released a Hashicorp Vault intergration!…but it doesn’t support the request counter endpoint (feature request has been submitted). :( This is understandable as the endpoint was only released with the 1.x releases and hasn’t been formally documented yet.
+Unlike the status/health endpoints the counters endpoint is authenticated/authorized, so you’ll need to apply the following policy and provision a token.
+> vault policy read datadog-agent
+path "sys/internal/counters/requests" {
+  capabilities = ["read", "list"]
+}
+Once you’ve provisioned a token drop the following file off in /etc/datadog-agent/checks.d/custom_vault.py:
+https://github.com/HireVue/hv-datadog-plugins/blob/master/vault/hv_vault.py
+Create a config file in /etc/datadog-agent/conf.d/custom_vault.d/custom_vault.yaml containing the following:
+
+At this point you are ready to start graphing your vault requests:
+
+Note: It is worth noting that querying the health/status/requests with the datadog increments your request count, which gets charged against your monthly total requests. Nothing is free.

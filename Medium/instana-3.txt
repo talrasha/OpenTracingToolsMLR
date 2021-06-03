@@ -1,0 +1,40 @@
+Business Automation Is About to Get Crazy in the Wake of the IBM Intana Acquisition
+Dan Goldberg
+Dan Goldberg
+
+Nov 25, 2020·3 min read
+
+
+
+
+When IBM announced that it was buying Instana last week, it struck me as the first shot across the bow of market maturation. One of the first indications of Market maturation is consolidation. To validate this theory, let’s go back a few years.
+For several years, DORA (DevOps Research & Assessment) has run surveys and assessed the state of DevOps. The surveys have shown steady progress:
+In 2014, three of the five recommendations were about culture:
+— Peer-reviewed change approval process
+— Version control for all production artifacts
+— Proactive monitoring
+— High-trust organizational culture
+— Win-win relationship between dev and ops
+By 2015, automation and technology-based practice improvements were already more important than they were the year before:
+It was gratifying, though unsurprising, to find that deployment pain was predicted by whether the key continuous delivery practices had been implemented: comprehensive test and deployment automation, the use of continuous integration including trunk-based development, and version control of everything required to reproduce production environments. A generative organizational culture was also highly correlated with low deployment pain.
+A 2016 survey supported these findings. I helped lead the survey and produced the report for xMatters and Atlassian. We surveyed more than 1,000 technology organizations on the maturity of their DevOps culture, operations, continuous delivery, architecture, and testing.
+Organizations ranked most mature in their culture, which makes sense since DevOps launched as a cultural movement and organizations have been working on the culture aspects of DevOps the longest. Here are the complete rankings:
+— Culture and organization alignment
+— Continuous delivery
+— Operations and support
+— Design and architecture
+— Test and verification
+I saw the movement firsthand at xMatters. The company was trying to manage literally tens of thousands of virtual machines before it turned to containers and then to Kubernetes to orchestrate the containers. Finally, with their hands tied up from maintaining data centers around the world, they moved to GCP so they could get out of the maintenance business and back in the innovation game.
+
+A New Age of Automation
+The culture of collaboration and transparency is still an important element of high performing organizations, but automation is more dependent on technology than it used to be. In fact, a new breed of companies is automating certain aspects of business to free workers from repetitive tasks and toil so they can focus on innovation and new projects.
+New (and some old) companies include:
+— Harness for CI/CD and more
+— Instana for monitoring
+— Gusto and Clearview for HR
+— To a lesser extent: Jenkins, Ansible, CircleCI, GitLab, and Hardbees
+So let’s get back to IBM and Instana. One of the primary signs that an industry is maturing is consolidation. IBM’s purchase of Instana looks to be the first shot toward consolidation in this new automation paradigm. If IBM recognizes the importance of process automation enough to act. you can bet some other big players will do the same.
+Think Oracle, SAP, and Microsoft. What will the impact be on cloud platforms like AWS, Azure, and GCP?
+I expect many people will become redundant in their current roles, including engineers. But new roles will emerge for new purposes. We’ll retrain, adapt, and create a new economy. This is what happens in every industrial revolution. This should be fun!
+How About Your Perspective?
+What stories or lessons do you have on this topic? Please leave a comment!

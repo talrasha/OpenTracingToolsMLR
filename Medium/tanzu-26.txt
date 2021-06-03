@@ -1,0 +1,15 @@
+The Top 7 Highlights from VMworld 2019: Pacific, Tanzu, and the End of the Unicorn
+Torsten Volk
+Torsten Volk
+
+Aug 28, 2019·2 min read
+
+
+
+
+At VMworld 2019, VMware has doubled down on its strategy of offering a unified operating model for hybrid cloud (vSphere + public cloud) and multi cloud (more than one public cloud) by adding native Kubernetes support and an initial set of interesting AIOPs capabilities (project Magna) to the mix. At the end of the day, VMware is in the enviable position of owning a base of approximately 500,000 vSphere customers that are an ideal target for converting into Kubernetes customers. There are still 85% of enterprise applications that so far have escaped migration and modernization, simply because enterprises do not have the cycles required to go through this this often time consuming process. VMware is laser focused on capturing these 500,000 targets accounts and 85% of remaining applications by making significant changes to its core portfolio.
+Here are my Top 7 highlights from VMworld 2019 (also see my show summary in pictures and with fewer words):
+#1: Project Pacific — Kubernetes on vSphere
+
+Project Pacific was the “big bang” at this year’s VMworld opening keynote. vSphere can now provision and run upstream Kubernetes in addition to and on top of ESXi. “The integration goes so deep that we had to rewrite core parts of vSphere to support containers, pods, namespaces, scheduling policies, access and identity management and other core components of the software as core system objects that are now accessible to VMware administrators through the vSphere GUI and API, while developers receive an undiluted upstream Kubernetes experience, identical to what they would expect from GKE,” says Kit Colbert, CTO for Cloud Platforms at VMware.
+Read the rest of this article on my blog on LinkedIn. You can also find the show highlights in pictures here.

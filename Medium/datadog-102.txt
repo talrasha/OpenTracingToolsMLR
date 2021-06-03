@@ -1,0 +1,54 @@
+Day3 ElasticSearch: Install Datadog
+Arthur Lee
+Arthur Lee
+
+Jan 20, 2019·2 min read
+
+
+
+
+Introduction
+Datadog is a powerful platform for measuring ElasticSearch.
+Recently our team met some issues when we upgrade our ElasticSearch.
+With Datadog, we can easily monitor memory, query time and garbage collection.
+Today I try to install that.
+Unfortunately, it is only free for 14 days…..
+Installing Datadog on Ubuntu
+Use our easy one-step install.
+DD_API_KEY=b96a25a6cf77c77f2ad1292480011aeb bash -c "$(curl -L https://raw.githubusercontent.com/DataDog/datadog-agent/master/cmd/agent/install_script.sh)"
+reference: https://app.datadoghq.com/signup/agent#ubuntu
+Notice: if you met the problem, it would be proxy issue in apt-get
+Datadog Configuration
+The configuration files and folders for the Agent are located in:
+/etc/datadog-agent/datadog.yaml
+Configuration files for Integrations:
+/etc/datadog-agent/conf.d/
+Configure the Agent (conf.yaml + datadog.yaml)
+create conf.yaml
+Firstly, we just clone the sample file (conf.yaml.example) to our target file (conf.yaml)
+cd /etc/datadog-agent/conf.d/elastic.d
+sudo cp conf.yaml.example conf.yaml
+Configure conf.yaml
+in /etc/datadog-agent/conf.d/elastic.d/conf.yam
+we set the url, stats, tags and logs.
+
+Configure datadog.yaml
+/etc/datadog-agent/datadog.yaml
+edit api_key, proxyand logs
+
+Launch the datadog-agent
+sudo service datadog-agent start
+check the status
+sudo datadog-agent status
+
+NOTICE: each time you edit the files, please stop and start again
+sudo service datadog-agent stop
+sudo service datadog-agent start
+sudo service datadog-agent restart
+Here are more commands:
+https://docs.datadoghq.com/agent/basic_agent_usage/?tab=chefcookbook
+Check the result in datadog
+Go to dashboard
+https://app.datadoghq.com/dashboard/lists
+and click Elasticsearch — Metrics
+then you will see

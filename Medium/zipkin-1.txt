@@ -1,0 +1,94 @@
+Microservices with Java — Part 3
+API Gateway and Centralized Logs
+Tiago Albuquerque
+Tiago Albuquerque
+
+Feb 17·5 min read
+
+
+
+
+
+This is the third post of my microservices series, where I talk about my impressions of this architecture style using Java with Spring Boot.
+The full series of articles are listed below:
+Part I: Project setup, REST communication and Service Discovery
+Part II: Fault tolerance and Configuration Server
+Part III: API Gateway and Centralized logs
+Part IV: Authentication and Authorization (it’s yet on my TODO list.. :-P)
+The code implemented in each article is available on GitHub in a specific branch, and the final implementation is on the main branch.
+In this article we will implement an API Gateway and a Centralized Log solution, again using a practical approach using Java and Spring Boot framework.
+The code of this article is available on GitHub in branch ‘ch-03’.
+API Gateway
+A very common pattern used in microservices is the mplementation of an API Gateway, that is the single entry point for all clients. This become a first layer to access a service, that can be provided by one or more microservices. Some requests are simply routed to the appropriate service, while others need to reach out multiple services.
+Some advantages of this API Gateway are:
+Single entry point to the API: encapsulates the system internal architecture, abstracting inner details from clients. It can provide personalized API to some clients (a.k.a. “Backends for Frontends”);
+Provides better versioning and evolution for the API: It allows refactoring and adjustment of the microservices that provides the service behind the API, without impacting the clients;
+Provides more security: The gateway can provide authentication and usage threshold per client. This additional layer can also provide mechanisms to prevent malicious attacks, like DoS and SQLInjection, for example.
+Allows usage monitoring: it is possible to monitor and manage requests and responses, providing better load balance, cache, billing and statistics about the API usage.
+Of course there are some issues and disadvantages, since the gateway becomes a critical point of failure, and has to be properly deployed and manage.
+The intended architecture in the example of this series of articles including the API Gateway will be like this:
+
+Back to code, let’s setup a new project as the API Gateway using Spring Cloud Gateway, since it is the recommended library in newer Spring Boot versions (Zuul became deprecated):
+
+Setup of API Gateway project at Spring Initializr
+The complete pom.xml file of this project can be seen here.
+Now we have to address the routes at application.yml file. Notice that each mapped route in the gateway is addressed to the respective microservice:
+spring:
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      routes:
+        - id: PRODUCT-CATALOG-SERVICE
+          uri: lb://PRODUCT-CATALOG-SERVICE
+          predicates:
+            - Path=/api/product/**
+        - id: USER-INFORMATION-SERVICE
+          uri: lb://USER-INFORMATION-SERVICE
+          predicates:
+            - Path=/api/user/**
+        - id: SHOPPING-CART-SERVICE
+          uri: lb://SHOPPING-CART-SERVICE
+          predicates:
+            - Path=/api/cart/**
+
+server:
+  port: 8085
+The complete code for this API Gateway implementation is available here.
+So, after running all the services, we can make a direct request to the shopping-cart, products-catalog or user-info microservices, or we can call them through the API Gateway (notice the Gateway port 8085), that will redirect to each service requested:
+
+POST request to shopping-cart endpoint through the API Gateway
+Centralized Log management
+As the number of microservices grows, it can become harder and harder to manage the logs of each one and track down some request/response.
+To better tracing the requests, we can use Zipkin server and Spring Cloud Sleuth.
+This solution provides the ‘TraceId’, that is the unique identifier of the request, and ‘SpanId’, that represents each service the request reached.
+The log will look like this:
+[SERVICE-NAME,trace-id,span-id]
+As illustrated below:
+
+The generated logs and ids can be sent to Zipkin server, where it is possible to search and monitor each request by many parameters.
+First of all, we need a Zipkin server up and running. We can download it this site (I chose to download the ‘jar’ version and run it with java -jar ….):
+
+Zipkin server running
+Now we have to add the zipkin and sleuth dependency in every microservice:
+<dependency>
+   <groupId>org.springframework.cloud</groupId>
+   <artifactId>spring-cloud-starter-sleuth</artifactId>
+</dependency>
+<dependency>
+   <groupId>org.springframework.cloud</groupId>
+   <artifactId>spring-cloud-sleuth-zipkin</artifactId>
+</dependency>
+And add to the application.yml the base URL of Zipkin server (in all the microservices configs):
+spring:
+  // ... omitted configs ...
+  zipkin:
+    base-url: http://127.0.0.1:9411/
+And that’s it! It automatically will start to generate logs including the trace and span ids.
+After launching all the microservices, and make some request (like POST at shopping-cart endpoint), we can trace the request at Zipkin page using some criteria, like the ‘service-name’ for example:
+
+Zipkin search page
+And the result page should look like this:
+
+Zipkin results page
+Where you can detail even more the request info:

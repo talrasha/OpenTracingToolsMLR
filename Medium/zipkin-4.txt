@@ -1,0 +1,78 @@
+Debugging microservices with Distributed Business Tracing
+Frank Pfleger
+Frank Pfleger
+
+Sep 16, 2020·7 min read
+
+
+
+
+Distributed Business Tracing is a new approach to analyze microservices that will ease your daily routines and save you a lot of time, resources and money!
+The shift from monoliths to microservices had a big impact in the last decade on daily life as developers and led to many new challenges that we still haven’t fully addressed yet. Especially analyzing problems and tracking down erroneous components of a complex distributed system has become much more difficult. We now have to answer questions like:
+How do we find out which services were involved when processing a transaction?
+How do we figure out which service is causing a transaction to fail and why?
+How data is flowing through the system as it gets processed?
+And more importantly, how long does it take to find the answers to the previous questions?
+Some of these questions can be answered by using distributed tracing tools like Zipkin, Jaeger, OpenTracing, OpenCensus and OpenTelemetry. But those answers are always limited to technical questions and details only. However, what we are most interested in are business questions like:
+What was the input to service A that caused the erroneous output B?
+Which parameter caused service C to throw exception D?
+Hey team E, could you please analyze why the following request to your application F is failing?
+To address these challenges we’ve developed a new type of distributed tracing tool called Trasier that easily integrates with a Springboot application. And what separates Trasier from other tracing tools is, that it gives you additional insights into your data you never had before.
+The situation
+We’ve created a simple online shop for selling plane tickets that consists of 4 microservices:
+
+A simple front end application for customer interaction
+Three backends for calculating offers, paying items and booking the tickets
+
+And let’s further assume there is a bug in our payment service that causes some `checkPayment` transactions to fail and as a result, the booking will be reported as UNPAID even though the payment itself was successful.
+
+Finding the issue — the old way
+In our example, the actual problem is hidden and only visible in the response of the payment service which is not treated correctly by our application and therefore disappears. How did we address such an issue back in the days?
+Get access to the input data that is causing the service to fail. In the best case, this would have been provided as a XML attachment to an e-mail by the customer support. But oftentimes it was just a textual description of what the first level support analyzed.
+Setup the environment and a test case to reproduce the problem. In the pre-microservices world, this sometimes meant starting up a rusty application server, while having a long coffee break. These days it means starting up all microservices required to reproduce the problem. In our case, that’s all services.
+Put a breakpoint in our booking service and start reproducing the problem until we hit it to finally inspect the debug data to see what the actual problem is. In this case, there was an exception while loading the payment, which then needs to be further investigated in our payment service.
+Sounds familiar to you?
+
+Debug the system to see where the problem is.
+Finding the issue — the easy way
+This whole process is very complicated, time-consuming, error-prone and often doesn’t even lead to a result as things might have changed in the system. Here is how we analyze such a situation nowadays with Trasier.
+Instead of waiting for customer reactions or first-level support, we track business errors live in our Distributed Business Tracing system. This means an error will pop up in our dashboard as it happens! Alternatively, we can search for any keyword of the service call (including payload) to find the relevant business transaction and its Conversation-Id.
+We’ll then be able to look at all the transaction information including the request/response data of that specific business process. That way we can easily identify the problem without even reproducing it.
+
+We can see the exception that happened during the payment validation.
+
+We can verify that the actual payment call before was successful or not.
+As you may guess this means storing a lot of additional data, but it’s definitely worth the effort. The value of this new source of analytical data is much bigger than anything you had before.
+Usually, the only source for analytical evaluation of your business processes is the data that gets stored in your RDBMS as an outcome of the business transaction. But what about all the information that was created and exchanged during the process?
+This rarely ever gets stored, as it is not required afterward. But for analytical purposes, it’s pure gold! There are many use-cases that I’ll highlight in a future article like:
+Generating business metrics by extracting data on-the-fly
+Replaying business processes to easily reproduce bugs
+Mocking system components by using the data of old business processes
+Predictive business monitoring based on features extracted and rated on-the-fly
+Follow us on Twitter to get notified about new publications.
+The solution
+With Trasier we’ve built an open-source client for Distributed Business Tracing that is based on OpenTracing and comes with support for Spring applications and even a Springboot Starter for straight forward integration with most applications. Let’s see what it does.
+The crucial difference
+To fully benefit from the disruptive features that Trasier provides, we highly recommend to actively set the boundaries of your business processes by associating a Conversation-Id to all of your calls. This simple adaption will completely change the way you are handling bugs at the moment. And it will give you a unique opportunity to gain max. insights into your business data.
+The concept of Conversation-Id (typically a UUID) is to have a unique identifier that links all interactions of a customer within one business process. This identifier is not part of the business data itself but pure meta-information that will be passed along with your service calls automatically by Trasier. However the initiation and tracking has to be implemented in an application that knows the boundaries of a customers business process; most probably this is the front-end application.
+A major difference between Trasier and similar tools is its pure focus on Distributed Business Tracing. An important aspect of this is, to intercept and store all the data that is sent between your services for later analysis or on-the-fly inspection. And due to the linkage of all transactions of a business process by a unique Conversation-Id, you can truly disrupt many of your existing analytical processes. We’ll cover the possibilities you’ll get from this in a future article.
+Now let’s see how easy it is to integrate Trasier into our Springboot backend services.
+Setup your Trasier account
+Register your free Trasier account at https://www.trasier.com/#/register.
+Log in to the Dashboard on https://ui.trasier.com to create a Space for ingesting data or use the existing default space.
+Copy the client configuration to your Springboot application.
+
+Setup your Springboot application
+Add the Trasier client Springboot starter to your pom file.
+Add the client configuration to your application.yml
+Startup your application. Done.
+Test your setup
+To test your configuration you can go ahead and send a REST request to one of your services and Trasier will automatically intercept all incoming and outgoing requests to store them securely for later analysis. To access your data you can either use the full-text search to find any keyword of the service call (incl. payload) or you can use the associated Conversation-Id to access the business process directly.
+Conclusion
+Trasier is a tool that will change how you are currently handling bugs and how you are analyzing your business transactions. We’ve learned that there is no easier and faster way of localizing problems. Additionally to that, the possibilities due to the massive data lake that Trasier provides to you are enormous.
+Additional information
+The source code of the OpenTracing compliant Trasier Java client is maintained on Github.
+There is also a comprehensive demo application that shows how Trasier can be integrated into a Springboot application. By default, this uses a NOOP-Tracer that logs the intercepted data to your console. The configuration for using our backends is on a separate branch.
+At the moment our SaaS backend services are closed source but we’re working on an OpenSource Server that uses ElasticSearch and Kibana and can be used on-premise for free.
+In case your setup is not as straight forward as a simple Springboot application, you can find additional information in the Trasier Docs.
+If you need more information or a demo feel free to contact us at any time: info@trasier.com or visit us at www.trasier.com.

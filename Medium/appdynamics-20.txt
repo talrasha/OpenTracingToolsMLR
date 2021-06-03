@@ -1,0 +1,33 @@
+Introducing Harness Service Impact Verification for AppDynamics
+Steve Burton
+Steve Burton
+
+May 30, 2018·3 min read
+
+
+
+
+
+Last week, AppDynamics announced a new partnership with Harness to help customers embrace continuous delivery and understand the business impact of every application deployment.
+Our integration at that time focused on the deployment and verification of specific application artifacts (Containers, AMI, WAR, Functions, Helm charts, etc). For example, you deploy a new microservice container to your production environment and Harness will use AppDynamics data to tell you if that microservice is performing better or worse post-deployment.
+Yesterday we enhanced our AppDynamics integration even further: we now have the ability to perform true service impact verification across all microservices within your application environment. A large F500 bank requested this feature so they could instantly know the upstream and downstream impact of every microservice deployment. Now when you deploy a new microservice container, Harness will identify and verify all mciroservice dependencies so you know the real impact.
+A Simple Microservices Application (Said No One Ever)
+Let’s imagine we’re monitoring a simple microservices environment using AppDynamics:
+microservices_env
+The above application has 4 microservices: Inventory, Checkout, Payment and Record Processing.
+Now let’s imagine we deploy and verify a new version of the Payment microservice using Harness and AppDynamics:
+AppD_deploy_payment
+Using our original AppDynamics integration, our verification process would have looked like this:
+payment_verification
+You can see clearly that our deployment caused a performance regression for the payment service after the new version was deployed. The scope of the Harness verification and impact analysis is limited to where the new artifacts were deployed.
+Exploiting Application Performance Monitoring (APM) Service Maps
+One benefit of APM solutions like AppDynamics is their ability to automatically map application service dependencies. They do this by tracing user requests (aka business transactions) across the various application services and components (aka tiers). All of this data is stored and modeled as application and transaction flow maps.
+Using REST, Harness can query these maps to learn of all upstream and downstream service dependencies. This capability is very useful because it allows Harness to verify all microservice dependencies related to a specific microservices deployment.
+With our enhanced integration, the Harness verification and impact analysis now looks like this:
+payment_new_verification
+Harness verification now discovers all microservices dependencies related to the payment microservice (by querying the AppDynamics service model). This allows our unsupervised machine learning to observe and evaluate what is happening upstream and downstream by analyzing all time-series metrics for impacted microservices.
+In the example above, we can see that the payment performance regression has an upstream impact to the checkout microservice but no downstream impact to the record processing service.
+Customers now see the big picture and get complete visibility of everything that is impacted by a microservices deployment. Better still, Harness can automatically roll back these deployments when these AppDynamics verifications fail, thus avoiding downtime and a bad end user experience.
+Sign up for your free trial of Harness to test this new feature for yourself!
+Regards,
+Steve

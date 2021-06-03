@@ -1,0 +1,41 @@
+Get your Datadog billing info in Slack with Nimbella Commander
+Jamie Dawson
+Jamie Dawson
+
+Feb 14, 2020·4 min read
+
+
+
+
+The banner to introduce the Nimbella serverless cloud Slack platform that will let users get their Datadob billing info.
+Contact Nimbella on Twitter, LinkedIn, or Slack
+Have you ever wanted a simple way of displaying your Datadog billing info on Slack? With Nimbella Commander, you can have your current bill and next month’s projected bill displayed in one command to your Slack workspace.
+
+Later, I’ll show you how to restrict who can access this Slack command so it’s only available to people who need to know. Here’s how to do it:
+Inside your Datadog API settings, Create a Datadog API key and Application key in Datadog’s UI. You must name your API key datadogApiKey and your Application Key datadogApplicationKey.
+Page for Datadogs ApiKey and ApplicationKey which you will need to give Commander permission to displaying your billing info.
+2. Add Nimbella Commander to your Slack page. You can add it by searching “Nimbella” in the apps tab on Slack. You can also add it by going to our official website and clicking the “Add to Slack” button.
+Slack button that you have to click to add Commander to your Slack account
+3. In order to get your Datadog billing details, you’ll need to install the billing Command Set. Command Sets are a packaging specification for Slack commands, and a convenient way to share commands via GitHub or open source. Command Sets are installed into your Slack teams via the Nimbella Commander by typing the command /nc csm_install billing in your Slack prompt.
+Slack command you run to get the Datadog billing ability. Billing will show you your Datadog billing info
+4. Next we need to bind some secrets to the billing commands. Specifically, the API keys you generated earlier for the Datadog API will be encrypted (outside of Slack) and attached to the slash command. To do this, type /nc secret_create to bring up the Nimbella Secret Creator. We’re creating the secrets outside of Slack so that Slack will only see encrypted strings and not your API keys. When you run the secrets command, you will see an output that looks like this:
+Slack command to get the Datadog secret ApiKey and ApplicationKey
+5. Click on the Secret Creator link to be redirected to the page which encrypts your API keys.
+
+6. Add your Datadog API Key and Application Key from Step 1 to the fields in the Secret Creator as illustrated in the following figure. Next, click the “Make Secrets” button to generate the commands you’ll need to copy and paste into your Slack prompt.
+
+7. After clicking the “Make Secrets” button, the commands you’ll need to run on your Slack page will appear. Copy each command one at a time and paste them into Slack. This will take your API Key and Application Key and apply them.
+
+8. Finally, run the built-in command /nc datadogbill to see your Datadog billing info.
+
+9. To see more details about your bill, try /nc datadogbill -detail
+
+10. You likely don’t want everyone in your Slack team to run this command. Nimbella Commander offers a neat feature to allow only certain users to run specific commands. For example, you can restrict access to the Datadog billing command to specific users using /nc command_runners datadogbill + @user1 + @user2, substituting for “user1” and “user2” the Slack names of your teammates that should have access to the Datadog billing details.
+Slack slash command that allows specific members of your Devops team to run your Datadog billing info command.
+11. It’s worth also mentioning that you have access to an audit trail to see who’s run your commands. This is useful for administrators and team oversight where appropriate. Type /nc command_log datadogbill
+Slack slash command that shows which Slack users are running your Datadog billing info command on Slack.
+Using Nimbella’s access control you can also limit who can view and edit the code that implements a particular command as well. The built-in Secret Creator means your sensitive data remains outside of Slack and accessible only to the code you run. And with Audit Logs, you have accountability and historical data readily available at your fingertips. These are powerful features of the Commander that don’t exist in Slack otherwise. For more information about Commander, visit our website. We’d also love to hear from you via our community Slack channel or on GitHub.
+If you wish to add Commander to your Slack account, click this link to get started today!
+Video tutorial on how to get your Datadog billing info in Slack with Nimbella Commander:
+
+Originally posted on nimbella.com

@@ -1,0 +1,77 @@
+Q3 2020 Earnings: Datadog, Roku, Square, The Trade Desk And JFrog
+Beth Kindig
+Beth Kindig
+
+Nov 18, 2020·11 min read
+
+
+
+
+Roku
+Roku (NASDAQ: ROKU) reported Q3 earnings on Nov. 5. The 73% year-over-year revenue growth the company announced was 23% above consensus expectations. Gross profit rose 81% YoY while gross margin rose 216 basis points in total to 47.6%.
+Roku added 2.9M active accounts in the quarter (+43% YoY). Total streaming hours increased by 0.2 billion hours over the last quarter to 14.8B (+54% YoY), while ARPU grew 20% YoY to $27.
+Roku was a beneficiary of the rebound in ad spend as the company saw Q3 monetized video ad impressions grow 90% YoY vs. 50% YoY growth last quarter. Roku is anticipating that Q4 revenue growth will likely be in the mid-40% range, similar to the growth rate seen in the last few holiday seasons. Per the earnings call, the company is being cautious about holiday spending with this forecasted guidance.
+ROKU shares briefly hit all-time highs immediately following the announcement of these results.
+Brands like DraftKings (NASDAQ: DKNG) are shifting budgets especially as TV sports have been canceled and delayed. Roku also pointed toward CPG brands as a large driver for ad revenue in the current quarter.
+We have got brands like DraftKings, for example, which is a big sports spender, had to shift budgets out of TV as sports were canceled and delayed. Has moved a significant portion of their budget into OTT.
+In the earnings call, management felt confident the migration from linear TV would be a long-lasting trend after COVID-19.
+We are not going back to the way it was to be clear. I mean, I think, COVID did — COVID triggered a lasting durable change in how CMOs and marketers are thinking about their TV ad spend. In Q3, we saw a 17% drop in linear viewing, Roku was up 54%, 92% of Roku cord-cutters are very satisfied with their decision to cut the cord and aren’t planning to go back.
+So I really think this is a one-way transfer function. We don’t go back to the older spending patterns, because the audience isn’t there, marketers need to follow the audience into OTT. And they stay, they stay because of the enhanced capabilities.
+Roku also tackled the question of Walmart (NYSE:WMT) and Comcast (NASDAQ:CMCSA) partnering. The CEO reiterated that Roku is the №1 TV operating system and software operating system in the United States and now Canada with a world-class team of software engineers. He also emphasized that Walmart is a large partner with Roku and has carried many Roku OEMs:
+In terms of Walmart, I will just say a few words. I mean, Walmart is a big retailer, a very strong partner of Roku’s. We have a great relationship with them. They sell millions of Roku players a year. They sell millions of Roku TVs for various Roku OEMs, including TCL, Hisense, RCA, Philips, JVC.
+We build — we help them build on branded, which is their house brand, Roku TVs, smart TVs, and that’s a business that’s been growing extremely well for them. So, it’s a great partnership and it’s a long-standing partnership, and we have put a lot of work into making sure that it stays strong.
+Square
+Square (NYSE: SQ) announced blowout Q3 results with huge beats on both the top and bottom lines. Non-GAAP EPS of $0.34 beat consensus expectations by $0.18. The company saw revenue grow 140% YoY to $3.03B, beating the consensus estimate by $950M or 46%.
+Gross payment volume of $31.7B was 6% above expectations. In total, Square saw gross profit rise 59% YoY, while Cash App gross profit soared 212% YoY.
+In the quarter, the number of average daily transacting Cash App customers nearly doubled from the same period last year. Square did not provide guidance for Q4, but noted in its shareholder letter that the trends they observed in Q3 remained strong through October.
+Square’s Seller Ecosystem revenue grew 5% YoY as regions began to reopen. More impressive was the growth of Square’s Cash App Ecosystem, which saw an increase of 23% in daily active users and 574% YoY growth in revenue.
+Bitcoin revenue for Square grew 11x last year’s total, but even excluding Bitcoin transactions, Square grew Cash App revenue 174% YoY this quarter. This is an acceleration from the 140% Cash App growth (excluding bitcoin revenue) Square recorded last quarter, and 98% growth previous to that.
+Square is focused on expanding Cash App’s utility beyond peer-to-peer payments, CEO Jack Dorsey remarked in the company’s shareholder letter: “We remain focused on increasing daily utility for our Cash App customers to products beyond peer-to-peer payments, which helps drive higher engagement and monetization.”
+Square’s investments into increasing Cash App engagement continue to pay off as the company’s Cash App Ecosystem displayed an acceleration in growth across the board this quarter.
+Beth.Technology
+Jack Dorsey noted that Square is positioned to benefit in both segments moving forward:
+“We continue to believe that our Seller and Cash App ecosystems are well positioned to benefit from the acceleration of secular shifts, such as omnichannel commerce, contactless payments, and digital wallets for consumers.”
+The company did not give Q4 guidance due to uncertainties yet did discuss what they have seen so far through Q4. Square’s Seller Ecosystem saw a modest acceleration from Q3 in October:
+“Seller GPV was up 8% year over year, which improved modestly compared to year-over-year results in the third quarter.”
+Cash App has seen a modest decrease in transaction volume in October, which management attributes to the end of government stimulus programs and unemployment benefits:
+“Gross profit growth in October moderated compared to the third quarter, driven by a decrease in transaction volume per active customer. We believe this was partly a result of the end of government stimulus programs and unemployment benefits at the end of July, as stored funds in Cash App have decreased since July.”
+The Trade Desk
+The Trade Desk (NASDAQ: TTD) announced Q3 results that easily cleared analysts’ expectations. Revenue grew 32% YoY, beating consensus estimates by 19%. Non-GAAP EPS of $1.27 was a big beat on the consensus bottom-line expectation of $0.45. The company noted that it saw Connected TV grow over 100%, Mobile video spend grow 70% and Audio spend grow 70%.
+Management issued an upbeat outlook for Q4, expecting $289M in revenue at the midpoint vs. expectations of $255.1M. At the midpoint of this estimate, The Trade Desk is expecting roughly 34% YoY revenue growth in Q4. TTD shares traded over $700 for the first time immediately following the announcement of these results.
+Most impressive from TTD’s report was exceeding 100% YoY growth in their Connected TV segment. CEO Jeff Green remarked in the company’s press release that COVID-19 has accelerated advertising innovation across the board:
+“So far in 2020, we’ve seen several years of advertising disruption and innovation compressed into a few months. As a result, advertisers have become more deliberate and data-driven with every advertising dollar.”
+In the Q3 earnings call, Green talked more about how companies are adapting data-driven measurement strategies for justifying marketing budgets:
+“We recently surveyed more than 200 top advertisers, around 85% of them said they are under new pressure from CFOs to justify marketing spend and to measure against business goals.”
+Despite The Trade Desk’s beat, the company did not report the numbers that Snap or Pinterest did (32% growth versus 50–60% growth). TTD’s stock is trading at a valuation that has been historically very hard to sustain in ad-tech.
+Rarely does ad-tech trade over 20 forward price-to-sales even during high-growth periods. Not only is The Trade Desk well exceeding the mean but is trading roughly 200% higher than peers even though Roku, Pinterest and Snap had a better current quarter and are forecasting stronger forward guidance.
+
+The Trade Desk stock trading 2x more expensive than ad-tech peers that reported much higher revenue growth. Ycharts
+TTD’s forward PE Ratios (not pictured) is also outsized at 168 compared to Facebook’s 30 forward PE Ratio. Facebook’s PE Ratio has never exceeded 119 even during its high-growth quarters of 100%+ growth and/or with low EPS (law of large numbers).
+Facebook’s current P/S has also never exceeded 20 even during its high-growth quarters.
+This is despite The Trade Desk facing headwinds with Apple’s changes to IDFA. Apple (NASDAQ:AAPL) extended the iOS update from September to an undetermined time “early next year.”
+
+On Sept. 3, Apple delays IDFA changes until early next year @Beth Kindig
+Although the risks are hard to quantify right now, most advertising experts are in agreement this will affect the entire mobile ad industry on iOS. Facebook has stated they would shut down Audience Network as most ad exchanges need some kind of identifier for targeting and attribution. Here’s a great write-up from mobile analyst Eric Seufert on how this could affect ad prices.
+The Trade Desk has stated only 10% of its inventory uses the IDFA but has made no clarifications on how it will run mobile attribution and measurement without an identifier, whether that’s Apple’s or their own. There are efforts from a collective federation of ad companies to use encrypted emails, although there’s no guarantee Apple would allow this on iOS and Safari even if the ad industry agrees to pursue this method. ATS requires users to authenticate which is another unproven factor in the work flow.
+Overall, the risk is an unknown and we will get real answers it looks like “early next year.” For The Trade Desk, it’s a risk investors need to be aware of. Notably, publisher segments can help augment targeting but this will come from the supply-side.
+Datadog
+Datadog (NASDAQ: DDOG) announced strong Q3 results and an upside outlook that cleared analyst expectations. The company grew revenue 61% YoY to $155M, representing a 7% beat above consensus estimates.
+The company grew customer count by 38% in the quarter vs. consensus expectations of 32% and added 92 new customers with over $100K ARR (+52% YoY), slightly above the consensus estimate of 90.
+In Q3, Datadog recorded its 13th consecutive quarter with a dollar-based net retention rate exceeding 130%. Operating margin improved to 9% in the quarter versus expectations of 0.6%, while gross margin improved 3% to 79%.
+Q4 guidance was issued for $163M in revenue at the midpoint (+43% YoY) which was 5% above the consensus outlook. Datadog shares initially sold off as much as 14% on these results, but the stock pared its losses to close trade on Wednesday. The stock rebounded Thursday and is now up over 11% off Wednesday’s lows.
+In its Q3 earnings call, Datadog’s CEO Olivier Pomel commented on the recovery in usage trends the company observed after a weak Q2. “Throughout the quarter, usage growth of existing customers was robust which was a return to more normalized levels after slower usage expansion in Q2… the pace of usage growth in Q3 was broadly in line with pre-COVID historical levels.”
+After a period of cloud spend conservation among Datadog’s enterprise customers in Q2, the company added a record amount of ARR in the quarter. The company managed to do so profitably, as operating income, cash flow and FCF all came in above expectations.
+Notably, Datadog’s CAC payback period decreased to ~12 months from ~18 months sequentially despite adding over 400 more customers in Q3 versus Q2.
+The ~12 month payback period recorded in Q3 is more in line with pre COVID-19 levels, as last quarter is looking more like an outlier given the aforementioned headwinds the company faced in Q2.
+Datadog’s platform has proven to be easily adaptable and sticky for enterprise customers migrating to the cloud, as evidenced by the increasing number of existing customers using more Datadog products. CEO Olivier Pomel remarked on this in the company’s earnings call when he said: “Our platform strategy continues to resonate and win in the market. As of the end of Q3, 71% of customers are using two or more products, which is up from 50% last year. Approximately 20% of customers are using four or more products which is up from only 7% a year ago.”
+CEO Olivier Pomel also commented on the partnerships Datadog announced in Q3 with Microsoft Azure (NASDAQ:MSFT) and Google Cloud Platform (NASDAQ:GOOG) (NASDAQ:GOOGL), noting that the flow of revenue from these partnerships will not be immediate: “There’s not going to be an immediate impact, but we see that as being potentially meaningful contribution in the mid to long term.”
+The partnerships with Microsoft Azure and Google Cloud Platform that Datadog announced in the quarter, along with the existing alliance with Amazon Web Services (NASDAQ:AMZN), validates the company’s leadership in cloud-native-observability and establishes its collaborative relationship with the world’s top public hyperscalers. Over the long term, Datadog expects that these partnerships will become meaningful sources of revenue growth.
+Looking ahead to Q4, Datadog is confident the rebound in usage trends the company observed in Q3 will continue. CFO, David Obstler alluded to this expectation in the conference call: “Throughout the quarter, we saw usage growth that was more in line with pre-pandemic historical levels. The trend was broad-based and sustained throughout the quarter. This provides us with confidence that what we experienced in Q2 was a transitory optimization effort that were related to the challenging macro environment.”
+With the normalization of customer usage trends and secular tailwinds related to digital transformation and cloud migration, management continues to believe that Datadog is very well positioned to capture a “large and growing long-term market opportunity.”
+JFrog
+JFrog (NASDAQ: FROG) announced earnings for Q3 in its first quarter as a public company. The company grew revenue 40% YoY, beating consensus expectations by 3%. JFrog also announced Non-GAAP EPS of $0.05, beating expectations by 5 cents.
+Gross margins came in at an impressive 83% while FCF margin improved to 25% in Q3. For Q4, JFrog expects $41.4M in revenue at the midpoint vs. consensus of $40.52M. The stock has initially sold off up to 10% on the results, as the 40% revenue growth represents a deceleration from the 46% growth recorded last quarter. Even after today’s sell-off, FROG still trades at approximately 30x 2021 revenue, which remains among the highest valuations in the software industry.
+Here’s what the Analysts ratings for the recent string of IPOs and where JFrog ranks:
+
+Beth.Technology
+When factoring in how fast some software names are growing, we see that JFrog still remains relatively expensive. With the deceleration, it’s likely we see an adjustment to JFrog’s valuation over the next quarter.

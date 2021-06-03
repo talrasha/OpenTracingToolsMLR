@@ -1,0 +1,39 @@
+6 Ways Application Performance Management Is Influencing Culture for Better Business Success
+Dimitri Rodokanakis
+Dimitri Rodokanakis
+
+Apr 29, 2020·5 min read
+
+
+
+
+
+Summary
+The impact of APM is heavily measured by the depth of understanding it generates across IT environments. However, it also delivers other valuable benefits.
+There’s no question digital transformation is fueling demand for application performance management (APM). Cloud adoption, rapid change, and the deployment of new technologies are the cornerstones of the transition, as is a shift in focus to applications, developers, and ultimately improving the customer experience.
+But how does that translate to business success?
+As Managing Director at Devcon in South Africa, I think we have a real-world view of what APM can deliver.
+It’s in part our privilege to work at the cutting edge of innovation. South Africa has been identified as one of the world’s top 10 countries for digital innovation according to research by Vanson Bourne to compile Dell’s Digital Transformation Index. And as a partner of AppDynamics since its inception, we’ve seen firsthand the powerful impact of APM’s “invisible” influences.
+While the perspective that follows is the product of our experience delivering services domestically, our learnings translate globally and are indicative of benefits being felt by smart businesses in every imaginable industry, right across the world.
+APM: Delivering Unexpected Value
+The impact of APM is heavily measured by the depth of understanding it generates across IT environments. However, it also delivers other valuable benefits. We stress to our customers that, in implementing APM, they should not overlook its role as a strategic tool — in helping to build a high-performance organization and foster a culture for better business success.
+Here are six ways I believe APM will empower your organization to make a progressive cultural shift.
+1. Leverage your very own truth serum
+For the first time, APM enables you to prove what’s going on in your environment. No conjecture, no guesswork, just simple facts.
+And when teams and stakeholders are dealing in facts, better decisions are made faster — whether that’s identifying where service issues exist, determining which systems need attention, or even determining where to modernize first. Furthermore, when people trust in information, decision-making becomes less convoluted and teams feel better able to push boundaries and break new ground. Obtaining the facts is only possible using a single end-to-end toolset like AppDynamics, however.
+2. Joined-up thinking reduces risk
+We recently saw a customer lose a significant contract because their end service was not performing against the service levels they had committed to. After several penalties, the contract was eventually terminated. Following some exploration into their systems with the help of the AppDynamics toolset, it was clear the committed service levels were far too ambitious. However, a disconnect between IT and the business (in this case sales) had led to a situation where a group had made a commitment on behalf of the company that carried serious business implications, without any evidence to suggest it was either achievable or commercially prudent.
+This is a sobering example of how, if used sooner, APM could have helped the company manage risk differently. Importantly, it would have revealed their performance norms, potentially enabling them to negotiate different contract terms, to make changes to improve their offering, or even to take a different view on the opportunity altogether.
+3. Bring IT and business teams closer together
+APM generates piercing insight into infrastructure and service experience. As I mentioned, this helps information flow but also supports greater collaboration and cultivates trust between teams when it is valued, rather than feared.
+Responsibility for the success or failure of a customer experience should not reside solely with IT — but should span development, IT operations, and business teams. Thanks to tools like Business iQ, code-level monitoring can be turned into immediate, clear, and actionable insights, by correlating application performance with the user experience and business outcomes. This helps to cut through traditional silos and better enable cross-functional collaboration and a feeling of shared responsibility for the solution from the start.
+4. Have the confidence to move faster
+“Innovation” is the watchword for all businesses today. How can offerings be enhanced, or new opportunities captured? It’s the reason why DevOps is going mainstream — organizations want the freedom to release software updates faster and create custom apps built-for-purpose. The test and development process of debugging code and getting apps production-ready takes time, and is often seen as a dark art.
+Using APM, apps can be tested and fixed the moment issues are pinpointed, rather than hypothesized. In turn, this builds greater quality into the development process, reduces debugging overheads, increases release velocity, and liberates resources for yet further innovation. In the world of DevOps, Continuous Delivery is the endgame. APM gets you there faster.
+5. Make smarter digital plans
+According to McKinsey, digital leaders spend more time on planning the future and a strategy to achieve it.
+However, planning is only as good as the information inputs that guide it. Without knowing which systems aren’t performing, which services are challenged, and the impact they have on customer experience, how can any realistic plans be made?
+The feedback from APM helps illuminate app deficiencies, differences between on-premises and public cloud performance, and whether workloads would be better supported on alternative infrastructure — all of which are vital ingredients to good digital planning. Transformation is risky and has the potential to become protracted. APM stacks the odds in your favor and provides the insight to ensure digital transformation occurs in the fewest possible steps.
+6. Proactively manage customer experience (even when it could be better)
+Your customer could be just one bad experience away from leaving you, so it’s important to keep ahead of them and properly understand the quality of service they are receiving. Additionally, APM helps you understand when things aren’t right and provides you with the opportunity to engage the customer sooner. Engagement is one of the best ways to run interference and get in front of any complaints that might come up. APM buys you the time to do this before things get critical.
+I can say from experience that it’s an exciting time to be working with companies on their digital transformation. Notably, in South Africa, the adoption of artificial intelligence (AI), Big Data, and robotic process automation (RPA) is strong, but like in every economy, there are early adopters, laggards, and innovators. Success depends on ambition matched with good plans and great execution. It, therefore, stands to reason that APM is playing a critical role in helping businesses in South Africa and beyond to assemble next-generation IT architectures — and to make sense of the complex ecosystems emerging around us to continually support business outcomes.

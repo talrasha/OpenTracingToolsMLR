@@ -1,0 +1,129 @@
+More batteries included: Microservices made easier with Istio on Kubernetes.
+Tim Park
+Tim Park
+
+Feb 28, 2018·7 min read
+
+
+
+
+Unless you were living under a rock, you probably already know that the Microservices architectural pattern has exploded in popularity over the last few years. This has been driven by the increasing ease of deploying services in the cloud and the desire to have small teams focused on building simple well factored services that applications are then built on.
+In general this has worked well, but it has also lead to additional complexity in other areas:
+Increased number of API surfaces to secure. With smaller services, and many dependencies between services, there are necessarily many more endpoints to secure. Compounding that is a move to a “trust nothing” security model, including the internal network, and therefore devops teams need to put in place a mechanism for validating that that your microservice that my microservice is talking to is really your microservice.
+More services to monitor. Montoring was already necessity before, but the Microservices architectural model adds another layer to this. When there is a performance issue with a service, for example, you now can’t necessarily say it is an issue with that service or a backing store it uses. Instead, it could be caused by any of the dependent services it uses as well. Simple monitoring around the latency of services is not enough, you need measurements around each of the dependencies that service uses as well.
+Traffic Management. The number of interconnections between services and constantly evolving services over a number of teams, mean we need to manage traffic between them in a number of ways: shifting traffic between different versions of an application, rate limiting, circuit breaking, and beyond to prevent cascading failures of dependent services.
+Istio is a project sponsored by the CNCF that aims to solve a number of these problems. This blog post will walk you through installing Istio and demonstrate how it works against a sample application.
+I’m going to use Azure for this walkthrough, but all that is required to walk through this tutorial is a Kubernetes 1.9 cluster with RBAC enabled and an MutatingAdmissionWebhook Admission Controller. If you are using another cloud, create your cluster, and skip the next section.
+Azure Kubernetes Cluster Creation Notes
+With the current defaults in ACS Engine, it’s necessary to override the default Admission Controllers to include MutatingAdmissionWebhook so that we can inject sidecar containers later automatically for our services. You can do that by specifing this in your ACS Engine cluster.json (which also happens to be what the Kubernetes project recommends for all deployments of 1.9):
+{
+"apiVersion": "vlabs",
+"properties": {
+    "orchestratorProfile": {
+        "orchestratorType": "Kubernetes",
+        "orchestratorRelease": "1.9",
+        "kubernetesConfig": {
+            "apiServerConfig": {
+                "--admission-control":        "NamespaceLifecycle,LimitRanger,ServiceAccount,PersistentVolumeLabel,DefaultStorageClass,DefaultTolerationSeconds,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota"
+            }
+        }
+    },
+    ....
+}
+Installing Istio into your Kubernetes Cluster
+This walkthrough assumes you have a Kubernetes 1.9 cluster with RBAC configured. To get started, grab the latest release of Istio and add its CLI tool istioctl to your path by following the first four steps under “Installation Steps” on the project website.
+As of this writing, the helm chart does not work correctly, so do not take that path. Instead with the project unpacked, apply it with kubectl from the root of the project:
+$ kubectl apply -f install/kubernetes/istio-auth.yaml
+You should see the core components of istio spin up and end up with a set of pods that look like this:
+$ kubectl get pods -n istio-system
+NAME                                      READY     STATUS    RESTARTS   AGE
+istio-ca-797dfb66c5-5dc6f                 1/1       Running   0          2h
+istio-ingress-84f75844c4-g666n            1/1       Running   0          2h
+istio-mixer-9bf85fc68-l54vm               3/3       Running   0          2h
+istio-pilot-575679c565-rkm82              2/2       Running   0          2h
+Installing Automatic Sidecar Injection
+One of the core functions of Istio is to proxy all of the traffic between your services. This enables it to do very useful things like mutual authentication between the endpoints, do traffic splitting between now/next versions of your services, and measure the latency of requests.
+Istio accomplishes this by creating a sidecar container in each of your service pods that proxies this traffic by intercepting pod creation and doing this injection.
+Creating this automatic injection is documented on the Istio project page, but for conciseness, here is the linear set of commands you need to execute from your Istio root to configure this. First create a set of certificates for the Kubernetes CA:
+$ ./install/kubernetes/webhook-create-signed-cert.sh \     
+  --service istio-sidecar-injector \     
+  --namespace istio-system \     
+  --secret sidecar-injector-certs
+Next, install the sidecar injection configmap:
+$ kubectl apply -f install/kubernetes/istio-sidecar-injector-configmap-release.yaml
+The, build the caBundle YAML that the Kubernetes api-server uses to invoke the webhook:
+$ cat install/kubernetes/istio-sidecar-injector.yaml | \
+     ./install/kubernetes/webhook-patch-ca-bundle.sh > \
+     install/kubernetes/istio-sidecar-injector-with-ca-bundle.yaml
+Finally, Install the sidecar injector webhook.
+$ kubectl apply -f install/kubernetes/istio-sidecar-injector-with-ca-bundle.yaml
+The sidecar injector webhook should now be running:
+$ kubectl -n istio-system get deployment -listio=sidecar-injector
+NAME                     DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE istio-sidecar-injector   1         1         1            1           1d
+Install Bundled Tools
+By default, Istio doesn’t inject its sidecar proxies into your application pods. Instead, you need to direct it to inject the sidecars for a particular namespace. Let’s do that now for the default namespace:
+$ kubectl label namespace default istio-injection=enabled
+The Istio distribution includes a sample application called BookInfo that we can use to see this injection, and other functions of Istio, in action. Read about the architecture of this application in the link above and then install it with:
+$ kubectl apply -f samples/bookinfo/kube/bookinfo.yaml
+Once the pods have created, you’ll notice that instead of the usual 1/1 that they are 2/2:
+$ kubectl get pods
+NAME                              READY     STATUS    RESTARTS   AGE
+details-v1-64b86cd49-8tn9p        2/2       Running   0          15s
+productpage-v1-84f77f8747-6dh6l   2/2       Running   0          13s
+ratings-v1-5f46655b57-bpwkb       2/2       Running   0          14s
+reviews-v1-ff6bdb95b-m8f6f        2/2       Running   0          14s
+reviews-v2-5799558d68-8t7h8       2/2       Running   0          14s
+reviews-v3-58ff7d665b-2hfx2       2/2       Running   0          13s
+This indicates that Istio has injected a sidecar container into each of them that will do the proxying of traffic that we mentioned earlier. Do a describe on one of the pods (your pod id will differ) to see this under the covers:
+$ kubectl describe pod reviews-v1-ff6bdb95b-m8f6f
+You’ll note that the output includes two containers, the ‘reviews’ container and an ‘istio-proxy’ container.
+You can see this application in action by finding up Istio’s public ip of its ingress controller:
+$ kubectl get services -n istio-system | grep istio-ingress
+istio-ingress            LoadBalancer   10.0.58.79     13.68.135.154   80:32552/TCP,443:31324/TCP                                         3h
+Navigating to http://13.68.135.154/productpage (your ip will vary) and refreshing, you’ll note that there are three versions of the application deployed (no stars, red stars, and black stars) that are being load balanced across.
+Istio’s Visualization Tools
+Istio also bundles a number of tools that are incredibly useful for managing, debugging, and visualizing our service mesh. The first of these are Graphana and Prometheus, which are preconfigured with Istio dashboards.
+In version 0.5.1, there is a bug with namespacing for Prometheus in the yaml definition. Edit install/kubernetes/addons/prometheus.yaml and search for “ServiceAccount”. Ensure that its definition starts like this and add the namespace if it is missing (this is fixed in master and it could be resolved in the latest release by the time you are reading this so just ignore this if it looks like the below):
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+name: prometheus
+namespace: istio-system
+With that, you can install all of these tools with:
+$ kubectl apply -f install/kubernetes/addons/prometheus.yaml
+$ kubectl apply -f install/kubernetes/addons/grafana.yaml
+$ kubectl apply -f install/kubernetes/addons/servicegraph.yaml
+$ kubectl apply -f install/kubernetes/addons/zipkin.yaml
+And once spun up, you should have all of these pods running in your cluster:
+$ kubectl get pods -n istio-system
+NAME                                      READY     STATUS    RESTARTS   AGE
+grafana-648859cf87-gpjmw                  1/1       Running   0          2h
+istio-ca-797dfb66c5-5dc6f                 1/1       Running   0          3h
+istio-ingress-84f75844c4-g666n            1/1       Running   0          3h
+istio-mixer-9bf85fc68-l54vm               3/3       Running   0          3h
+istio-pilot-575679c565-rkm82              2/2       Running   0          3h
+istio-sidecar-injector-7b559f7f6f-btzr9   1/1       Running   0          2h
+prometheus-cf8456855-f2q2r                1/1       Running   0          2h
+servicegraph-7ff6c499cc-wm7r2             1/1       Running   0          2h
+zipkin-7988c559b7-hsw7x                   1/1       Running   0          2h
+We can then connect to the Grafana frontend by port-foward’ing its ports:
+$ export GRAFANAPOD=$(kubectl get pods -n istio-system | grep "grafana" | awk '{print $1}') 
+$ kubectl port-forward $GRAFANAPOD -n istio-system 3000:3000
+And navigating in our browser to http://localhost:3000
+Grafana is preconfigured with a number of dashboards, like this one to monitor Mixer, one of Istio’s components:
+
+If you recently hit the book info application, you should see your requests in the Incoming Requests graph.
+You can also visualize how your application’s services are communicating with each other with Service Graph:
+$ export SERVICEGRAPHPOD=$(kubectl get pods -n istio-system | grep "servicegraph" | awk '{print $1}')
+$ kubectl port-forward $SERVICEGRAPHPOD -n istio-system 8088:8088
+Navigating to http://localhost:8088/dotviz after hitting a number of the pages of Book Info to visualize all of the interconnections between the services:
+
+You can also see latency breakdown graphs using Zipkin:
+$ export ZIPKINPOD=$(kubectl get pods -n istio-system | grep "zipkin" | awk '{print $1}')
+$ kubectl port-forward $ZIPKINPOD -n istio-system 9411:9411
+Navigating to http://localhost:9411, you can drill into a productpage request for example and see which service components are responsible for the overall latency:
+
+More details about these tools is available in the Istio project.
+Istio Traffic Management Tools
+The heart of Istio’s tooling however is in its traffic management tooling. The documentation does a great job of describing how to use these tools, so I’ll just leave you with a link to a bunch of walkthroughs on how you can use this tooling to manage traffic between the services in your cluster to solve problems like circuit breaking, request routing, ingress, and fault injection.
+I hope you found this walkthrough helpful. If you have feedback or like content like this, feel free to reach out or follow me on Twitter.

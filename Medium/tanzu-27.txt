@@ -1,0 +1,41 @@
+Twice the Charm! Day 2 at VMworld 2019
+Ellen Mei
+Ellen Mei
+
+Aug 28, 2019·5 min read
+
+
+
+
+
+Day 2 Modern Apps Showcase Keynote
+On the second day of VMworld, VMware gave to me~… another look at Tanzu, VMware’s framework to tackle the challenge of building, running, and managing modern apps! Starting off Tuesday with a General Session of demos demonstrating how VMware has changed the landscape for apps, infrastructure, cloud, networking, security, and devices, I spent the day gaining a better grasp of what the full Tanzu portfolio and kubernetes integration has to offer, attending several breakout sessions to learn about Tanzu Mission Control, and a great Showcase Keynote on the modern app, Kubernetes, and the cloud native journey. Overall, Day 2 was a day well spent gaining knowledge and experiences that I hope to bring back with me as a student and soon-to-be new graduate, meeting the challenges of an accelerating industry head on.
+Modern App Showcase: Kubernetes and the Cloud Native Journey
+
+Showcase Keynote: Kubernetes and the Cloud Native Journey with Craig McLuckie
+This was a great keynote addressing the question, how do we make a Kubernetes infrastructure on-prem, on public cloud, or on the edge run so seamlessly, we can trade in our focus on maintaining infrastructure functionality for a sole focus on developing apps?
+Tanzu, of course! The word Tanzu in Japanese is a type of cabinet, alluding to VMware Tanzu’s role as an organized system and organizational tool for modern apps; in Swahili, Tanzu means tree branch, nodding at Tanzu’s role in proliferating and nurturing the growth towards the multi-cloud. Beyond these semantics, Tanzu is overall a powerful platform for running modern apps.
+In my Day 1 blog, I discussed what makes Project Pacific so exciting and briefly went over the three primary components of Tanzu: build, run, and manage. Today, I attended a breakout session detailing how Tanzu manages modern application workloads, and in the section below I very quickly discuss some whats and whys of Tanzu’s management solution.
+More Devs, No Problem: Managing Self-service Access to Kubernetes
+
+Kubernetes is an enterprise’s dream technology, offering rapid innovation through software and increasing developer velocity, multi-cloud operations, and improved resource utilization. However, as applications scale up in Kubernetes, the age old operations challenges remain: fragmentation across teams, issues of adequate visibility and security, and accurate cost reporting and control. Across disparate Kubernetes Clusters, the challenge can rapidly become insanely complex. Imagine managing separate security domains, upgrades, monitoring, and backups, cross-cluster traffic, and resources individually for dozens, if not hundreds, of clusters.
+Tanzu Mission Control offers a solution to the headache-inducing dilemma described above. Tanzu Mission Control, like the mission control center of an aerospace expedition, is a single control point for a team to centrally manage what is otherwise a convoluted conglomerate of rapidly moving parts. It’s a one-stop control for Kubernetes and modern applications. To summarize what it has to offer:
+manage a fleet of cluster resources instead of single cluster operations, both in groupings of clusters as cluster groups, and through workspaces: a cluster set defined as an application on namespaces
+define policies once and push them across clusters
+manage cluster lifecycle consistently, and schedule cluster backups
+a unified view of cluster metrics, logs, data, and costs
+built to be extensible
+In addition to addressing the pain of having to individually manage clusters, Tanzu Mission Control addresses the conflicting needs of developers, who need independence and self-service access to drive business forward, and IT operations who need visibility and control. It has the following design goals:
+enable grouping of physical resources
+enable sharing of clusters across teams
+enable self-service access to infrastructure
+Tanzu Mission Control connects people structure and infrastructure within an organization and is a powerful tool to accelerate the industry along its cloud native journey.
+Hearing from Customers
+
+Design Studio session: Platform as a Service on vSphere
+I attended my first Design Studio session for Platform as a Service (PaaS) on vSphere, listening in and learning about customers’ goals, pain-points, solutions, and suggestions for PaaS in the public cloud and on-prem. Design Studio sessions at VMworld are meetings and discussions with a small group of customers for their feedback to existing and in-development VMware products and solutions to better understand where and how the company’s technology can help customers efficiently and effectively solve their problems. It was a cool experience to see where the customer’s anecdotes and vSphere’s product development aligned and conflicted, and I gained insight into the process of gathering customer feedback and parsing it for actionable elements.
+I also had the chance to attend a Meet-the-Experts session with Project Pacific engineers and product managers, and got to hear questions posed by engaged customers about the architecture and capabilities of Project Pacific’s supervisor kubernetes cluster and guest cluster services. All in all, today I got to experience some community engagement with a bigger group, a different experience from manning the demo booth, and overall pretty cool to see the more customer-facing side of product development in action.
+And some fun!
+
+Intern Day at VMworld, hanging out with intern friends :)
+At the end of the day, I met up with other VMware interns who came for VMworld’s Intern Day event and wandered Solution Exchange for the Hall Crawl, grabbing lots of snacks and free swag! Spending VMworld so far with my team members, experts, and among a more professionally experienced crowd, it was fun to kick back a bit with friends and exchange stories and favorite experiences from the day. With two packed days of learning and excitement conquered, and only one day left…bring on Day 3!

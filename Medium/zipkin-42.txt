@@ -1,0 +1,71 @@
+Trying Zipkin2 with Elasticsearch
+Naoki Takezoe
+Naoki Takezoe
+
+Sep 15, 2017·2 min read
+
+
+
+
+Zipkin2 was released a few days ago. It offers new JSON model which is smaller and easier to handle than previous one. I tried Zipkin2 immediately.
+At first, an important things is that Zipkin2 server can handle request from both Zipkin1 and Zipkin2 client. This means we can move our applications to Zipkin2 gradually. A following picture is mixed tracing of Zipkin1 client and Zipkin2 client:
+
+Next, I tried to store tracing data in Elasticsearch. Zipkin supports Elasticsearch as one of storages, and we can use it by specifying Elasticsearch URL by environment variable like follows:
+$ STORAGE_TYPE=elasticsearch ES_HOSTS=http://localhost:9200 java -jar zipkin.jar
+Here is an example of the tracing data which is stored in Elasticsearch:
+{
+  "_index": "zipkin:span-2017-09-15",
+  "_type": "span",
+  "_id": "AV6DyP-s1lXcfYRA_gW_",
+  "_score": 1,
+  "_source": {
+    "traceId": "f69ea762746e11a5",
+    "localEndpoint": {
+      "serviceName": "zipkin-akka-actor",
+      "ipv4": "10.198.80.33"
+    },
+    "timestamp_millis": 1505449540337,
+    "kind": "CLIENT",
+    "name": "! - child-actor",
+    "id": "121e5f0d86c12da2",
+    "parentId": "128e8b168c4ca375",
+    "timestamp": 1505449540337441
+  }
+}
+And here is an example of Zipkin V1 tracing data:
+{
+  "_index": "zipkin-2017-09-15",
+  "_type": "span",
+  "_id": "AV6DxCUt1lXcfYRA_gW9",
+  "_score": 1,
+  "_source": {
+    "timestamp_millis": 1505449221231,
+    "traceId": "d9a5b347e53306a7",
+    "id": "a8b40aa821535967",
+    "name": "parent-actor",
+    "parentId": "d9a5b347e53306a7",
+    "timestamp": 1505449221231197,
+    "duration": 519199,
+    "annotations": [
+      {
+        "timestamp": 1505449221231197,
+        "value": "sr",
+        "endpoint": {
+          "serviceName": "zipkin-akka-actor",
+          "ipv4": "10.198.80.33"
+        }
+      },
+      {
+        "timestamp": 1505449221750396,
+        "value": "ss",
+        "endpoint": {
+          "serviceName": "zipkin-akka-actor",
+          "ipv4": "10.198.80.33"
+        }
+      }
+    ]
+  }
+}
+As you can see, V2 JSON is smaller and simpler than V1 obviously, and also it can be handled easily. For example, we can visualize the tracing data stored in Elasticsearch using Kibana easily.
+
+Anyway, Zipkin2 looks better than Zipkin1 in a lot of points, and it also provides gradual migration way by backward compatibility. Therefore, we can start to use it soon.

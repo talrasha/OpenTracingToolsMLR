@@ -1,0 +1,42 @@
+TMWL May’20 — Kafka without Zookeeper & metrics in Kamon
+Programmers share what they’ve learned
+Maria Wachal
+Maria Wachal
+Follow
+Jun 16, 2020 · 3 min read
+
+
+
+
+
+
+Every month we share what we’ve learned in our team. In May Michał and Grzegorz discovered:
+how Confluent plans to remove ZooKeeper from Kafka,
+how to interpret the metrics in Kamon Prometheus Reporter.
+Apache Kafka without ZooKeeper by Michał
+Last month I’ve learned about Apache Kafka KIP-500. Currently every Kafka cluster includes also a ZooKeeper cluster. ZooKeeper takes part in Kafka Controller election but also stores Kafka-related metadata. This approach has few drawbacks:
+Kafka setup is not easy, since additional ZooKeeper cluster is needed.
+It is not fully efficient to store metadata in an external system — some data needs to be kept both in ZooKeeper and in Kafka Controller memory, plus those are of course additional Java processes.
+ZooKeeper state can diverge from the Kafka Controller state. Partition leader changes in ZooKeeper can arrive to Kafka Controller after many seconds.
+When Kafka Controller fails, a new one needs to load a full cluster state from ZooKeeper, which can take a while.
+KIP-500 describes a concept of a total ZooKeeper removal. As a replacement Kafka would maintain a set of controllers, where one of them is active when the remaining ones are in standby. They would leverage Raft quorum for the election process. This way Kafka Controller failures can be handled much faster, cluster complexity is lowered and metadata can be managed better.
+Transition to new architecture won’t be instantaneous. Multiple steps and releases are planned before achieving this goal. We’ll need to wait a while for Kafka without the ZooKeeper.
+If you’d like to learn more, take a look at KIP-500 and other related KIPs, or at the Confluent blogpost: “Apache Kafka Needs No Keeper: Removing the Apache ZooKeeper Dependency”
+Metrics in Kamon Prometheus Reporter by Grzegorz
+Observability is one of the most important things in modern applications. It’s crucial to know how the application is performing, how it utilizes the resources, etc.
+In one of our projects we decided to use Kamon library to expose the metrics. The motivation behind this decision was the ability to switch between reporters, so we can switch for example from Prometheus/Grafana to Datadog, without writing a line of code.
+As a start we enabled Prometheus Reporter. The setup is easy and is out of scope of this post. As a result we got a list of metrics. But the list was a bit confusing…
+Let’s focus on one metric: open connections in JDBC pool.
+For each pool we got:
+jdbc_pool_connections_open_sum
+jdbc_pool_connections_open_count
+and several
+jdbc_pool_connections_open_bucket with le labels (the histogram).
+But.. where is the actual number of open connections?
+It turns out... You have to compute it!
+The Kamon measures the value multiple times each second (15 times), and the value is added to jdbc_pool_connections_open_sum. Each time the value is retrieved it also increments the jdbc_pool_connections_open_count.
+So to get the current value you have to divide the sum by the count!
+After several experiments we got better results after dividing not the metrics themselves, but how the metrics were increased over time. Our final formula looks like:
+increase(jdbc_pool_connections_open_sum{env=”develop”, jdbc_pool_name=”slick.db”}[1m]) / increase(jdbc_pool_connections_open_count{env=”develop”, jdbc_pool_name=”slick.db”}[1m])
+To be honest the Prometheus Reporter is not very intuitive. I’d rather expect a simple metric with the value. Another problem was the lack of documentation on how it actually works.
+It works much better with DataDog and Kamon APM reportes, which are both paid services though.

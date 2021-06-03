@@ -1,0 +1,208 @@
+Define the right Quality Metrics and collect them automatically in one place
+Mohsen Nasiri
+Mohsen Nasiri
+Follow
+Aug 28, 2020 · 12 min read
+
+
+
+
+
+How to define meaningful quality metrics that matter to you and your product, and using App Script to collect them all in Google Sheets
+Introduction
+In modern software development setup, logs and metrics are all over the place. With Kibana, Datadog, and Grafana easily integratable with any programming language and infrastructure providers, collecting logs is not a problem. As a Quality Assurance expert, what I am interested in are those specific logs, or metrics, that reflects the quality of our product, and finding ways to monitor those metrics on a regular basis and seeing their trends over time.
+In order to talk about what I exactly do to achieve this goal, we need to break down that last sentence and separate those goals one by one:
+“… specific logs that reflect the quality…”
+“… finding ways to monitor them…”
+And “…see how they change over time”
+This is what this article is about. I am going to talk about how I approached these objectives, the lessons I learned from my mistakes, and the final steps that I took to finally have a clear understanding of How is the current state of quality in our product and how it changes over time in a fully automated setup, so my engineering teams can constantly have a clear overview of the product’s quality and see how the decision they make influences it.
+What is a “Quality Metric”
+A quality metric is any metric of any given type (size, time, count, etc) that either directly, or indirectly, represents the quality of a product or service. Let’s take a web app as an example. What types of metrics can we think of that directly represent its quality? From the most obvious to least, we can name a few:
+Page Response Time
+This refers to the time calculated from the moment a user interacts with the application until the moment that the interaction results in an effect.
+For example, the time it takes when you click on someone’s profile picture in a social media app until the profile page and its content is fully loaded is the Page Response Time.
+Uptime Status
+It shows how often a web page been up and running by showing a percentage of its uptime.
+If a web app is down too often, then it means there is a chance that at a point in time and when the service was needed, it was unavailable for some users, therefore there is no quality to define for it to begin with. Over a period of time, the average uptime percentage can define the quality of the service, since Quality of Service is directly affected by its availability.
+Failure Rate
+It refers to the relative number of failed interactions that users experience while using a service. While using a web app, or any sort of software for that matter, the more issue, errors, empty screens, and such that users experience, it would be fair to say that the lower product quality is.
+As you might have noticed I stated in the definition of quality metrics “either directly or indirecty”. The three examples above are metrics that directly reflect the quality of a product or software. For instance, in the case of the Page Response Time, it is fair to say that:
+The lower the response time is, the higher the quality
+… or in case of the Failure Rate:
+The higher failure rate than user experience, the lower the quality.
+But not all metrics can directly be linked to the quality of a product. Sometimes such metrics only play a role, minor or major, and might end up affecting the quality. These metrics usually can be found not so visibly around the product itself, but rather around the resources that are allocated to the product; resources being infrastructural, developing teams, or related to the users’ experience. Two products might have a similar response time and failure rate, but the majority of users might simply claim “It just feels better when I use one and not the other” which might be translated in terms of quality.
+As a couple of examples for metrics that indirectly influence that quality, we can mention a couple:
+Bugs count over a period of time
+Although detecting failure rate can be easily achieved by looking at your log monitoring service, the number of bugs per week, month, or sprint tells a different story.
+Simply because of the bugs count in a development team is increasing, that doesn’t necessarily mean that quality is getting lower since all the other metrics that we have already been through might still be at a good rate, but one conclusion that we can draw is that “Something’s wrong and that something might, later on, result in lower quality”.
+As an example, the reason behind this increase could be pressure from the product owner to release new features, which down the road, might end up affecting the quality.
+UX analysis metrics
+There are tools out there that capture user’s interactions with a web app, and run analysis on those measurements to extract meaningful metrics. FullStory and HorJar are two of these tools that enable the developing team to see how happy, unpleased, or frustrated the users were using their product, by showing them metrics such as the number of rage clicks (user spam-clicking a UI element) or dead clicks (Clicks on elements that don’t trigger an action), which can reflect the possibility that the current UX can benefit from improvements and end up increasing the overall quality.
+Which quality metrics should we aim for?
+Always choose the metrics that are relevant to your product, not the ones that are often mentioned on the web that you can find on a “Top 10 quality metrics” articles that a simple Google search leads you to.
+First of all, many of the quality metrics that were relevant in the olden days of software development are not fitting in today’s rapid architecture. I would argue that metrics such as Change Failure Percentage, MTBF (Mean Time Between Failures), and MTTR (Mean Time To Recover/Repair) are either not so easy to measure, or they simply are not applicable anymore in today’s small scrum/vertical developer teams in the tech scene.
+And secondly, a quality metric that is very valuable to one product, does not necessarily bring the same value when measured for another.
+Let’s go over this by comparing two different products: A flight and hotel booking web app, like Kayak, and a social media app, like TikTok, with millions of young and impatient users.
+For the booking app, the failure rate is the most important quality metric which should be as low as it can be at all times since the booking process is usually a long process and collects users’ info, travel details, and their payment info. Response time though, on the other hand, is not as crucial, since booking processes are usually long ones that people are used to already, and collecting thousands of flight info from other search engines consumes a lot of time anyway.
+On the other hand and for the social media app, it is the opposite: The response time has to be as low as possible since most users won’t wait for too long for content to load, and if nothing loads in a short timespan, they simply swipe to the next one, while failure rate, although still important, is not as critical as the booking app.
+The best way, in my opinion, is to sit with your product owner/manager and iterate over a list of possible candidates for quality metrics and find out which ones are more valuable to spend time on their monitoring and collection.
+How to measure and monitor the metrics
+Depending on the metric you choose, there is usually a tool that is made to collect them. Here is a list of well-known tools for some of the quality metrics that I used in the past or currently use:
+For the response time of the backend services and failure rate, there are log collecting tools that can be integrated with your services, like Datadog, Sentry, and Kibana
+For the Page Response Time and Uptime Status of the frontend pages, there is StatusCake
+And for UX quality, there is Sentry and HotJar
+After setting these tools up and integrating it successfully, there are two main ways to monitor the metrics:
+One way is to monitor the metrics within the tools. Most of these tools come with visual dashboards, sometimes heavily configurable, like in Datadog, giving you the full power of deciding what metrics you want to monitor and how you want to do it.
+Here are some of the dashboards that I currently have running for our product:
+
+A custom-made dashboard in Datadog, showing the 5xx error counts
+
+Uptime status percentage, in StatusCake
+
+Average page speed (or page response time) in milliseconds, in StatusCake
+
+UX (User Experience) analysis on FullStory
+This looks insightful, doesn’t it? weekly or monthly insight over different aspects of the quality of your product can give you not only a good grasp of the current state of quality, but also, showing you their trend and giving an idea of the current path that you’re on:
+If you don’t change anything, will this current trend lead to a high-quality product or the opposite? and If you need to make a change, from which areas you have to start.
+If you want to improve one thing in this current setup of having several dashboards showing different quality metrics, what would it be? For me the answer was easy: Having them all in one place! So I don’t have to have different links to different dashboards, some of which having a different time frame for displaying the metrics, that unfortunately is not configurable, like StatusCake’s.
+But where should that single holy place be? The place I chose is a classic one: A tool where accountants since the dawn of the age of computers used to display rows and rows of data, all in one sheet: The spreadsheets! With Google Sheets available in every browser, this idea is more appealing than ever, but there is another reason that I chose Google Sheets and that’s Google’s App Script, which takes us to the second way of collecting and displaying those metrics:
+Collection in Google Sheets using App Script
+One way of collecting these quality metrics in Google Sheets is, of course, extracting the needed data from those dashboards, and then manually add it to the spreadsheet. While this approach is completely fine and there is nothing wrong with it, but my motto has always been:
+“If something can be automated, then it should”
+Google building its App Script as a layer on top of its cloud suite (Sheets, Docs, etc) enable us to read from and write into out Google documents via a .gc script which is basically javascript for the most part:
+
+You can access the Script editor via Tools
+
+This is how the Script editor looks like: you can have multiple files, functions, and all with autocomplete!
+Here is a great multi-part step-by-step guide to Using App Scripts with Google Sheets and I won’t do the introduction here; instead I share some code snippets that I wrote showing you how I retrieve some of my quality metrics using Datadog’s and StatusCake’s API, as an example.
+Before sharing the scripts, I want to show you how the empty sheet looks like:
+
+Quality Metrics sheet, before having any data
+As you can see, the two left columns show the metrics and the specific area that the metric was measured for, and the rest of the columns are for every calendar week. Therefore what I want to do in my script is to:
+Collect the metrics for every week
+Fill the right cell considering the right calendar week
+Now that you know what the purpose of the script, let’s dive into its code.
+The first example gets the Error Count metrics from Datadog and fills the corresponding cells:
+// Gets the error count report from Datadog
+function getMetricFromDataDog(query, formData, options, rowPosition) {
+  var url = "https://api.datadoghq.com/api/v2/logs/events/search?api_key=<YOUR_API_KEU>&application_key=<YOU_APP_KEY>"
+  // Gets 2 days in ISO fromat: for "from" and "to" in payload
+  var dates = getDatesISO()
+  // The corresponding rows that needs to be filled
+  // In the sheet, rows #2, #3, & #4 are for error count
+  var rowPositions = [2, 3, 4]
+  var queries = [ 
+    "<DATADOG_QUERY_1>",
+    "<DATADOG_QUERY_2>",
+    "<DATADOG_QUERY_3>",
+    ...
+  ]
+  // For every query, we call the Datadog query once
+  for (var i = 0; i < rowPositions.length; i++) {    
+    var formData = {
+      "filter":
+      {
+        "from": dates[0],
+        "to": dates[1],
+        "query": queries[i]
+      },
+      "page":  
+      {
+        "limit": 9999  
+      }
+    };
+    var options = {
+      'method' : 'post',
+      'payload' : JSON.stringify(formData)
+    };
+    // Sending the request to Datadog API
+    var response = UrlFetchApp.fetch(url, options);
+    var responseArr = JSON.parse(response)
+    var errorCount = Object.keys(responseArr["data"]).length;
+    
+    // Finding the right colomn based on the current calendar week
+    var colPosition = getCurrentWeek()
+    var sheet = SpreadsheetApp.getActiveSheet();
+    // Filling the right Cell (Row x Column)
+    sheet.getRange(rowPositions[i], colPosition).setValue([errorCount]);
+  }
+}
+And the second function is for fetching the Page Speed metrics from StatusCake:
+// Getspage speed reports form StatusCake
+function getPageSpeedReport() {
+  // Every test in StatusCake has an ID that you can see in the URL
+  var testIds = [<ID_1>, <ID_2>, <ID_3>, <ID_4>, <ID_5>]
+  // The corresponding rows that needs to be filled
+  // In the sheet, rows #13 to #17 are for error count
+  var rowPositions = [13, 14, 15, 16, 17]
+  var headers = {
+    'API' : '<YOUR_API_KEY>',
+    'Username' : '<YOUR_USERNAME>'
+  }
+  var options = {
+    'method': 'get',
+    'headers': headers
+  };
+  
+  for (var i = 0; i < testIds.length; i++) {
+    var url = 'https://app.statuscake.com/API/Pagespeed/History?id=' + testIds[i] + '&days=7'
+    // Sending a request to StatusCake's API
+    var response = UrlFetchApp.fetch(url, options);
+    var responseArr = JSON.parse(response)
+    var avgPageSpeed = responseArr["data"]["aggregated"]["loadtime_ms"]["avg"];
+    // Finding the right colomn based on the current calendar week
+    var colPosition = getCurrentWeek()
+    // Filling the right Cell (Row x Column)
+    var sheet = SpreadsheetApp.getActiveSheet();
+    sheet.getRange(rowPositions[i], colPosition).setValue(Math.trunc([avgPageSpeed]));
+  }
+}
+And these are the utility functions, called in these examples:
+// Calculates the 'from' and 'to' dates in ISO format for Datadog
+function getDatesISO() {
+  // Collecting logs on a weekly basis
+  var interval = 7
+  var d = new Date()
+  var endDate = d.toISOString()
+  d.setDate(d.getDate() - interval);
+  var startDate = d.toISOString()
+  return [String(startDate), String(endDate)];
+}
+// Returns the current calendar week number
+function getCurrentWeek() {
+  // week columns start from C/3rd
+  var weekOffset = 3
+  // the first week in the sheet
+  var firstWeek = 33
+  // the first year in the sheet 
+  var firstYear = 2020
+  var weekNo = getWeekNumber(new Date())[1]
+  var weekNoConsiderYear = (getWeekNumber(new Date())[0] - firstYear) * 52 + weekNo
+  var weekColoumPos = weekNoConsiderYear - firstWeek + weekOffset
+  
+  return weekColoumPos
+}
+// Returns the current [ year, calendar week number]
+function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+  
+    return [d.getUTCFullYear(), weekNo];
+}
+And the last step is to define triggers that run your functions:
+
+Clicking the clock takes you to the Triggers page
+
+Modal for Trigger creation
+
+Here you can see the 2 triggers for those two functions that collect metrics from Datadog and StatusCake
+And at the end when this is all set… Violà!
+All your quality metrics are set and will update automatically:
+
+Quality Metrics sheet, after setting up the App Script and Triggers
+Adding visuals
+On top of all this, you can also add some visual charts in the same Google Sheet document, to show the changes in the metrics. For example, the chart below visualizes the Error Count metric’s measurements:
+
+Graphic charts created based on the values for Error Count, Page Speed, and a few more

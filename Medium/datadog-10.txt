@@ -1,0 +1,75 @@
+Step By Step with Pictures: Installing the Datadog AWS Integration and Setting up a Dashboard
+Garrett Sweeney
+Garrett Sweeney
+Follow
+Feb 27 · 4 min read
+
+
+
+
+
+You too can use Datadog to monitor your applications!
+The following is my step-by-step experience following the Datadog documentation on how to set up an AWS integration. I recommend reading their docs for the latest up-to-date information, but thought it was worthwhile to share my successful installation!
+First I navigated to https://app.datadoghq.com/
+
+The Datadog Quick Start
+Next, I hovered over Integrations on the left and selected “Integrations”.
+
+The Integrations option is on the left
+Then I hovered over the AWS Integration that I had installed when originally setting up the account and clicked “Configure”.
+
+Select the Amazon Web Services Integration
+I then selected the blue “Add another account” button. (For context, I had installed this integration during account setup but ended up removing the account. So for this step, the integration was installed but no account was configured).
+
+Add another account from this view
+I then selected the blue “Automatically Using CloudFormation” button.
+
+This presents an option to install with CloudFormation
+This took me to the AWS Console and loaded the Datadog Cloudformation stack. Be sure to change the region if you want to deploy the stack in a different region. Simply picking a different region presented the same “Quick create stack” page.
+
+Creating the Stack requires you to input the API Key
+To get the DdApiKey, I went back to the Datadog page and selected the “Datadog API key” link that now appeared in the New Account window.
+
+I went back to this page to figure out where my API Key could be found
+This took me to my API Keys page, where I copied the API key behind the purple box.
+
+Copy your API Key over to the CloudFormation stack
+I copied the API key over into the CloudFormation stack parameters and pasted it in the DdAPIKey field. I then scrolled to the bottom, checked the checkboxes, and selected “Create stack”.
+
+Accept the terms (only if you want to) and create the Stack
+Cloudformation began to spin up the stack and I could see the CREATE_IN_PROGRESS Status for the “datadog” Stack.
+
+CloudFormation is hard at work
+When the Stack completed, I saw that the one CloudFormation template created 3 nested templates.
+
+Not 1, not 2, but 3 Nested CFN templates!
+I then selected the datadog-DatadogIntegrationRoleStack-* Stack and, under the Resources tab, identified that the integration IAM role was named DatadogIntegrationRole .
+
+Here’s the Integration Role Stack
+I then went back to the AWS Integration page and updated my AWS Account ID and the role name, as specified.
+As soon as I finished typing, Datadog tried to access my account via the Assumed Role. Unfortunately, I ran into a small error where Datadog could not assume the role.
+
+Uh Oh, something might be wrong with the IAM Role
+Datadog is not authorized to perform: sts:AssumeRole on resource: arn:aws:iam::00123456789:role/DatadogIntegrationRole. See https://docs.datadoghq.com/integrations/amazon_web_services/
+Not to fear, this error appears in the Datadog FAQ docs: Error: Datadog is not authorized to perform sts:AssumeRole
+
+Following the steps, I just updated the AWS External ID value and gave it some time. Note: Be sure to give it enough time! I reached out for support but came back to this an hour later and the connection was working.
+
+I was sure to evaluate the integration role and verify that the Account and Condition were correct
+Hooray! Datadog is now connecting to the AWS Account.
+
+Nice! Datadog is pulling data from your account
+The next step was to move over the “Collect Logs” tab and add the arn of a Lambda in my account I wanted to monitor.
+
+Add a Lambda that you’d like to monitor via Datadog
+I entered the Lambda’s arn, and also selected some general services below via checkbox.
+
+I also checked some other general services for experimentation
+I then went back to the Dashboard tab on the left (above the integration tab) and viewed the dashboard lists.
+
+Wow, Datadog has so many turnkey dashboards
+Finally, I scrolled down and selected “AWS Lambda” and could see the data for my Lambda!
+
+Nice, my Lambda metrics look good!
+Overall, a really nice experience with helpful documentation. Next, I’ll probably create some custom dashboard views for my applications.
+If you have a question, feel free to leave a comment, and be sure to check out the Datadog Documentation!

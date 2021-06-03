@@ -1,0 +1,55 @@
+Datadog App Analytics/Logs from One to N
+Anatoly Mikhaylov
+Anatoly Mikhaylov
+Follow
+Nov 4, 2019 · 6 min read
+
+
+
+
+
+Among the three pillars of observability (metric, logs, traces), logs might be the most boring part but only until we start using them successfully for performance analysis and troubleshooting. How often do we find ourselves parsing through terabytes of logs looking for a needle in a haystack? When we find it how do we create a context around this individual log event? In this blogpost we will learn how to expose database metadata “Process List” via Datadog Logs and cover a new Datadog tracing feature called just “Traces”. This new feature will help to connect database traces and logs together and make database performance troubleshooting easier.
+Let me start with an example to demonstrate what level of detail we will go through. Filter slow SQL queries, get the connection IDs and the states these connections switch through alongside with the performance characteristics of each connection:
+
+I will rely on Datadog Application Performance Monitoring (APM) to describe performance troubleshooting techniques. APM client library is available for Ruby, Python, Golang and many other languages. Tracing is not something enabled by default. Additional configuration is required to trace requests and search through them, it will be subject to the tracing quota allocated to your account. Not every service is worth indexing though. High volume services like MySQL, Redis, Memcached are often exempt from tracing due to the volume and associated cost. It isn’t financially feasible to trace billions of SQL queries when we only need a sample. Use a workaround with the “SQL Time” measure attached as a tag, it helps to find HTTP requests with slow SQL queries, its instrumentation is fairly simple:
+
+The Ruby On Rails framework has the ActiveSupport Notifications API publish/subscribe model, that helps to extend Datadog trace span with SQL Time. We subscribe to an event when the request is complete and take the DB Runtime value to send as an additional tag. APM Query to filter HTTP requests with total SQL Time above 2 seconds will look like:
+@database.sql_time:>2s
+It will work with every Analyzed Spans regardless of sampling. We can’t filter an individual slow SQL query. Priority sampling can help to increase the number of events with full traces but dataset size makes the same SQL query fast in one scenario and slow in the other. Occasionally traces can be dropped as well:
+A trace priority should be manually controlled only before any context propagation. If this happens after the propagation of a context, the system can’t ensure that the entire trace is kept across services. Manually controlled trace priority is set at tracing client location, the trace can still be dropped by Agent or server location based on the sampling rules.
+
+When traces are enabled the data is being indexed and you have searching capabilities, while non-traced services like MySQL are only available via Service page (based on custom metrics). Search was not possible here…
+New Datadog “Traces” feature makes every service traced, it allows you to have SQL queries being available for search without additional Datadog agent’s configuration. It will happen at no extra cost but with some limitations. Downside is not all events will be traced but only a portion, which can be enough for performance troubleshooting. Now traces split to two types:
+Traces: no widgets, sample of events, high volume services at no extra cost
+App Analytics: widgets (Histogram, List, Table), Analyzed Spans, subject to tracing quota
+Database performance
+It’s a difficult and exciting topic at the same time. Millions of unique SQL queries hit database every hour, leaving the engine to do the best to fairly allocate resources to provide consistent performance to every client and also providing MVCC, row-level locking, full ACID compliance. This is difficult in a multi-tenant environment, sometimes a single SQL query can drag performance down for entire database instance. When database performance is far from what we expect, we don’t often have the data to see why. Would it be useful to have contextual logs, detect slow SQL query, deep dive into relevant Process List’s snapshot and connect it to APM in order to find a performance issue?
+In order to answer this question we are going use Datadog Logs to store snapshots of database’s meta data Process List to be able to filter slow SQL queries and see exactly what database engine was doing during the query, investigate each individual connection/thread, its states at a given time, analyse how many rows were scanned and examine how much time it spent sending data back. It’s very important to instrument SQL query with trace_id in SQL Comment as shown here:
+
+Important to mention that research is based on test dummy data which has nothing to any kind of real production data. I use my own test application, run the benchmark and collect the stats from the local development environment fully independent and isolated from other environments.
+Query Syntax
+
+Datadog Logs UI is SQL query language driven. To learn the query language you can use this resource. Let’s briefly touch relevant query syntax to database performance. A search query may contain a combination of key:value pairs including every facet or even negative condition, for example:
+env:test service:(mysql OR backend)
+service:mysql @duration:>5s @sql.query:SELECT*
+service:mysql @sql.query:(*ORDER* OR -*JOIN*)
+It can be extremely helpful to select a set of services to pinpoint each layer by trace id. This id is a part of many independent application layers, trace_id connection brings them together in Datadog UI:
+
+To make Process List be available to Datadog Logs UI, we will use the following script:
+
+MySQL sys Schema
+According to MySQL 5.7 documentation
+MySQL 5.7.7 and higher includes the sys Schema, a set of objects that helps DBAs and developers interpret data collected by the Performance Schema. sys schema objects can be used for typical tuning and diagnosis use cases. Objects in this schema that summarize Performance Schema data into more easily understandable form.
+Now that we have the trace data associated to the log events, let’s investigate an individual slow SQL query:
+
+We get the data from database internal data structure table sys.processlist, this is how database tracks slow running SQL queries (slow query log is different). A SQL query’s state changes over time and when we need to get total duration and rows then final is the one to look at. Database engine isn’t trivial, we can’t accurately get rows scanned and rows examined until the query is complete and connection switched to another state, see details:
+Rows examined column is not updated for each examined row so it does not necessarily show an up-to-date value while the statement is executing. It only shows a correct value after the statement has completed.).
+
+New “Traces” functionality is a next generation observability tool, it brings contextual information for high volume service, connect it to an individual request in order to analyse it and ease performance troubleshooting. With Process List being available in Datadog Logs we can pinpoint slow SQL queries and find the reasons behind it!
+What next?
+Let’s investigate another very important database internal structure Statement Analysis provided by the sys Schema:
+
+You learnt:
+How to push MySQL sys Schema to Datadog Logs
+How to link App Analytics to Datadog Logs
+How to use Logs to troubleshoot database performance issues

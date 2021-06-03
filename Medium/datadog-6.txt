@@ -1,0 +1,50 @@
+Installing Datadog Forwarder Manually in AWS
+Ayaz Badouraly
+Ayaz Badouraly
+
+Apr 5·3 min read
+
+
+
+
+The method described here is not the recommended way of doing things. Read more about this in https://docs.datadoghq.com/serverless/forwarder.
+Create Datadog API Key
+First we need an API key so that the Datadog Forwarder can send logs to Datadog. Follow the steps in https://docs.datadoghq.com/account_management/api-app-keys/#api-keys.
+
+API keys page — https://app.datadoghq.com/account/settings#api
+Store this API key as an SSM parameter. Datadog documentation recommends using AWS Secrets Manager, but as of today SSM works just fine and is more cost effective¹.
+There is a couple of ways of doing this, either using AWS Console or AWS CLI².
+aws ssm put-parameter --name datadog-api-key --value $DD_API_KEY --type SecureString --key-id alias/aws/ssm --tier Standard
+
+Parameter store in Paris — https://eu-west-3.console.aws.amazon.com/systems-manager/parameters
+Create Datadog Forwarder S3 Cache Bucket
+This step is not strictly necessary, but still the unified service tagging³ is a nice to have.
+
+Example bucket in Paris — https://s3.console.aws.amazon.com/s3/home?region=eu-west-3
+Create Datadog Forwarder IAM Role
+The following policy document grants basic logging permissions along with a special permission to read the API key created in the previous step.
+
+Policy document for DatadogForwarderPolicy
+Again both AWS Console and AWS CLI⁴ can be used to create the policy.
+aws iam create-policy --policy-name DatadogForwarderPolicy --policy-document file://datadog-forwarder-policy-document.json
+Then attach this policy to an execution role. More on this in https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html.
+
+Trust policy for DatadogForwarderRole
+aws iam create-role --role-name DatadogForwarderRole --assume-role-policy-document '{"Version": "2012-10-17","Statement": [{ "Sid": "AllowAssumingRoleFromLambda", "Effect": "Allow", "Principal": {"Service": "lambda.amazonaws.com"}, "Action": "sts:AssumeRole"}]}'
+aws iam attach-role-policy --role-name DatadogForwarderRole --policy-arn arn:aws:iam::123456789012:policy/DatadogForwarderPolicy
+
+IAM roles with policy attachments — https://console.aws.amazon.com/iam/home
+Create Datadog Forwarder Lambda
+At this point, we are ready to create the lambda itself. The code is available for download in https://github.com/DataDog/datadog-serverless-functions/releases, and the current release 3.30.0 runs on Python 3.7.
+As usual, either on AWS Console or with AWS CLI⁵. Along with the code, the envvars DD_API_KEY_SSM_NAME and DD_ENHANCED_METRICS must be set. On the other hand, DD_FETCH_LAMBDA_TAGS, DD_LOG_LEVEL and DD_S3_BUCKET_NAME are optional.
+aws lambda create-function --function-name datadog-forwarder --zip-file fileb://aws-dd-forwarder-3.30.0.zip --role arn:aws:iam::123456789012:role/DatadogForwarderRole --handler lambda_function.lambda_handler --runtime python3.7 --environment 'Variables={DD_API_KEY_SSM_NAME=datadog-api-key,DD_ENHANCED_METRICS=false,DD_FETCH_LAMBDA_TAGS=true,DD_LOG_LEVEL=info,DD_S3_BUCKET_NAME=datadog-forwarder-bucket}'
+The lambda needs to be executed upon receiving new logs. This requires specific permissions, as described in https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/SubscriptionFilters.html#LambdaFunctionExample.
+aws lambda add-permission --function-name datadog-forwarder --statement-id AllowInvokingFunctionFromCloudWatchLogs --principal logs.eu-west-3.amazonaws.com --action lambda:InvokeFunction --source-arn 'arn:aws:logs:eu-west-3:123456789012:log-group:*'
+
+In AWS Console, the resource policy can be created in Lambda > Functions > datadog-forwarder > Configuration > Permissions > Resource-based policy > Add permissions
+Do not forget to change the retention of the log group⁶ associated with the Datadog Forwarder since it defaults to unlimited.
+Configure Triggers
+With a one-line configuration⁷, Datadog can automatically create logs subscription filters for all existing and new lambdas. This provides an effective way not to worry about this in the future.
+
+AWS integration page — https://app.datadoghq.com/account/settings#integrations/amazon-web-services
+And that’s pretty much it ! Lambda logs, custom metrics and traces will now smoothly flow along with other Datadog resources.

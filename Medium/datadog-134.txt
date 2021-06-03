@@ -1,0 +1,55 @@
+The ‘Perfect’ Dashboard TV (Resin.io + Datadog + RPi + Chromecast)
+Aubron Wood
+Aubron Wood
+
+May 26, 2017·6 min read
+
+
+
+
+
+A test of the final product, implementing a custom Chromecast splash screen. (Because Google won’t)
+The Concept
+Ever since I listened to Cory Watson talk about Stripe’s observability strategies on the (wonderful) Software Engineering Daily, I’ve gotten a relatively strong itch to incorporate that ‘culture of observability’ into my day-to-day with ScoreShots. So about a month ago I set out to be the change I wanted to see, and part of that for me is the need for the perfect dashboard TV.
+What then, is the perfect dashboard TV? For me it was:
+A robust hardware solution that’s low power, low maintenance, and cheaply replaceable, with wi-fi support.
+Not sacrificing the TV’s ability to be a TV, allowing for media content and screen sharing directly to it.
+An informative passive state that shows critical information.
+Autonomous enough to never need a remote control.
+The dream, much like my dreams of the perfect messaging client or the perfect operating system, seemed far out of reach, but close enough to make an attempt.
+Hardware
+So lets source the hardware needed for this little project:
+TV: Nothing special here, we just need a TV with basic CEC support. Be aware, half the TVs that support CEC either don’t say so, or call it something weird and proprietary. In my case we picked up a couple of Insignia 40" LED TVs @ 209.99
+Dashboard: Here we chose the low hanging fruit of the Raspberry Pi 3. With CEC support, low energy usage, and built in wifi, it made sense.
+Media: Again, a no-brainer of sorts, the Chromecast. Most support, user experience that would work on our network, it has issues (which we’ll talk about later), but it’s good.
+Software/Services
+To start with, lets write something worth showing. We used Datadog here as it had the right recipe: quick to setup, with integrations for everything under the sun (Cory from Stripe also introduced me to them). I linked it into the machines running ScoreShots and our AWS account, and wrote some custom views to show latest posts and other stats.
+
+The dashboard editor on Datadog is pretty sweet
+From there, I needed to figure out how to maintain the Raspberry Pis, update them over the air, and add more screens as we (hopefully) continue to grow. I know from experience that the flow of getting new builds to existing devices and provisioning new ones can kill a project like this over time super easily. Rather than try to write my own deployment strategy, we went with Resin.io, a service made almost explicitly for this use scenario. From there, we could provision new builds of the software to a whole fleet of devices, while still providing customization variables to each device to fit its unique scenario. It uses Docker containers running in its own slimmed down OS to manage updates and configuration. Getting resinOS running on the Raspberry Pis was easy enough, which means I got fleet management, OTA updates, and the rest for free using git as an interface.
+
+Fleet Management via Resin.io
+The last missing piece here was someone who had made an easy to adapt system of putting a browser to a screen (which is way harder than it sounds, as it so happens). The advantage of resin.io is that someone had already done the hard parts for us, enter resin-wpe. Hardware accelerated, webkit, you can even connect it to touchscreens, if that’s your idea of fun. I setup the project in a cloud9 workspace, and pushed it to resin, which pushed it to the devices. By setting the URL via configuration, we now have the datadog dashboard on the TV.
+So just with off the shelf libraries and tools, we have 3 out of the 4 of our metrics for the perfect dashboard TV. All we’re missing is the ditching of the remote: right now we have to manually switch between chromecast and the raspberry pi. So begins our adventure into CEC.
+CEC Support and Automation
+For those unfamiliar, CEC, or Consumer Electronics Control, is a protocol by which HDMI connected devices can control and command other HDMI connected devices without any other forms of communication. Its primary use is to unify remotes, but it also has applications in cross device control, auto-input-switching, etc. It’s a protocol with the best of intentions, and often the worst of device implementations. But lets try and remain positive.
+Raspberry Pi supports CEC out of the box via libCEC. This means with a little tweaking of our Docker image, we can control the TV over bash or Python. Neat!
+Chromecast has some useful CEC features. It will turn the TV on and switch to its input when an app is started on it. What it doesn’t do however is ever hand that input back to anyone else when the app closes, which means it requires a remote if you want to use it secondary to any other content provider (It also never blanks its input on inactivity. This wouldn’t be useful here, but it’s still dumb). We’ll need to write our own code to add some sanity here if we want it to work without a remote.
+So first we need to rebuild the image supplied by resin-wpe if we want to add python, libCEC, and all the required dependencies involved with that (gcc, protobuf, etc). The image is a yocto build, which is a lightweight linux build system for IoT devices. The upside of this is that it runs fantastically and is super lightweight. The downside is that, since it’s not a real distro, we can’t sudo apt-get anything. Not being a yocto expert myself, regular co-conspirator Chaz Schlarp helped out here and did the re-building. Be warned if you try and do this yourself, making the new image is a pretty intensive process. Chaz solved this as he usually does, by throwing an absurd amount of compute power at it:
+
+The power
+What resin-wpe supplies is a yocto build setup to run the webkit browser, hardware accelerated, to an available HDMI screen. What Chaz did is add to that the libraries necessary to give us a development environment moving forward in python, with libCEC and the ability to talk to Chromecasts.
+So now we have a python environment and all dependencies, the remaining step is simply to write some python. First, we get the Chromecast attached to the device:
+
+Then, we poll that continuously, and send a CEC as (active source) command when the system detects that the user both started a chromecast app, and then returned to the homescreen:
+
+What this creates is a dashboard TV, that can be Cast to (the Chromecast will switch the input to itself), and then switch back to the dashboard (the Raspberry Pi will switch the input back once it finds the Chromecast idle and showing). Essentially what we’ve done is written our own Chromecast idle screen (which is actually pretty frustrating, when you consider the fact that the chromecast could technically let us set our own idle screen instead of the default and make this whole project unnecessary).
+So we’ve effectively satisfied the ‘No Remote’ clause of the perfect dashboard TV. We don’t need a remote for any input switching, volume control (most Chromecast apps will do this for you), the only thing we still need a remote for is On/Off. And really, we can use the physical button for that. I was actually wholeheartedly planning to add auto On/Off for the TV in my office based on my own Google Maps supplied location, but as it turned out the TVs we bought don’t support CEC standby (I did tell you that the state of CEC support is a mess).
+Another day, perhaps!
+Repositories:
+If you want to deploy/fork this project, it’s available on github:
+Aubron/resin-wpe-chromecast
+resin-wpe-chromecast - How to run a fullscreen browser with hardware accelerated CSS, WebGL, and HTML5 video as a…
+github.com
+
+If you want the resulting Docker image, it’s available here: https://hub.docker.com/r/schlarpc/resin-wpe-python/, but the source required to build it is in the repository above.

@@ -1,0 +1,44 @@
+Integrating OpenTracing into Satoris
+Extending Satoris with additional monitoring integrations
+Autoletics
+Autoletics
+
+Jan 10, 2017·4 min read
+
+
+
+
+In my last post, I detailed some of the reasons why software activity metering, as per the Probes Open API, is a far superior approach to application performance monitoring than traditional tagged call tracing.
+Satoris itself comes with a metering extension that generates a call trace tree.
+I don’t want to completely discount tracing, so here I’m going to show how to extend Satoris to intercept and forward on the metering of a probe, an activity, onto a new proposed [distributed] tracing standard — OpenTracing.
+Note: I was invited to and attended the first OpenTracing inception workshop.
+Entering and Exiting
+Before delving into the metering extension lets first consider the typical call processing pattern of a service. The service receives an inbound request or message event, from an external client, service or resource. This triggers the execution of mapped handling method — an entry point in the diagram below. The call then passes through various intermediary methods. Let’s call them transit points. Finally, a method is called which doesn’t call to another method but instead makes a request to an external service or resource. These are exit points in the diagram, though they might not be outbound.
+
+Today, distributed tracing calls the entry point a server side span, and an exit point as client side span. All those many transit points are completely ignored by distributed tracing — an incredible oversight for performance. Fortunately, Satoris offers a way to address both approaches in the metering and interception of all points in the processing, then selectively forwarding on measurement data pertaining to those points deemed tracing spans.
+Interception and Integration
+Interception of a metered probe is straightforward. Write an interceptor factory class and register it with the enabled interceptor metering extension.
+
+jxinsight.override.config
+The factory class needs to create an interceptor when a thread, a context in the metering interface, is first metered by the metering engine.
+
+InterceptorFactory.java
+The interceptor returned by the factory represents the metered call stack for a particular thread, recording the outermost probe, an entry point, as well as the last metered probe, a transit or exit point.
+
+InterceptorFactory.java
+When a firing probe is begun by the metering engine the interceptor metering extension calls the begin method on the interceptor that’s mapped to the current thread. If the root isn’t set then a server side trace span is created with the clock time extracted from the probes meter readings.
+
+InterceptorFactory.java
+The end method on the interceptor is called by the interceptor metering extension when a metered probe has ended. If the probe was previously marked as the root then the span created when the probe was begun is finished. If the probe is instead the last metered probe then it must be a leaf and an exit point. When a leaf, a client side span is created, then started, and finally finished using both low and high probe meter readings. Transit probes metered by the engine are not forwarded onto the tracing system.
+
+InterceptorFactory.java
+Testing and Tracing
+To test the above interception code I created the following test class.
+
+ExtensionTest.java
+Running the Satoris instrumentation agent with the above configuration along with a sprinkling of print calls in the code the following is outputted.
+
+console.output
+Done!
+Note: OpenTracing offers the ability to attach additional execution context to a trace span. This can be supported using the Environment interface obtainable from the thread context during both begin and end interception callbacks.
+Further Reading

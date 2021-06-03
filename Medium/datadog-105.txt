@@ -1,0 +1,107 @@
+Setting up a Raspberry Pi to show DataDog stats on TV
+Alex Ewerlöf
+Alex Ewerlöf
+
+Dec 12, 2018·6 min read
+
+
+
+
+As more and more teams within my company start to use our web stack, we need to quickly detect and react to errors.
+Datadog is a great solution for monitoring the health of our servers but what good is a Datadog dashboard if you have to login to it on your computer? We wanted them up all the time.
+So we decided to install some TVs on the wall and show the stats.
+Raspberry pi is a low power computer that can do the job. Its 3rd generation has a processor and memory that is more than enough for running Chrome on full screen and point it to some web page.
+
+Some fire for the Christmas
+Even though the title of this post is about Datadog stats but the solution mentioned here works for any web page. In fact we put a full screen YouTube of a chimney creating that Christmassy vibe around this time.
+So here are the requirements:
+The TV should always show the page
+The URL for the page is put in plain text in a file called url.txt in the /boot folder of the Raspberry Pi microSD card (this partition is visible even on windows so it is easy to update). The reason for putting it on the boot partition is because this is the part of the microSD card that is editable when inserted to a Mac or Windows computer.
+Raspberry Pi should boot directly to Chrome
+Chrome should open in full screen
+Chrome should not require any user input, choices or user profiles
+Buy the parts
+Pi 3 B+ (Raspberry Pi 4 is an overkill for this application, besides it consumes too much power and is less environment friendly)
+Adapter
+Box
+microSD (buy the fastest you can, this affects performance)
+HDMI cable
+Wireless keyboard with mouse control (optional)
+Download Raspbian
+You can download it for free on Raspberry Pi’s website. Choose the version with desktop but without the recommended software.
+Write the disk
+I use Etcher. It works great on Linux and Mac (haven’t tried Windows). I put the microSD card to my Linux computer that has a built-in SD card reader (the new Macbooks don’t have that port and you may need to use a memory card reader).
+All the setup steps can be done either on Raspberry Pis graphical desktop or while the disk is mounted to your Linux machine. You can easily access both of the microSD card partitions at:
+/media/boot/ for the boot partition where the url.txt and autostart.sh are supposed to be created
+/media/rootfs/ for the wifi settings and autostart applications
+Setup the Wifi
+Boot the Raspberry Pi with the TV and set up the network graphically.
+Alternatively you can put the relevant information to the config file /etc/wpa_supplicant/wpa_supplicant.conf
+Run chrome on startup and prevent sleep
+Paste this to your /home/pi/.config/lxsession/LXDE-pi/autostart
+@lxpanel --profile LXDE-pi
+@pcmanfm --desktop --profile LXDE-pi
+@xscreensaver -no-splash
+@point-rpi
+@xset s noblank
+@xset s off
+@xset -dpms
+@sh /boot/autostart.sh
+Set the autostart script
+Make /boot/autostart.sh with this contents:
+chromium-browser --incognito   --start-fullscreen --start-maximized --disable-sync-preferences --disk-cache-dir=/tmp/cache --no-first-run `cat /boot/url.txt`
+Update: a couple of months later I settled for this version which prevents google’s auto translate popup from showing up and doesn’t screw up when the file has more than one line:
+chromium-browser --incognito   --start-fullscreen --start-maximized --disable-sync-preferences --disk-cache-dir=/tmp/cache --no-first-run --app=`head -n 1 /boot/url.txt`
+The whole command is in one line.
+It will:
+Start chrome in incognito mode (so it will not nag about creating a user profile and goes directly to the site)
+Starts the browser in full screen mode to maximize the usable area for showing the page
+Uses a RAM disk for caching which improves the performance
+Read the url from a plain text file called url.txt in the boot partition
+Put the URL
+Make a Datadog dashboard and create a publicly shareable link (so that the TV doesn’t have to authenticate every time it boots up):
+
+Make /boot/url.txt with the url of the site you want to show:
+https://p.datadoghq.com/sb/XXXXXXXXXXXXXXXXXX?tv_mode=true&theme=dark
+If you want the plain old white theme, remove that &theme=dark part but in our experience the dark theme reduces the light pollution in the work environment for the screens that are on all-day-long.
+Tip for YouTube videos
+Take the Video ID from the URL and create a URL that shows the video in full screen and loops it non-stop:
+For example:
+https://www.youtube.com/watch?v=kRXrqURyRy0
+Becomes:
+https://www.youtube.com/embed/kRXrqURyRy0?controls=0&autoplay=true
+Auto update
+Update: our Raspberry Pis ran without any issue for 13+ months. But then I noticed that they are not automatically updated. This can open up the security risk that your Raspberry Pis will be hacked and used to penetrated your internal network (we use an isolated network for IoT devices) or simply be used as a part of a botnet (from your company IPs).
+Let’s avoid that by setting them up for auto update during night time.
+Install the unattended-upgrades package (you can learn more about that here):
+sudo apt-get install unattended-upgrades
+Then add the following configurations to /etc/apt/apt.conf.d/50unattended-upgrades:
+// Split the upgrade into the smallest possible chunks so that
+// they can be interrupted with SIGTERM. This makes the upgrade
+// a bit slower but it has the benefit that shutdown while a upgrade
+// is running is possible (with a small delay)
+Unattended-Upgrade::MinimalSteps "true";
+// Do automatic removal of new unused dependencies after the upgrade
+// (equivalent to apt-get autoremove)
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+// Automatically reboot *WITHOUT CONFIRMATION*
+//  if the file /var/run/reboot-required is found after the upgrade
+Unattended-Upgrade::Automatic-Reboot "true";
+// If automatic reboot is enabled and needed, reboot at the specific
+// time instead of immediately
+//  Default: "now"
+Unattended-Upgrade::Automatic-Reboot-Time "04:00";
+And add the following configurations to /etc/apt/apt.conf.d/20auto-upgrades:
+// Enables auto clean packages for X days. This configuration displays 7 days
+APT::Periodic::AutocleanInterval "7";
+// Enables upgrading the Raspbian distro every 30 days
+APT::Periodic::Unattended-Upgrade "30";
+The environment
+Sweden produces 100% of its electricity from renewable sources. However this doesn’t mean we have to generate unnecessary heat and degrade hardware. Since these TVs and Raspberry Pis are set up to be on 24/7, it can have a big environment cost. Also the electronics have a limited life time and by keeping them on all the time, they’ll degrade faster and demand a replacement which costs money and nature’s resources.
+Many TVs and monitors have an economy mode which they adjust the backlight to the light in the environment. When people leave the office and all lights are off, they consume less energy. Also a good number of them have a setting for scheduling them to automatically turn off in the evening and turn on in the morning.
+Bonus
+If you have a bunch of TVs (we have 8), you can prepare the disk once and clone it multiple times.
+To clone a microSD card, put it in your computer and detect its device name. I’ve written more about it on my FreeBSD installation on Raspberry Pi guide. But the easiest way is to use the gnome-disks that is available on Gnome (like the one comes with Ubuntu).
+Then run this command to make an image file in your Downloads folder
+sudo dd if=/dev/mmcblk0 of=~/Downloads/pi-image.img bs=1M status=progress
+Then you can use Etcher to write that image to another microSD card (you don’t even have to format it).

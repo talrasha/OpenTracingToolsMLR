@@ -1,0 +1,85 @@
+play-zipkin-tracing: A library to trace API calls by Zipkin for Play Framework
+Naoki Takezoe
+Naoki Takezoe
+
+Feb 28, 2017·2 min read
+
+
+
+
+We can use some exiting libraries to trace API calls by Zipkin in Play Framework which is one of popular web frameworks in Scala.
+akka-tracing
+zipkin-futures
+However they haven’t enough Play integration. One day, I found that my collegue is writing a library that makes possible to trace in Play, so I enhanced that library and publish it as open-source.
+GitHub - bizreach/play-zipkin-tracing: Provides distributed tracing for Play Framework using Zipkin…
+play-zipkin-tracing - Provides distributed tracing for Play Framework using Zipkin.
+github.com
+
+At first, add folliwing dependency to build.sbt:
+libraryDependencies ++= Seq(
+  "jp.co.bizreach" %% "play-zipkin-tracing-play25" % "1.0.0"
+)
+And add following settings to application.conf:
+play.http.filters=filters.Filters
+trace {
+  service-name = "zipkin-api-sample"
+zipkin {
+    host = "localhost"
+    port = 9410
+    sample-rate = 0.1
+  }
+}
+zipkin-trace-context {
+  fork-join-executor {
+    parallelism-factor = 20.0
+    parallelism-max = 200
+  }
+}
+play.modules.enabled  += "jp.co.bizreach.trace.play25.module.ZipkinModule"
+Add ZipkinTraceFilter to filter.Filters as:
+package filters
+import javax.inject.Inject
+import jp.co.bizreach.trace.play25.filter.ZipkinTraceFilter
+import play.api.http.DefaultHttpFilters
+class Filters @Inject() (
+  zipkinTraceFilter: ZipkinTraceFilter
+) extends DefaultHttpFilters(zipkinTraceFilter)
+OK, you are ready. Inject and use TraceWSClient instead of WSClient in controller to trace API calls transparently.
+package controllers
+import play.api.mvc.{Action, Controller}
+import play.api.libs.json.Json
+import jp.co.bizreach.trace.play25.{TraceWSClient, ZipkinTraceService}
+import jp.co.bizreach.trace.play25.implicits.ZipkinTraceImplicits
+import scala.concurrent.ExecutionContext
+import javax.inject.Inject
+class ApiController @Inject() (ws: TraceWSClient)
+  (implicit val tracer: ZipkinTraceServiceLike, 
+            val ec: ExecutionContext)
+    extends Controller with ZipkinTraceImplicits {
+def test = Action.async { implicit request =>
+    ws.url("hello-api-call", "http://localhost:9992/api/hello")
+      .get().map { res => Ok(res.json) }
+  }
+}
+In addition, you can trace other blocking and non-blocking processes using methods of ZipkinTraceServiceLike.
+// Trace blocking process
+def test1 = Action { implicit request =>
+  tracer.trace("sync"){
+    println("Hello World!")
+    Ok(Json.obj("result" -> "ok"))
+  }
+}
+// Trace non-blocking process by Future
+def test2 = Action.async { implicit request =>
+  tracer.traceFuture("async"){
+    Future {
+      println("Hello World!")
+      Ok(Json.obj("result" -> "ok"))
+    }
+  }
+}
+play-zipkin-tracing supports Play 2.3, 2.4 and 2.5. (also we will add Play 2.6 support in the future!) See the following README to know how to use in each versions of Play Fraemwork.
+for Play Framework 2.3
+for Play Framework 2.4
+for Play Framework 2.5
+This library is using Brave4 (Brave is a Zipkin client library for Java). Brave API had large changes in 4, so this library might be a good example of Brave4 usage.

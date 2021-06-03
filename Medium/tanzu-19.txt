@@ -1,0 +1,53 @@
+VMware Tanzu Kubernetes in pictures
+Jakub Jóźwicki
+Jakub Jóźwicki
+
+Jul 17, 2020·3 min read
+
+
+
+
+I would like to show you quickly probably the best Kubernetes for SMBs or anyone currently using VMware platform.
+Every large cloud usually uses a hypervisor, not a bare hardware (Azure uses HyperV and on top of it there are all services). If you’ve got VMware ESXi and vCenter you can easily add new hardware and increase computing capacity. You don’t need to worry about physical migration. Thanks to vMotion you can migrate even running VMs between hardware boxes in the same data center. This is very big advantage. Enterprises usually were installing Red Hat OpenShift on top virtualized RHEL. Now there is another option: you can have Kubernetes exposed directly by the VMware platform and integrated seamlessly with you network (NSX-T). You’ve got one consistent ecosystem, controlled from one place.
+Now, lots of pictures.
+
+Network and storage provisioned in Kubernetes is delivered by VMware platform.
+
+In your cluster you see k8s nodes and pods.
+
+When you create a cluster you decide about the sizing. Basic k8s cluster would be for 2000 pods, with 4 vCPUs, 16 GB vRAM.
+
+You configure network and storage in simple steps.
+
+Kubernetes artifacts are visible in well know UI.
+
+Linux-based VMware Photon OS powers k8s nodes. See: https://vmware.github.io/photon/. Photon OS is derived from Red Hat OS and uses rpms.
+
+Hello pods.
+
+Instead of kubelet you’ve got spherelet running directly on ESXi.
+
+You can see pods, deployments, daemon sets, etc. — everything visible in kubectl get all.
+
+And you can see yaml files. But you can’t edit as in OpenShift.
+
+To manage k8s from command line you need dedicated Linux VM. Ubuntu would work fine.
+
+LoadBalancer is handled by VMware platform. Cool, right?
+
+Kubernetes is not the bleeding edge version (as of writing the newest is 1.18), but 2 minor releases behind. It’s quite OK.
+
+Network for k8s is handled by NSX-T. It’s really cool.
+
+You can see pods in NSX-T network topology.
+
+List of NAT entries.
+
+Your pods can be guarded by the default firewall.
+
+IDS for pods? Why not.
+
+Docker image registry. Here it is. With logs for governance.
+
+Quay or Harbor? I would prefer one with better vulnerability scanning inside images.
+To sum up — a really nice offering thanks to the holistic approach (as it can be seen on pictures).

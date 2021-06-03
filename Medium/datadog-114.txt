@@ -1,0 +1,11 @@
+Kubernetes Monitoring using Datadog
+Venkata Chitturi
+Venkata Chitturi
+Follow
+Jun 29, 2018 · 1 min read
+
+
+
+
+
+We will discuss the different parameters and k8s configuration to run datadog as deamonset and troubleshooting issues.

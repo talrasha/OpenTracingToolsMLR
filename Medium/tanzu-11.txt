@@ -1,0 +1,144 @@
+Installing and Initializing Ubuntu VMs using Cloud-init on vSphere 7
+Navneet Verma
+Navneet Verma
+
+Nov 23, 2020·6 min read
+
+
+
+
+Introduction
+Asmentioned on the cloud-init website — Cloud-init is the industry standard multi-distribution method for cross-platform cloud instance initialization. It is supported across all major public cloud providers, provisioning systems for private cloud infrastructure, and bare-metal installations.
+Meanwhile, VMware has been providing Guest OS customization on their vSphere platform for quite some time. While Windows Guest OS customization, using Sysprep, has been the de-facto standard for Windows VMs on vSphere, Linux OSs have been tricky.
+For Linux Guest OS customization, vSphere has relied on VMware Tools and its capability of leveraging initialization Perl scripts to configure the guest OS. While this has worked quite well, this process does not allow us to leverage the full feature sets that cloud-init, with its modular approach, provides. It is also not in line with the direction other cloud providers have been adopting, leading to image management issues.
+While there is support for cloud-init with VMware tools on some Linux Guest OSs, there are documented issues due to race conditions between the cloud-init and the VMware tools during the guest initialization process. This issue prevents us from seamlessly using the cloud images provided by the Linux vendors. As we move to a standard image management solution across a multi-cloud environment, this issue becomes critical. This article offers a working solution to enable cloud-init on an Ubuntu Focal cloud image within a vSphere 7 environment. You can easily tweak the process for other versions as well as cloud images from other Linux distribution.
+The process is composed of three stages. The first stage downloads the OVA from the vendor’s website, perform specific configurations, and creates a virtual machine within the vSphere environment. The second stage configures and prepares the virtual machine for cloud-init configuration. Finally, the last step converts the virtual machine to an OVA file (within a content library) to be used for future deployments. I use the well-known govc command-line interface to automate some of the steps. Users can perform those steps manually if required.
+Stage 1.
+Setting up govc
+While I will not go too deep in details on setting up govc, I will share a sample configuration file govc uses to interact with my vCenter server. Once govc binary is installed on your workstation, this file is sourced before moving to the next step. Modify the govc parameters as per your environment.
+## source ~/.govenv
+export GOVC_URL=vcenter.lab.local
+export GOVC_HOST=
+export GOVC_USERNAME="administrator@vsphere.local"
+export GOVC_PASSWORD="VMware1!"
+export GOVC_INSECURE=true
+export GOVC_DATACENTER=Pacific-Datacenter
+export GOVC_DATASTORE=vsanDatastore
+export GOVC_NETWORK="DVPG-Management Network"
+export GOVC_RESOURCE_POOL=
+Download the Ubuntu Focal LTS OVA image (modify if you need a different OVA version).
+wget https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.ova
+Export the OVA configuration file to a temporary file calledconfig.json. Modify this file before moving to the next stage.
+govc import.spec focal-server-cloudimg-amd64.ova > config.json
+The resultant config.json file needs to be modified as per the environment where this OVA will be imported. —
+Note:
+The first command listed below modifies the disk to a thin provisioned disk. This step is optional.
+The second command specifies the network the imported virtual machine is connected to. This setting is essential, as this network should be connected to the Internet to pull down patches and binaries and help with some additional configurations.
+The last command in the section sets the password for the Ubuntu user of the virtual machine created in the future step. This is important, as this allows one to log in initially to the VM using ubuntuand then change it to a secure password.
+sed -i 's/flat/thin/g' config.json
+sed -i 's/"Network": ""/"Network": "DVPG-Management Network"/g' config.json
+sed -i '/"Key": "password"/{N;s/     "Value": ""/     "Value": "VMware1!"/g}' config1.json
+Import the OVA and create a new virtual machine. Power on the virtual machine.
+The first command imports the OVA using the config.json modified in the previous step to create a new virtual machine.
+The second command gets the name/path of the newly created virtual machine, to be used by govc in the last command to power on the virtual machine.
+govc import.ova --options=config.json focal-server-cloudimg-amd64.ova
+export VM=$(govc ls /Pacific-Datacenter/vm|grep ubuntu-focal)
+govc vm.power -on ${VM}
+This completes stage 1.
+Stage 2.
+In this stage, we modify the OS of the guest virtual machine created in the previous step. This step requires console access to the virtual machine and setting up virtual machine networking. Next, we update all the packages, install packages that we may require for our golden images, and set up some customization required for cloud-init to work within a vSphere environment. We then clean up logs and configuration files and shut down the machine to create a template. Depending on the environment, you may have to manually type these commands on a vSphere console or SSH into the virtual machine and run these commands through a script.
+Based on your environment, modify the netplan configuration file to set the IPv4/IPv6 networking stack. This may not be required in an environment that has DHCP enabled.
+sudo vi /etc/netplan/50-cloud-init.yaml
+sudo netplan apply
+Update the virtual machine. During this stage, open-vm-tools may get updated. This is an important step.
+sudo apt update
+#(update open-vm-tools)
+sudo apt upgrade -y
+IMPORTANT: Install the vSphere specific cloud-init configuration workaround. This step provides a cloud-init data source for pulling meta, user, and vendor data from VMware vSphere’s GuestInfo interface.
+curl -sSL https://raw.githubusercontent.com/vmware/cloud-init-vmware-guestinfo/master/install.sh > /tmp/install.sh
+sudo chmod +x /tmp/install.sh
+sudo /tmp/install.sh
+Perform the cleanup of the cloud-init environment and log files, and shut down the virtual machine.
+sudo cloud-init clean
+sudo cloud-init clean -l 
+sudo shutdown -h now
+Modify the virtual hardware setting on the vCenter console. While the govc cli can perform these settings, I have not automated them currently. This will be updated with scripts as soon as I have them automated.
+Update the virtual hardware compatibility to vSphere 7.0
+Make sure that the CDROM is configured for pass-thru client device. This is important as future image deployments may fail.
+Within the vApp settings, make sure that ISO is unchecked for the OVF environment transport.
+Remove all OVF properties like instance-id, hostname, seedfrom, user-data etc.
+Stage 3.
+Now that we have configured our virtual machine, which is used as the starting point for future virtual machine deployments using cloud-init, we can now generate a template from this virtual machine. I will be using the content library to store the newly generated template.
+In the first step, I create a local content library and use govc to upload the template to this content library. If you already have a content library available, you can use the second command to upload the template to this content library directly.
+export library=$(govc library.create local)
+govc library.clone -ovf -vm ${VM} ${library} ubuntu-focal-image
+This completes the necessary steps to prepare a Ubuntu Linux virtual machine template to use cloud-init for guest customizations.
+Validation
+We can now create a new virtual machine from the OVA template previously created and uploaded in the content library. For cloud-init configuration to work correctly, we need to provide base64 encoded meta-data and user-data values to the virtual machine created from these templates. The sample configurations for the user data and meta-data have been provided in this example.
+sample metadata.yaml
+instance-id: "vmsvc-cloudinit-0"
+local-hostname: "vmsvc-cloudinit-0"
+network:
+  version: 2
+  ethernets:
+    ens192:
+      addresses: [192.168.4.58/24]
+      gateway4: 192.168.4.1
+      dhcp6: false
+      nameservers:
+        addresses:
+          - 192.168.4.1
+        search:
+          - lab.local
+      dhcp4: false
+      optional: true
+sample userdata.yaml
+#cloud-config
+write_files:
+- path: /etc/sysctl.d/60-disable-ipv6.conf
+  owner: root
+  content: |
+    net.ipv6.conf.all.disable_ipv6=1
+    net.ipv6.conf.default.disable_ipv6=1
+runcmd:
+- netplan --debug apply
+- sysctl -w net.ipv6.conf.all.disable_ipv6=1
+- sysctl -w net.ipv6.conf.default.disable_ipv6=1
+- apt-get -y update
+- add-apt-repository universe
+- apt-get install -y nginx
+- apt-get -y clean
+- apt-get -y autoremove --purge
+timezone: UTC
+system_info:
+  default_user:
+    name: ubuntu
+    lock_passwd: false
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+disable_root: false
+ssh_pwauth: yes
+chpasswd:
+  list: |
+# mkpasswd -m sha-512 VMware1!    
+ubuntu:$6$eExyHryb$yJ3T3mUSpNCGQmcnV6DGDSGEDmMmlzkldxTGb4oHIQiTpvve3OhaaQBWHxSL9b8.6EyONH.SYFtSpR5DLJK641
+# mkpasswd -m sha-512 VMware1!       root:$6$EK42YS/aa$NpHnqwBhdCEu0pIGlkOBl6e5ZFYUHovTjXaqSGGcOs1eYeHfuY38PBdcKFql4xVoxrIAUePDbBnPajEasyy8r.
+  expire: false
+package_upgrade: true
+package_reboot_if_required: true
+power_state:
+  delay: now
+  mode: reboot
+  message: Rebooting the OS
+  condition: if [ -e /var/run/reboot-required ]; then exit 0; else exit 1; fi
+In this step, we deploy a new virtual machine testubuntu and then pass the base64 encoded values of the sample userdata.yaml and metadata.yaml files.
+govc library.deploy /local/ubuntu-focal-image testubuntu
+export NEW_VM=$(govc ls /Pacific-Datacenter/vm|grep testubuntu)
+export METADATA=$(cat metadata.yaml|base64 -w0 ;echo)
+export USERDATA=$(cat userdata.yaml|base64 -w0 ;echo)
+govc vm.change -vm "${NEW_VM}" \
+  -e guestinfo.metadata="${METADATA}" \
+  -e guestinfo.metadata.encoding="base64" \
+  -e guestinfo.userdata="${USERDATA}" \
+  -e guestinfo.userdata.encoding="base64"
+govc vm.power -on "${NEW_VM}"
+In this example, once powered on, the new testubuntu virtual machine has a hostname of vmsvc-cloudinit-0. A default nginx website was available on port 80 of IP address 192.168.4.58. I was able to log in to the virtual machine using ubuntuuser with VMware1! password.

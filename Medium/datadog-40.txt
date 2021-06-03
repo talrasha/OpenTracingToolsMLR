@@ -1,0 +1,37 @@
+Visualizing CloudWatch Logs: Centralized Logging at Disney Streaming Services
+Chris Clouten
+Chris Clouten
+Follow
+Jul 6, 2020 · 5 min read
+
+
+
+
+
+
+Photo by TheDigitalArtist on PixelBay
+Many applications at Disney Streaming Services are built as distributed systems, leveraging a variety of tools on the AWS cloud from Kinesis Data Analytics to ECS to Lambda. With this sort of design, monitoring and observability can be a challenge.
+AWS CloudWatch Logs Insights is a great tool when logging within the AWS ecosystem, but to solve an arising need for a centralized logging solution we decided to migrate to DataDog. This post will detail how we migrated one project and provide a roadmap for migrating your own logs to DataDog.
+Motivations
+Monitoring and observability are paramount to the success of any system. In distributed systems, with core business logic spread among several components, good observability becomes even more crucial. Although CloudWatch Logs Insights provides many benefits to logging on AWS, our distributed system still faced some unsolved pain points.
+CloudWatch Logs Insights allows users to aggregate across multiple log groups through the UI. While this allows a certain amount of centralization, the AWS region still reigns supreme. This isn’t a knock on CloudWatch Logs Insights at all. This is the way AWS is designed, and that’s totally fine. That said, for our use case, this approach required supplementing.
+We also needed a platform that supported live logs for debugging potential regressions and generating business insights from our production systems. The latter requires a bit of technical and institutional knowledge, so an additional goal for us was to reduce the barrier to entry on this front for product managers and others.
+Migration
+With the decision to use DataDog’s logging solution made, we moved forward with their documented method for collecting application logs using the DataDog Forwarder Lambda provided on Github. After a few tweaks within our own AWS setup, we were up and running with the forwarding Lambda. If you’re familiar with CloudFormation deployment, this stack will be extremely easy. If you’re new to CloudFormation, Amazon’s Getting Started guide for CloudFormation will help you get familiar with the product and concepts needed to make light working of this step.
+With the stack deployed and the Lambda running, we set up an index for our project in DataDog, making sure the forwarder Lambda was configured to correctly tag our logs. With the baseline infrastructure set up it was time to start adding triggers to the forwarder. We opted to go the manual route to get started, explicitly adding the log groups we cared about as event sources to trigger the Lambda.
+
+Voila! Logs were flowing from our AWS account into DataDog. We repeated this process for each region and just like that we had centralized logging. The whole process, from start to finish, took about half a day and was very straight forward.
+Tuning
+As the saying goes, “the devil is in the details.” With our centralized logging set up, it was time to dig into those details to fine-tune our pipeline. Our apps emit structured JSON logs, which should be parsed automatically. However, with Lambda, the logging agent re-writes the JSON logs as a string along with other logging metadata such as timestamp and log level. This caused a bit of an issue for me on the DataDog side, as our logs were unable to be properly parsed.
+To address this, I created a processing pipeline scoped to our project index. From there I added a Grok parsing step to parse and reformat our logs from Lambda sources, ensuring these logs could be parsed as proper JSON. It took a bit of trial and error to build the correct parsing rule. We landed on something like this for Lambda logs:
+parsing_rule \[%{word:status}\]  %{date("yyyy-MM-dd'T'HH:mm:ss.SSSZ"):timestamp}    %{uuid:execution_id} %{data::json}
+If the spacing on this parsing rule looks weird it’s because it is. The gaps in the string logged by Lambda are tabs, and thus the Grok parsing rule will need to respect that in order to properly parse the logs to JSON.
+While DataDog maintains a list of reserved attributes that they use for high-level tags like service or status, individual use cases and logging heuristics will vary across teams and companies. DataDog, therefore, allows users to define remapping steps as part of a processing pipeline. For us this meant remapping the reserved service attribute to lambda_name for Lambdas and app for non-Lambda applications. It might seem like a minor thing, but there’s a lot of power in the remapping processors. Adding this step gave us an easier, more concise way to quickly look at our logs and quickly see which component was responsible for a given logline.
+
+Remap service attribute to lambda_name attribute
+Finally, with the other processing stages in place and our logs looking clean, it was time to check out exclusion filters. At a basic level, exclusion filters allow you to still send logs to DataDog but filter them out of the index. Exclusion filters are easy to toggle on and off, and this is a great way to think about managing cost.
+Our use case for exclusion filters is highly specific. We have one particularly chatty logger packaged within a third-party library we’re using in one of our applications. Rather than eat up index space (and $$$), we created an exclusion filter for this logger. Should we ever need that data, all we have to do is flip the switch. Otherwise, we can shave some cost and keep our logs clean.
+
+With the exclusion filter added and our processing stages running our logging pipeline from AWS to DataDog is complete. This new setup is already paying dividends, making it much easier to debug feature work in QA while giving the whole team a more detailed look into our production systems.
+Wrapping Up
+If you’ve been exploring a centralized logging solution to supplement AWS CloudWatch Logs Insights, AWS has a deep network of partners (including DataDog, Logz.io, and Sumo Logic) worth checking out. Our team has found great value in utilizing DataDog for our logging needs, and it might be the droid you’re looking for as well. The lift of getting from zero to sixty was light, and the amount of flexibility built into the logging platform has been appreciated. There’s plenty to still explore for next steps, and I hope to revisit our current platform solution on this blog again soon!

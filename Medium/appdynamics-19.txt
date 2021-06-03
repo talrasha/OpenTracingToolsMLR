@@ -1,0 +1,48 @@
+Appdynamics authenticated SQL Injection
+Researching the platform, Today we will show you guys, a way to dump some information from appdynamics’ database.
+Ricardo Fajin
+Ricardo Fajin
+Follow
+Jun 22, 2018 · 4 min read
+
+
+
+
+
+
+Appdynamics exploited version: 4.4.1.0
+Before we begin, I would like to thank Appdynamics Security team for the support and the patience during the time until the disclosure. I’m extremely happy for exposing our work on their security patch page (https://docs.appdynamics.com/display/PRO44/Release+Notes#ReleaseNotes-4.4.3.10598(HF4)Updates).
+
+One more time, thanks Appdynamics :)
+To start, I would like to explain the reason behind this research. Me and my co-workers regularly stay at night studding and challenging ourselves to find new vulnerabilities or simple have fun with our “work” xD. During one of this nights, we intend to find some issues in solutions that our own enterprise actually use.
+After some time of planing we have chosen Appdynamics(CISCO) to make a vulnerability research, during the processes it was possible to identify a valid SQL Injection vulnerability and it’s possible to gain total access to the app database. Ok, stop talking and let’s see the POC ;) :
+
+First request, some parameters to play whats happens if I put…
+hmmm, interesting ... the application have some parameters, let’s focus on one parameter at a time, let’s take a look. Well we have chosen the moment when the application loaded some services and used the parameter “jobName” to choose the … name of the job o.O’’, lol. and … Whats happens when we put something that he don't have in it's database? Simple ... Internal error (500).
+
+Using a simple payload, that we saw at the previous image, an error appears …
+
+Fuzzing fuzzing fuzzing …
+Well, this is very interesting time to use a tool to fuzz the application and we will be planing something to exploit with this parameter. So… After a few minutes, the tool found a parameter that could be injected …(I Mean … Whaaaat !?!?). So we decided to focus at that possible injection point … And this happend …
+
+A Blind SQL Injection with SQLMap appears
+
+(At this moment I had a heart attack </3…)
+Ohh... Such an incredible sensation, for some people this is a simple database banner .. for me a World Cup Championship Win. Such as you can see above this is a Blind SQL Injection,this attack consist in asking the database true or false questions, and determines the answer based on the applications response.
+Hmm Interesting, but this could be a false positive, this happens a lot :/. We try to see more information using other parameters of the Sqlmap tool, to see what happens, and … Yeah … We can see a lot of tables *-* this is amazing.
+
+Tables of database platform_admin
+After dumping tables, we tried to see the table “user”(lol why not !?) and here it is …
+
+Entries for table “user”
+Time to report :D. We reported the vulnerability to Appdynamics’ Security Team and they’ve invited us to a conference in order to explain better the issue that we found. After the conference they asked us about the possibility of waiting the security patch release.
+
+Finish !!! after a long time we can publish about it !!!!
+One more time, thanks Appdynamics’ team for the patience during all the process, it was quite an experience.
+More details about the Prof of Concept:
+Parameter: jobName (GET)
+Type: boolean-based blind
+Title: MySQL RLIKE boolean-based blind — WHERE, HAVING, ORDER BY or GROUP BY clause
+Payload: jobName=aa’ RLIKE (SELECT (CASE WHEN (3975=3975) THEN 0x6161 ELSE 0x28 END)) AND ‘oLYc’=’oLYc&includeStates=21&platformId=3
+CVE Related to this Post:
+CVE-2018-0225 — https://cve.mitre.org/cgi-bin/cvename.cgi?name=2018-0225

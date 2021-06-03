@@ -1,0 +1,41 @@
+Apache Camel: Trace control with Jaeger
+Daniel S. Blanco
+Daniel S. Blanco
+
+Oct 30, 2020·3 min read
+
+
+
+
+
+Today we are going to expand our example of Apache Camel and include Jaeger. But before we will explain a little about OpenTraicing and Jaeger.
+OpenTracing is, as they define themselves, vendor-neutral APIs and instrumentation for distributed tracing. And although Uber created it, now it is open-source and has important companies behind it.
+OpenTracing wants to form a common language around what a trace is and how to handle it in our applications. And to understand how it works we must first understand several concepts:
+Distributed Tracing: It is a method used to profile and monitor applications. It helps us pinpoint where failures occur and what causes the malfunction.
+Span: It is the main component of a distributed trace, which represents an individual unit of work performed in a distributed system. They encapsulate information about the application.
+Trace: It is an acyclic Span graph.
+Tracer: Is the implementation of the API that will collect the Span and publish them.
+A trace could be represented like this:
+
+And if we take into account the time, with this other graph:
+
+Knowing this, it will be clearer when we say that Jaeger will be a Tracer that will allow us to collect the information of the traces of our application and display them in a graphical interface itself.
+With which we can incorporate Jaeger to our docker-compose with the following instruction:
+jaeger:
+image: jaegertracing/all-in-one:latest
+ports:
+— 6831:6831
+— 16686:16686
+Once we start, we will be able to access its graphic interface through the URL http://localhost:16686
+Once we have it ready, we will configure our application. This can be done in four simple steps:
+Add the camel-opentracing-starter library. Which will auto-configure our Spring Boot application for the use of Open Tracing.
+Add the @CamelOpenTracing notation in the main class. This will enable the use of Open Tracing.
+Add an OpenTracing implementation, in this case, Jaeger. Through the io.jaegertracing:jaeger-client library.
+Create an environment variable JAEGER_SERVICE_NAME to indicate which application is collecting data.
+To see the example better, we are going to test two methods, one with JPA and another from a previous version that uses the SQL component. We will make several calls and then access Jaeger. Through the UI we will select our application in the Service field and press the Search button. At that time Jaeger will show us which are the calls we have made.
+
+If we select some of the invocations, we will see with more details the parts of it. In this case, as they are very basic methods, the trace is very simple.
+
+You can even select several traces and compare them with a simple click:
+
+As we can see in a simple way we can collect important information about the application. This information can help us for example to debug a microservice and see which parts of it are a possible bottleneck.

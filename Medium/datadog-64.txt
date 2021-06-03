@@ -1,0 +1,179 @@
+How to set up DataDog in Kubernetes with Maestro
+Cloud 66
+Cloud 66
+
+Jan 23, 2020·4 min read
+
+
+
+
+
+One of the challenges when running a containerized application is implementing persistent services like logging. With more traditional application architecture you can rely on background processes (daemons) to ensure your persistent services are running across your entire application stack, but the whole point of containers is that they are abstracted from the server layer. So how do you manage persistent services inside containers?
+This is where Kubernetes DaemonSets come in. A DaemonSet is a Kubernetes object that ensures that a (single) copy of a specific Pod is added to every Node. To illustrate the power of DaemonSets, we’re going to walk through how to set up DataDog logging for a Kubernetes-powered application using Maestro and a DaemonSet.
+In order to add DataDog to our application, we need to:
+Configure our Kubernetes permissions to allow DataDog to access the application
+Add the DataDog agent to the application as a DaemonSet
+Re-deploy our application
+Configure RBAC permissions
+If our Kubernetes has role-based access control (RBAC) enabled we will need to configure RBAC permissions for our Datadog Agent service account.
+To run these commands we will need to ssh to the server, which can be done by either using the toolbelt command for that, namely:
+cx ssh [--gateway-key <<The path to the key of gateway server>>] [-s "your application name"] "your server name"|<<server ip>>|<<server role>>
+…or by visiting the server overview page on the Cloud 66 dashboard and following the SSH instructions on the right hand-side of the page.
+Once we are on the server, we need to run the following commands in order to configure the Kubernetes user:
+sudo su 
+export KUBECONFIG=/etc/kubernetes/admin.conf
+Next we need to configure ClusterRole, ServiceAccount, and ClusterRoleBinding permissions for DataDog. To do this we need to run curl <<URL>> -O for each of the URLs below. This will create local copies of the YAML files on our server for each of the configuration objects needed. When the files have been created we should modify them as specified below:
+For ServiceAccount and ClusterRoleBinding we should replace:
+namespace: default
+…with:
+namespace: NAME_OF_NAMESPACE
+Once this has been done, we run the following 3 commands on our server:
+kubectl create -f clusterrole.yaml 
+kubectl create -f serviceaccount.yaml 
+kubectl create -f clusterrolebinding.yaml
+These commands apply the new YAML files to our Kubernetes configuration.
+Set up a DaemonSet containing the DataDog configuration
+To add the DataDog agent to our application we need to add a new element to our application’s service.yml file. For example:
+service: 
+  datadog: 
+    image: datadog/agent:latest 
+    type: daemon_set 
+    service_account_name: datadog-agent
+This will ensure that the latest datadog agent is added to every Pod that our application spawns. Note that the type is daemon_set and the service account name is datadog-agent, as set in the permissions that we have just configured. However this configuration is missing a few things:
+We need to define the ports that DataDog will use
+We need to add environment variables like the DataDog API key
+We need to set constraints and health checks
+We need to mount the volumes that DataDog will be tracking
+Defining ports
+DataDog tracing uses port 8126 and DogStatsD is enabled by default over UDP port 8125. We add these ports as follows:
+services: 
+  datadog: 
+      image: datadog/agent:latest 
+      type: daemon_set 
+      service_account_name: datadog-agent 
+      ports: 
+      - container: 8126 tcp: 8126 
+      - container: 8125 udp: 8125
+This binds the external and internal (container) ports to DataDog’s preferred ports.
+Environment variables
+We need to add the following environment variables:
+DD_API_KEY — can be found in your Datadog account, under Integrations → APIs → API Keys
+DD_SITE — the Datadog site you use (either datadog.com or datadoghq.eu)
+DD_COLLECT_KUBERNETES_EVENTS — set to true
+DD_LEADER_ELECTION — set to true
+KUBERNETES — set to true
+DD_HEALTH_PORT — set to 5555
+DD_APM_ENABLED — set to true
+DD_LOGS_ENABLED — set to true
+DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL — set to true
+DD_AC_EXCLUDE: set to name:datadog-agent - this cuts down on the noise from the DataDog agent itself. If you want to see its activity you can remove it from the exclude list.
+DD_KUBERNETES_KUBELET_HOST — you can fetch this dynamically using this variable as a value — "$(CLOUD66_HOST_IP)"
+DD_KUBELET_TLS_VERIFY — set to false
+Our configuration should now look something like this:
+services: 
+  datadog: 
+     image: datadog/agent:latest 
+     type: daemon_set 
+     service_account_name: datadog-agent 
+     ports: 
+     - container: 8126 
+       tcp: 8126 
+     - container: 8125 
+       udp: 8125 
+     env_vars: 
+       DD_API_KEY: 5f86b5d87e41ba1f383a16f60bbd8ea0 
+       DD_SITE: datadoghq.eu 
+       DD_COLLECT_KUBERNETES_EVENTS: 'true' 
+       DD_LEADER_ELECTION: 'true' KUBERNETES: 'true' 
+       DD_HEALTH_PORT: '5555' 
+       DD_APM_ENABLED: 'true' 
+       DD_LOGS_ENABLED: 'true' 
+       DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: 'true' 
+       DD_AC_EXCLUDE: name:datadog-agent 
+       DD_KUBERNETES_KUBELET_HOST: "$(CLOUD66_HOST_IP)" 
+       DD_KUBELET_TLS_VERIFY: 'false'
+Constraints and health checks
+Constraints and health checks should be set as per the DataDog resources limits. You can find out more about these settings in the DataDog docs. We’ve used their minimum suggested specs for our example:
+services: 
+  datadog: 
+    image: datadog/agent:latest 
+    type: daemon_set 
+    service_account_name: datadog-agent 
+    ports: 
+    - container: 8126 
+      tcp: 8126 
+  
+    - container: 8125 
+      udp: 8125 
+    env_vars: 
+       DD_API_KEY: 5f86b5d87e41ba1f383a16f60bbd8ea0 
+       DD_SITE: datadoghq.eu 
+       DD_COLLECT_KUBERNETES_EVENTS: 'true' 
+       DD_LEADER_ELECTION: 'true' KUBERNETES: 'true' 
+       DD_HEALTH_PORT: '5555' 
+       DD_APM_ENABLED: 'true' 
+       DD_LOGS_ENABLED: 'true' 
+       DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: 'true' 
+       DD_AC_EXCLUDE: name:datadog-agent 
+       DD_KUBERNETES_KUBELET_HOST: "$(CLOUD66_HOST_IP)" 
+       DD_KUBELET_TLS_VERIFY: 'false' 
+    constraints: 
+        resources: 
+           memory: 256M 
+           cpu: 200 
+   health: 
+       alive: 
+           type: http 
+           endpoint: "/health" 
+           success_threshold: 1 
+           failure_threshold: 3 
+           timeout: 5 
+           initial_delay: 15 
+           period: 15 
+           port: 5555
+Mounting volumes
+Finally, we need to mount the volumes that we plan to track. We mount volumes by defining them in the service.yml which makes them available to DataDog. The general format for mounting volumes is: /outside/container/path:/inside/container/path
+Our final service.yml should look a lot like this:
+services: 
+  datadog: 
+    image: datadog/agent:latest 
+    type: daemon_set 
+    service_account_name: datadog-agent 
+    ports: 
+    - container: 8126 
+      tcp: 8126 
+    - container: 8125 
+      udp: 8125 
+    env_vars: 
+       DD_API_KEY: 5f86b5d87e41ba1f383a16f60bbd8ea0 
+       DD_SITE: datadoghq.eu 
+       DD_COLLECT_KUBERNETES_EVENTS: 'true' 
+       DD_LEADER_ELECTION: 'true' KUBERNETES: 'true' 
+       DD_HEALTH_PORT: '5555' 
+       DD_APM_ENABLED: 'true' 
+       DD_LOGS_ENABLED: 'true' 
+       DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: 'true' 
+       DD_AC_EXCLUDE: name:datadog-agent 
+       DD_KUBERNETES_KUBELET_HOST: "$(CLOUD66_HOST_IP)"   
+       DD_KUBELET_TLS_VERIFY: 'false' 
+
+    constraints: 
+       resources: 
+          memory: 256M 
+          cpu: 200 
+    health: 
+       alive: 
+          type: http 
+          endpoint: "/health" 
+          success_threshold: 1 
+          failure_threshold: 3 
+          timeout: 5 
+          initial_delay: 15 
+          period: 15 
+          port: 5555 
+       volumes: 
+       - "/proc:/host/proc:ro" 
+       - "/var/run/docker.sock:/var/run/docker.sock" 
+       - "/sys/fs/cgroup:/host/sys/fs/cgroup:ro" 
+       - "/opt/datadog-agent/run:/opt/datadog-agent/run"
+Originally published at https://blog.cloud66.com on January 23, 2020.

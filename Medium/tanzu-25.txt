@@ -1,0 +1,65 @@
+VMware Tanzu (Pivotal) TAS/PAS/PKS Slack Notification Integration
+Burak Kurt
+Burak Kurt
+
+Apr 24, 2020·2 min read
+
+
+
+
+
+Starting an update or upgrade process in any VMware Tanzu Platforms that has Ops Manager is usually very easy. To achieve that you simply click “Apply Changes” button. But tracking progress of installation or getting notifications about state of installation is not easy as well.
+In that purpose, we ‘ll setup a slack integration project. To achieve this, following tasks are explained in this arcticle.
+Overview
+Get Slack App and Webhook URL
+Pull “VMware Tanzu (Pivotal) Installation Notifier” Repository
+Edit “tanzu.env” File Regarding Your Environment
+(Optional) Build “VMware Tanzu (Pivotal) Installation Notifier” Image
+(Optional) Edit “docker-compose.yaml”
+Run!
+Requirements
+Linux/Unix Terminal Server must be able to reach both Ops Manager VM, Slack API and Github.
+Docker and Docker-Compose must be installed on terminal server.
+Git command line tool is preferred to download required repository.
+1. Get Slack App and Webhook URL
+A slack webhook url is needed to push notifications. If you already have it you can pass this task. If not, you can follow “Create Slack App with Webhook For Basic Usage” article below.
+Create Slack App with Incoming Webhook For Basic Usage
+Sometimes you may want to get update messages or notifications from your app or want to have a quick messaging with…
+medium.com
+
+2. Pull Repository
+We will use “VMware Tanzu (Pivotal) Installation Notifier” repository. This repository provides required program that interacts with Ops Manager API and send Slack notifications.
+kurtburak/tanzu-installation-notifier
+When a new update or upgrade process is started in Tanzu Application Service (TAS / PAS / PCF) or VMware Enterprise…
+github.com
+
+$ git clone https://github.com/kurtburak/tanzu-installation-notifier.git
+$ cd tanzu-installation-notifier/
+3. Edit “tanzu.env” File Regarding Your Environment
+Tanzu.env file contains required and optional parameters that used by program. Available parameters can be used are given in README.md file with definitions.
+Open tanzu.env file with your favorite text editor and fill epty values. After editing, tanzu.env file must be looked like below.
+# Tanzu Opsman variables
+OPSMAN_IP=10.0.0.10
+OPSMAN_USER=admin
+SSH_USER=ubuntu
+SSH_KEY=-----BEGIN RSA PRIVATE KEY-----\nH+eOG2j7....2iVnk+3YRn\n-----END RSA PRIVATE KEY-----
+# Proxy Settings
+# Leave empty if unneceissary
+HTTP_PROXY=http://10.5.0.50:8080
+HTTPS_PROXY=http://10.5.0.50:8080
+NO_PROXY=10.0.0.10
+# Notificaiton variables
+SLACK_URL=https://hooks.slack.com/services/TL2BSJFTZ/BL73TSGJDS/hTfKSTYfksdKHGStdfıasg
+# Program settings. Leave defaults
+API_REQUEST_CYCLE=60
+RUNNING_INFORM_PERIOD=60
+Assuming using default ssh key, SSH_KEY parameter’s value can be obtain as running command;
+cat ~/.ssh/id_rsa | sed -e ':a;N;$!ba;s/\n/\\n/g'
+4. (Optional) Build Image
+Optionally you can edit and build your own image.
+docker build . -t tanzu-install-watcher:local
+5. (Optional) Edit “docker-compose.yaml”
+If you build your own image, you may want to use it with docker-compose.
+sed -i 's/bkurt\/tanzu-install-watcher:latest/tanzu-install-watcher:local/g' docker-compose.yml
+6. Run!
+Finally you are ready to go!

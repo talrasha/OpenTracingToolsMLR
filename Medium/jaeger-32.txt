@@ -1,0 +1,49 @@
+OpenTracing in Django with Jaeger
+Sayf Eddine Hammemi
+Sayf Eddine Hammemi
+
+Feb 2, 2020·4 min read
+
+
+
+
+Introduction
+With the emergence of cloud native technologies such as containers, micro-services and serverless architectures, new challenges for software development arises.
+One of them is detecting problems in a distributed system, which is way complicated than a monolith system due to its weak coupling nature and the de-synchronization.
+This struggle gets amplified when scaling out these systems. To help developers troubleshoot issues, OpenTelemetry comes into place.
+It is a standardization project supported by the CNCF foundation and historically was composed of two projects; OpenTracing and OpenCensus.
+OpenTracing helps developers trace a request in a complicated distributed systems to figure out bottlenecks and and slow components in the request path which need optimizations, fixes or deeper debugging.
+As mentioned before, OpenTracing project is a standard that describes how to trace, record and analyze transactions. Fortunately community provided multiple implementations of this standard. We are going to use Python implementation to trace a Django application with the help of Jaeger agent.
+The Django application
+You can find the application on my github account. It is a simple web application composed of user management and a graph rendering app that uses dot files to create png graphs. It basically runs
+dot -Tpng <dot-file> -o <output.png> on a user input graph and show the list of the PNG graphs back in the browser. I included a function that randomly waits a couple of seconds to simulate latency of a call between components
+
+Empty function that wait for a random number of seconds
+Requirements.txt
+Other than Django requirements we will need to install OpenTracing python library and python-django wrapper of the previous lib. All libs are provided in the requirements.txt of the github project.
+Setting up test playground
+All you need to setup your playground is to clone the Django app project, install the requirements and run both the web server and Jaeger, (in this example it is a docker container, you can explore other solution if you use different platforms say kubernetes etc …)
+
+deploy the Django app
+You need also to run Jaeger to be able to visualize traces
+
+Running Jaeger in a docker container
+The Django app is already configured to send traces to Jaeger agent, you can check and modify these configuration in settings.py
+
+settings.py for configuring opentracing and jaeger
+The django_opentracing lib makes use of Django middlewares to trace each request. it exposes also a decorator if you only want to trace certain view.
+The only caveat is that the actual implementation of the wrapper (which is still under development) only traces Django views. which means you only get depth 1 of each request. No information of the calls inside the view itself.
+
+Trace of index call with one depth view
+So I forked the project and played around the code to enable tracing function calls inside the view by adding an option to the decorator to differentiate between a view and a other function calls
+
+you can fork or clone and install my version from my github account https://github.com/piratos/python-django
+After installing the forked version of django_opentracing, lunch the app and try to create a graph
+
+Graph creation page
+Now go to Jaeger web dashboard and look for the latest trace
+
+Jaeger traces with depth two
+You can see the child spans of the main view and their latency, in this example of course the slowest call was the random wait which lasted 2 seconds then the create graph which is the dot command call and finally the fastest call was listing the existing graphs due to Django caching the database query.
+Conclusion
+Tracing is one of the pillars of monitoring cloud native calls. It gives a deep view of the apps interaction to help find latency, bad integration and non-optimized components. Tracing should be used in conjunction with other monitoring techniques such as logging and metrics collection.

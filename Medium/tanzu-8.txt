@@ -1,0 +1,207 @@
+Deploying HA Proxy on vSphere 7 with Tanzu Kubernetes Grid Service (TKGS)
+Zercurity
+Zercurity
+
+Jan 18·11 min read
+
+
+
+
+There are three primary ways of standing up Kubernetes on vSphere. Each with there own benefits and drawbacks. This post will be the first of three looking at VMwares TKGS.
+Tanzu Kubernetes Grid (TKG)
+Deploy Kubernetes via Tanzu (TKG) without the need for a licensed Tanzu supervisor cluster. This does not provide a load balancer.
+Tanzu Kubernetes Grid Service (TKGS)
+Deploy and operate Tanzu Kubernetes clusters natively in vSphere with HA Proxy as the load balancer. Without VMware Harbor as a container repository.
+
+- Deploying and configuring HA Proxy (this post)
+- Deploying workloads via the supervisor cluster
+- Creating namespaces and initial cluster configuration
+VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
+Fully featured Tanzu deployment with NSX-T.
+
+- Deploying and configuring NSX-T
+- Deploying workloads via the supervisor cluster
+- Creating namespaces and initial cluster configuration
+What is VMwares Tanzu Kubernetes Grid Service (TKGS)?
+Tanzu Kubernetes Grid Service, known as TKGS, lets you create and operate Tanzu Kubernetes clusters natively in vSphere. Without having to use the CLI to standup and manage Tanzu supervisor clusters like we had to with Tanzu Kubernetes Grid (TKG). The big benefit of TKGS over TKG is the support and automated management of not only the supervisor clusters via the vSphere interface but also the automated provisioning of Load balancers.
+Features
+VMware Cloud Formation (VCF) is not a requirement.
+NSX-T not required. Virtual distributed switching (VDS) can be used instead to avoid NSX-T licensing.
+The use of open source HA-Proxy for provisioning Load Balancers
+Antrea CNI for TKG Pod to Pod Traffic, (Calico CNI also available)
+Drawbacks
+No PodVM support if NSX-T not used
+No Harbor Image Registry (dependency on PodVM)
+Deploying TKGS
+This post forms part one of a three part series looking into deploying and settings up TKGS.
+Configure networking (VDS)
+First thing first, is understanding the network topology for the TKGS. There are three main networks you’ll need to define.
+Management network
+This will be your administrative management network. Where you’ll be able to access the HA proxy via SSH and administer the machine. The management network is also where the primary configuration service is defined on port 5556. For the TKGS cluster to configure the HA Proxy.
+Workload network
+This network is where your VMs will reside.
+Fronted network
+This is the network where your load balancers will be placed.
+For defining each of these networks they’ll need to be placed on there own networks or subnets. I’ll be placing each on their own VLAN and the workload and frontend network will reside on their own network separate network. So that the networks are easily distinguishable for the purpose of this post. You maybe however, for simplicity have the workload and frontend networks on the same subnet.
+You need to ensure all three networks are route-able and DHCP is not running on the network.
+Not withstanding the HA Proxy configuration section. The configuration section of the workloads is quite involved. I recommend writing down the following for each network before you start.
+Management network (VLAN 26)
+Management IP: 10.64.2.10
+Management Gateway: 10.64.2.1
+Network: 10.64.2.0/23
+Subnet: 255.255.254.0 (510 IPs available)
+Workload network (VLAN 27)
+Management IP: 10.64.8.10
+Management Gateway: 10.64.8.1
+Network: 10.64.8.0/21
+Subnet: 255.255.248.0 (2046 IPs available)
+Workload starting address: 10.64.8.50–10.64.15.150
+Frontend network (VLAN 28)
+Management IP: 10.64.0.10
+Management Gateway: 10.64.0.1
+Network: 10.64.0.0/23
+Subnet: 255.255.254.0 (510 IPs available)
+Load balancer address: 10.64.1.1–10.64.1.254
+These networks will need to be defined on your router. Please ensure that these networks can talk (are routable) to one another. We will test this this again post HA Proxy configuration.
+Right, with that out of the way you’ll need to create a distributed port group for the management, workload and frontend network. You can share the same port group. However, it is helpful to have them defined individually for fine grained controls and management. As these options cannot be changed once defined.
+
+Configuring our Tanzu distributed port groups
+One more thing to note is to double check the correct up-links are configured for the distributed port group. As each network must be routable.
+
+Checking our distributed port group up-links.
+Configure Tanzu Storage Policy
+Just like with our Distributed port groups. Its worthwhile configuring an independent storage policy. This includes tagging any storage vSANs you want the Tanzu cluster to use.
+If you’ve not already added a tag to your vSAN datastore you can to so by heading over to your Datastores within vSphere. Select the datastore you want to use for Tanzu. Scroll down on the Summary page until you find the Tags section. Here you’ll be able to add a tag like so:
+
+Once your tags have been defined. From the vSphere dashboard choose VM Storage Policies and clone the original vSAN Default Storage Policy to clone.
+
+Clone the default storage policy
+Then name your storage policy. We’re just calling ours Tanzu Storage Policy. Click Next and on the Policy structure screen. Ensure Enable tag based placement rules. This will let us select our TKG tags.
+
+Enable tag based placement rules
+On the next screen. I’ve left the defaults as they are. Though you can choose your own redundancy requirements. On the Tag based placement screen you can now add your TKG tag with the Browse tags button.
+
+Add the TKG placement tag
+Check the storage compatibility with your data stores and finish up the creation of your new policy.
+Configure content library
+The last step before we create our HA Proxy is to create our content library. The content library is to allow Tanzu to fetch the required OVA images it needs in order to create the supervisor cluster and subsequent Tanzu cluster.
+To create a new content library head over to the vSphere dashboard. Under the Inventories section choose Content Libraries.
+Use the create button and give your Content Library a name. We’re using Tanzu VMware.
+The content library we’re going to create is a Subscribed content library and the subscription URL you want to use is:
+https://wp-content.vmware.com/v2/latest/lib.json
+You want to make sure this content is downloaded immediately.
+
+Create the Tanzu content library.
+When the content library has been created you’ll see the OVA templates downloaded under your recent tasks.
+
+Awesome, the last thing to do is import the HA Proxy OVA itself. You can do this instead using the Deploy OVF Template. However, its good to have it stored for future reference.
+https://github.com/haproxytech/vmware-haproxy
+We’re going to HA Proxy v0.1.10 as of this post which is available from here:
+https://cdn.haproxy.com/download/haproxy/vsphere/ova/haproxy-v0.1.10.ova
+Following the process above. Create a new Content Library. However, this time you’re creating a Local content Library. Once the new Library has been created import the OVA using the Import Item from the Actions menu.
+
+Importing the Tanzu HA Proxy OVA
+Deploying HA Proxy
+Now on to the “fun” part. Standing up HA Proxy. From the HA Proxy OVA you downloaded. Right click on it and select New VM from this template …
+The first stage is to simply name the new VM you’re looking to deploy.
+
+Naming your new HA Proxy
+The next step is to deploy the HA Proxy either with the Default configuration or Frontend Network.
+Default
+This will still let you provision Load balanced services within Kubernetes. It just means that the Load Balancer IP address will be provisioned on the same network as the workload network.
+Frontend Network
+This will split the Load balanced services out onto their own Network away from the workload network.
+For this example we’re using the frontend network to segregate our Kubernetes Load balanced services away from our workload network.
+
+Tanzu Frontend Network
+Next we need to apply the networks we defined earlier to the networks the OVA requires. If you selected the Default. The Frontend setting is ignored on this screen.
+After setting the networks appropriately, click Next.
+
+Applying the Network configuration settings for HA Proxy
+The first part of the HA Proxy configuration will ask you for a root password. I would also advise permitting Root logon access for now. As its important to check the configuration of HA Proxy before we get onto deploying the Kubernetes workload.
+For the certificates section. You can include your own certificate authority with the CRT and certificate authority key.
+However, if you leave these fields blank a certificate will be generated for you.
+
+Define the root password for HA Proxy
+This next part takes the networking configuration from the options at the beginning of the post. I will explain these options as we go.
+Host name (haproxy01.test.corp)
+This needs to be a fully qualified host name for the HA Proxy. This should include your network domain name.
+DNS (10.64.2.1)
+This is either your Managements network DNS server. Or a publicly accessible DNS server or one that is available across VLANs and subnets on your private network. In this example we’re using our management network DNS server. Which also happens to be our gateway server.
+Management IP (10.64.2.10/23)
+This is the Management IP address. This must include the network CIDR.
+Management Gateway (10.64.2.1)
+This is the gateway for the management network.
+
+Configuring the HA Proxy management network
+The next part is to define the Workload IP address and Frontend IP address. It is very important that these to IP address do not overlap with the workload and load balancer address range or the gateway itself.
+Workload IP (10.64.8.10/21)
+This is the workload IP address for the HA Proxy server residing on the Workloads network. This IP address must be outside the intended range for the provisioning of servers.
+Workload Gateway (10.64.8.1)
+This is the IP address of the gateway on the workload network. This gateway must be routable to the other HA Proxy networks.
+Frontend IP (10.64.0.10/23)
+This is the frontend IP address for the HA Proxy server residing on the Frontend network. This IP address must be outside the intended range for the load balancers within Kubernetes.
+Frontend Gateway (10.64.0.1)
+This is the IP address of the gateway on the frontend network. This gateway must be routable to the other HA Proxy networks.
+
+Defining the HA Proxy networks
+This next screen defines the Load balancing address space. This will be a subset of the network range on Frontend network.
+These address ranges must not conflict with the Frontend server (10.64.0.10) or the gateway server. Or any other pre-provisioned services that exist on this subnet. As Tanzu does not use DHCP. IP address are automatically provisioned in sequence for Load balancer services.
+Therefore, the first 254 IP addresses forming a /24 of our Frontend network are going to be reserved. Leaving the renaming 10.64.1.1–10.64.1.254 range available which converts to 10.64.1.0/24.
+
+Defining the load balancer address space
+Lastly, we just need to set a password for the data-plane service. This will use the management IP address (10.64.2.10/23). With a default port of 5556. We’re going to use admin as the username and set our password.
+
+Setting the data-plane password.
+Finish the setup process and wait for the OVA to be deployed. You’ll need to manually start the Virtual machine once its finished deploying.
+Once the server has started you can check the data-plane server is available by visiting the following web address:
+https://10.64.2.10:5556/v2/info
+The user name and password are the settings you defined in the final stage of the setup process. This is not the root user. If you’ve let HA Proxy self sign the server certificate authority (CA) you’ll need to accept the warning message in your browser.
+
+JSON output for the HA Proxy service
+If this page isn’t showing we’re going to logon to the HA Proxy server anyway to check the configuration.
+Checking HA Proxy
+You can login via SSH to your HA Proxy server.
+ssh root@10.64.2.10
+The first thing to check is the IP address ranges have been correctly configured.
+ip a
+Ensure each interface matches the expected defined endpoints.
+root@haproxy01 [ ~ ]# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+2: management: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:50:56:8f:ce:26 brd ff:ff:ff:ff:ff:ff
+    inet 10.64.2.10/23 brd 10.64.3.255 scope global management
+       valid_lft forever preferred_lft forever
+3: workload: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:50:56:8f:e5:ba brd ff:ff:ff:ff:ff:ff
+    inet 10.64.8.10/21 brd 10.64.15.255 scope global workload
+       valid_lft forever preferred_lft forever
+4: frontend: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP group default qlen 1000
+    link/ether 00:50:56:8f:3d:28 brd ff:ff:ff:ff:ff:ff
+    inet 10.64.0.10/23 brd 10.64.1.255 scope global frontend
+       valid_lft forever preferred_lft forever
+If the above is incorect. Or you need to adjust the routing tables. You can do so by modifying this file. /etc/vmware/route-tables.cfg
+You can also check all the running services have started correctly.
+systemctl list-units --state failed
+If the anyip service has failed. You’ll need to ensure that the routes defined do not overlap and are within the defined frontend network. You can check the complete status with:
+systemctl status anyip-routes.service
+You might see the following error:
+Nov 20 15:30:07 haproxy01.test.corp anyiproutectl.sh[777]: adding route for 10.64.0.1/23
+Nov 20 15:30:07 haproxy01.test.corp anyiproutectl.sh[777]: RTNETLINK answers: Invalid argument
+If this is the case. I’ll be because either your routes are invalid. Either missing or having an incorrect subnet. Or your subnets are overlapping. Or finally your subnets might be outside of the defined network subnets. Either way you need to check and update your anyip-routes configuration. You can modify your routes like so:
+root@haproxy01 [ ~ ]# cat /etc/vmware/anyip-routes.cfg 
+#
+# Configuration file that contains a line-delimited list of CIDR values
+# that define the network ranges used to bind the load balancer's frontends 
+# to virtual IP addresses.
+#
+# * Lines beginning with a comment character, #, are ignored
+# * This file is used by the anyip-routes service
+#
+10.64.1.0/24
+You can then restart the service systemctl restart anyip-routes.service and re-run the systemctl list-units --state failed .
+Its all over!
+Hopefully that’s given you a quick dive into standing up TKGS on vSphere. In our next post we’ll be looking at running the supervisor cluster which will manage and provision our Kubernetes clusters. Please feel free to get in touch if you have any questions.

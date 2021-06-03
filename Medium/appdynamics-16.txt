@@ -1,0 +1,148 @@
+AppDynamics vs Dynatrace — A genuine comparison (Part 1)
+Abilashini Thiyagarajah
+Abilashini Thiyagarajah
+
+Apr 28, 2019·8 min read
+
+
+
+
+Application Performance Monitoring(APM) is one of the hot topics in the current industry where we are depending on software applications to fulfil almost our every need. When we talk about software applications, the main consideration will be the performance. We should be aware of every possible reason which influences the performance of a software application. For that, we should monitor the application. That's where APM comes into the story.
+When we decide to monitor our application, the next question comes into our mind is,
+How are we going to monitor?
+There are so many tools in the market which can be used for this purpose. Depending on our requirements, we can decide on the tool to be used. Here I am going to make your job easy by comparing two popular commercial APM tools against some important aspects.
+First of all, let me introduce the two tools that I have chosen for my comparison.
+AppDynamics
+Dynatrace
+Thankfully both the above tools have 15 days of a free trial. So I was able to give it a try and see how it works and compare depending on the results I got.
+This article will be published in 3 parts. The first two parts will talk about the Architecture, Features, Deployability and Usability of the products separately. In part 3 we will see how we can deploy and monitor WSO2 Identity Server using these two products and compare the results.
+AppDynamics
+Architecture
+
+Architecture of AppDynamics
+AppDynamics can be seen as three main components.
+Controller
+Central repository and analytics engine
+Collects the data sent by the app agents, stores, baselines, analyzes performance and present it in the browser
+Can be installed on-premise or accessed as SaaS model
+2. Application Server Agent
+Monitors an application server in runtime and send data to the controller
+For each application, a separate agent should be instrumented
+3. Machine Agent
+Instrumented on a machine to report data about hardware, memory and network to the controller
+Installed on virtual or physical machine operating systems
+Browser UI is used to access performance data interactively.
+AppDynamics maps an application environment into a hierarchical system of business applications, tiers, nodes and backends.
+Business Application :
+A logical construction of all components and models of an application environment with a complete functionality
+Contains multiple tiers
+Tiers :
+Provides a view of the runtime operation of the code via an AppDynamics App server agent
+Represents a key module in the application environment (Eg: website, processing application, virtual machine)
+Composed of one or more nodes (similar nodes belong to the same tier)
+Helps to logically organize and manage application
+Need to manually configure it in the agent during the instrumentation
+Policies and processes differ tier to tier
+A tier can belong to only one application environment
+Nodes :
+The basic unit in the monitoring environment
+Instrumented by an agent (app server agent or machine agent)
+Belong to tiers
+All the components in an application are considered as nodes
+Backends :
+Not instrumented(components in an environment which are not directly attached) with an AppDynamics agent but that participates in the processing of a business transaction instance
+Eg: web server, database, message queue, or other types of service
+The agent detects calls to a service entry point at the tier and follows the execution path for the call through the call stack. It sends data about usage metrics, code exceptions, error conditions, exit calls to backend systems to the Controller, either a SaaS or on-premises.
+Key Features
+Dependency model
+Agents collect application data and metrics to build dependency model using built-in application detection and configuration settings. For more details
+
+2. Log Analytics
+Log analytics is used to capture and present log records as analytics data. One or more log sources should be configured for the Analytics Agent. The Analytics Agent uses the log source configuration to,
+Capture records from the log file
+Structure the log data according to your configuration
+Send the data to the Analytics Processor
+Log monitor extension is used to monitor log file
+3. Event tracing
+The agent sent an internal event containing event traces. Event traces enable tracing a code path that passes through a specified class/method. The App Agent for Java uses them to provide object instance tracking (OIT) and automatic leak detection (ALD)
+4. Baselines
+AppDynamics uses self-learned baselines. It calculates the dynamic baselines automatically using the periodic load patterns of given metrics.
+
+A rolling time period can be used as a baseline to include trends (eg: A retail application may experience heavier traffic on the weekend than the rest of the week). A baseline deviation is the standard deviation from a baseline at a point in time. Health rule conditions can be set based on the baseline deviation. The baseline can be customized
+5. Thresholds
+AppDynamics provides a default threshold by comparing the performance of every business transaction.
+Classifications of transactions (based on the performance of a transaction instance relative to the usual performance of the business transaction): normal, slow, very slow, stall and error
+Dynamic thresholds:
+Based on the performance of the most recent time (by default last 2 hours)
+Specified using either a percentage deviation or a standard deviation measure based on the moving average
+The moving average is calculated using the exponential moving average formula
+6. Metrics
+Metrics reflects the performance of the application. We can create or customize metrics based on the requirements.
+Information points:
+Used to define custom metrics for an application based on the collected data
+Similar to data collectors which capture application data only in the context of a business transaction
+Comes along with default metrics (called call metrics): Total call count, Calls per minute count, Errors per minute and Average response time
+Percentile metrics are used to configure metrics at deviation points.
+Important metrics :
+Availability — Shows whether the application is running or not. An indicator of health.
+Response Time — The time spent on processing business transaction or call instances from start to finish
+JVM CPU Burnt — Amount of time the JVM used the CPU to process transactions monitored by the Java Agent.
+Calls per Minute — The average number of incoming or outgoing calls per minute during the specified time from the node to their destination.
+Errors per minute — Any exception that prevents a business transaction from completing successfully are counted as errors
+For more details on AppDynamics metrics, refer.
+Deployment of Applications
+SaaS and on-premise options are available
+SaaS :
+AppDynamics itself stores the data and hosts the server components of the system in the cloud
+Need to install only the agent components
+On-premise :
+Hosting the components and storing data should be done by the user
+Need to install the agent components and the controller and event service components
+Involves additional setup and administration
+Should be instrumented with separate agents for each application.
+To monitor applications — Application agent
+To monitor servers — machine agent
+Need to configure the agent during instrumentation. Application agents for the following languages are already available in the AppDynamics Wizard
+Java
+.NET
+PHP
+Node.js
+Python
+Let’s see how a Java application can be instrumented with the AppDynamics agent,
+If we download the agent from the startup wizard, then we don’t need to do the basic configurations because the downloaded agent will be already configured.
+If not, you can download the agent from AppDynamics downloads page. Should configure the versioned configuration file: <agent_home>/<version_number>/ conf/controller-info.xml.
+Add the values for application-name, tier-name and node-name for your application environment
+Example configuration of controller-info.xml file:
+
+-javaagent parameter should be added to the startup script of the server with the value of the parameter set to the path of the javaagent.jar file
+Eg:
+export JAVA_OPTS=”$JAVA_OPTS -javaagent:/home/abi/Documents/AppServerAgent-4.4.0.21351/javaagent.jar”
+Attach the agent with the Java process
+Eg:
+java -Xbootclasspath/a:/usr/lib/jvm/java-8-oracle/lib/tools.jar -jar /home/abi/Documents/AppServerAgent-4.4.0.21351/javaagent.jar 12708
+Now the application will be visible under the Applications tab in the controller UI
+
+Usability
+I have listed the following points related to the usability of AppDynamics which I felt was important from my experience while using the product.
+Clear document
+Free trial for 15 days
+It takes less than 30 mins to set up in an environment. This includes the time taken to sign up, download agent, do configuration and attach the application with the agent.
+User-friendly UI
+Dependency graph
+Comparatively takes a bit longer time to load the dependency map
+Other than the above points on the usability of AppDynamics, I wanted to talk about the Metric Browser which contains the performance metric graphs of the applications.
+
+Let’s see the pros and cons of the Metric Browser.
+Pros:
+Can plot more than one performance metrics in the same graph. It helps to compare the different performance metrics easily.
+Cons:
+If we want to check the graph of a specific performance metric, then we need to open the metric browser and search and find the metric and add it to the graph.
+The added graph will be lost once we close the metric browser. So if we want to check something else in between analysing the graph, then we need to add the metrics plots again which we had before.
+For more details on Metric Browser, please refer
+Access performance data via REST API
+Other than the interactive Browser UI of AppDynamics, there are REST APIs to retrieve the details about the monitoring environment and metrics.
+Note: AppDynamics controller REST APIs can be accessed using the Java SDK called RESTAccess.
+Here we are concluding the first part of this article with the details on AppDynamics and this article will be continued with,
+The details on Dynatrace
+Deploy and monitor WSO2 IS with AppDynamics and Dynatrace
+Thanks!

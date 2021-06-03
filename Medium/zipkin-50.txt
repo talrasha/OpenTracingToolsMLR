@@ -1,0 +1,88 @@
+Distributed Tracing Spring Boot Microservices with Stackdriver Trace
+Ray Tsang
+Ray Tsang
+Follow
+Jan 28, 2017 · 6 min read
+
+
+
+
+
+Around the year ~2006, I worked at a consulting company and I was assigned as an Integration Solution Architect at a utilities client to implement Service Oriented Architecture. I remember my manager at the time insisted us to develop a framework that will generate a request ID and propagate the same request ID to all of the subsequent service calls. The manager also insisted on logging the service call durations and tying them all back to the same request ID. The goals were to be able to:
+Determine a chain of calls in the complicated world of services.
+Debug a request and figure out which service caused errors in the chain of service calls.
+Determine if services are meeting the Service Level Agreements in terms of latency/performance.
+Fast-forward 10+ years, I realized what we implemented was in fact a form of distributed tracing. We need distributed tracing more than ever in the microservices world.
+Stackdriver Trace
+Google Cloud Platform has a distributed tracing solution called Stackdriver Trace. Stackdriver Trace is a managed service so you don’t need to manage the server components nor the complexity of storage yourself. Stackdriver Trace exposes an API so you can send trace information whether you are running your services on Google Cloud Platform or anywhere else.
+Rather than writing custom code to consume the Google Cloud Trace API directly, I wanted to use off-the-shelf components and de facto standards so that I can have a portable application and avoid vendor lock-in (and I’m also a little lazy :).
+Stackdriver Trace is Zipkin Ready
+The good news is there is already a Zipkin proxy for Stackdriver Trace. I can focus on writing my application with great frameworks (such as Spring Boot and Spring Cloud) and I can record and store distributed trace data without having to worry about the infrastructure.
+The proxy can run either as a JAR file or a Docker container. The way you configure them are the same.
+UPDATE April 6, 2017: Stackdriver Trace Zipkin Proxy is now moved to openzipkin/zipkin-gcp repository! In addition, if you are using Spring Boot, you can use Spring Cloud GCP Trace starter that seamlessly integrates with Spring Cloud Sleuth.
+You can find the latest version of the executable Zipkin proxy JAR in the Stackdriver Trace Maven repository, or download the latest version:
+$ wget -O zipkin-stackdriver-collector.jar \ 'https://search.maven.org/remote_content?g=com.google.cloud.trace.adapters.zipkin&a=collector&v=LATEST'
+There are several ways to configure this proxy to communicate securely with Stackdriver Trace:
+If you have gcloud SDK installed, it will use the credentials from gcloud SDK without additional configuration.
+If you run it on a Google Cloud Platform virtual machine or App Engine, it will be able to use the machine credentials without additional configuration.
+If you want to run it everywhere with a consistent credential, you can configure it to use a service account via the environment variables.
+Service Account
+I like to be portable, so I chose to use a service account. If you don’t want to use service accounts, see the next section. To create a service account, navigate to IAM & Admin > Service Accounts and click Create Service Account:
+
+Make sure to add the Cloud Trace Agent role for this service account, and select Furnish a new private key with JSON key type:
+
+Finally, click Create to create the service account. This will also prompt you to download the service account JSON file. Store this file securely; this is the credential that will be used to send and store trace data. If this credential was compromised, you can invalidate the key and furnish a new one. Because this service account only has the Cloud Trace Agent role, the credential won’t be able to read any trace data, nor operate against any other Google Cloud Platform APIs. You can enable multiple roles with the same service account if your application needs consume multiple Google Cloud Platform APIs.
+Run the Zipkin Proxy Locally
+Let’s start the proxy with some environmental variables to point to the Google Cloud Project and the service account created previously:
+$ PROJECT_ID=springboot-zipkin-example \
+  GOOGLE_APPLICATION_CREDENTIALS=/path/to/service/account.json \
+  java -jar zipkin-stackdriver-collector.jar
+Once started, it’ll accept Zipkin trace data on the default port (9411).
+If you don’t use a service account, but have gcloud SDK installed locally (and authenticated), you can start it without any additional configuration:
+java -jar zipkin-stackdriver-collector.jar
+Behind the scenes, the Zipkin proxy will translate the Zipkin request into Stackdriver Trace requests, and then send the requests to Stackdriver via the high-performance gRPC API. The proxy is also preconfigured with netty-tcnative component that is necessary for secured gRPC access.
+Spring Boot and Spring Cloud Sleuth
+Spring Cloud Sleuth is a Spring Boot component that can easily tie into the Spring Boot microservices frameworks and intercept service calls to record trace events. Sleuth comes standard with a Zipkin adapter. If you have your own Spring Boot application, simply add Spring Cloud Sleuth dependencies:
+<dependencies>
+...
+  <dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-sleuth</artifactId
+  </dependency>
+  <dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-sleuth-zipkin</artifactId>
+  </dependency>
+...
+</dependencies>
+I’ve found a useful example on GitHub that I’ll use as my litmus test: https://github.com/openzipkin/sleuth-webmvc-example.
+First, clone the example:
+$ git clone https://github.com/openzipkin/sleuth-webmvc-example
+$ cd sleuth-webmvc-example
+By default, Sleuth doesn’t send the trace data for every single request. You probably don’t want to trace every single request either. The trace sampling rate can be adjusted by configuring the spring.sleuth.sampler.percentage property.
+For demonstration purposes, I’ll increase the sampling rate to 100%:
+$ echo “spring.sleuth.sampler.percentage=1.0” >> src/main/resources/application.properties
+All set. I can compile the code, start the backend, and start the frontend:
+$ ./mvnw compile
+$ ./mvnw exec:java -Dexec.mainClass=sleuth.webmvc.Backend
+$ ./mvnw exec:java -Dexec.mainClass=sleuth.webmvc.Frontend
+If you aren’t using Spring Boot — no worries. Zipkin proxy can accept requests from any Zipkin compatible clients. For example, Brave Zipkin client can be used with gRPC, JAX-RS, Jersey, RestEasy, and more.
+Test It Out
+So far so good! The backend runs on port 9000, and the frontend runs on port 8081. It’ll take ~100 requests before aggregated trace metrics can be analyzed. I used Apache Benchmark to generate the requests:
+$ ab -n 100 -c 10 http://localhost:8081/
+See the Data
+At the moment, the Zipkin proxy can only receive trace data but it cannot be used to visualize nor analyze the data. But you can see the data directly in Stackdriver Trace.
+Navigate to Trace in the Google Cloud Platform console to see the data. With enough data, you can see the aggregated summary that will show you the latency density distribution, percentiles, most recent traces, most frequent URIs, and more.
+
+Overview of latency distributions
+
+See a list of traces
+
+See a trace in detail
+Not only can I see the time distribution among the different requests, I can also see additional properties such as the Spring component name and the Spring controller class name and method. That’s useful!
+Detect Performance Regression
+What I found most compelling about Stackdriver Trace was the ability to compare and contrast the data between two different time periods.
+Imagine you were running v1.0 of your application for a month, and upgraded to v1.1 tomorrow. Even though it’s a minor revision upgrade, how do you know if you have performance regression? In Stackdriver Trace, simply select two different time ranges to compare the latency distribution:
+
+Give it a Try
+If you’d like to give it a try, you can sign up for the Google Cloud Platform free trial. See Using Stackdriver Trace with Zipkin for more examples on how to use it and FAQs. I’d like to hear your feedback and thoughts too.

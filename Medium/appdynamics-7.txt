@@ -1,0 +1,38 @@
+AppDynamics installation
+Krishna Mohan Gannamraju
+Krishna Mohan Gannamraju
+
+Jun 4, 2020·3 min read
+
+
+
+
+Hello, DevOps Engineers,
+In this blog would like to explain about AppDynamics installation over Linux environment.
+AppDynamics is one of the monitoring tools. it is managing performance and availability of applications across the environments. It is not an open-source tool to download and use.
+AppDynamics for Applications and Databases can monitor three categories of collectors. There are several collector types within these categories. The following lists the supported databases, servers, and storage systems now supported:
+1. Database Collector: DB2, Greenplum, MongoDB, Microsoft SQL Server, Microsoft SQL Azure Database, MySQL, Oracle, PostgreSQL, Sybase ASE, and Sybase IQ Server
+2. Collector: IBM AIX Server, Linux Server, Solaris Server, and Windows Server Storage
+3. Collector: NetApp, Java (JVM’s) and NetApp E-Series
+Before I go and explain the pre-requisites, would like to explain one important point. Need to understand the below two aspects and it will be easy to install.
+Appdynamics Controller is the central management server. All Data is stored and analyzed and the controller provides a browser-based UI for monitoring application, servers, database, and troubleshooting performance.
+AppDynamics has it’s own MySQL database to store the data while installing the controller it will automatically install the database. But for Other database monitoring required to install DB agent (will cover in my another blog how to install and configure DB agent)
+AppDynamics Agents connect to the Controller to report data.
+Here are the Pre-Requisites all the supported OS and hardware requirements for AppDynamics.
+Download Appdynamics Controller:
+Once you open the link in the left-hand side can see all the checkboxes and search box.
+
+
+- Now you can see only Linux Controller for download,
+
+Note: Registration is required for download but it will not ask for any credit card details and other stuff.
+Installation Steps:
+Transfer the AppDynamics file into a Linux machine where you want to install.
+Step:2 Run the below command AppDynamics required few dependencies to install
+Step:3 Controller file is a shell script.Command to run ./controller_xxxx_xxx.sh
+Step:4 Script is in an interactive mode just follow the instruction. Required to enter
+- Ports as per your server ports availability
+- Controller UI username and password.
+Step:5 Once successfully installed at the end it will give you the URL details for AppDynamics UI and it will exist the controller.sh script
+Note: Licence.lic file has to place in the controller folder in the server, otherwise, it will not allow to login to UI
+For the Screenshots of installation, Refer the below link.

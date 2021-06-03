@@ -1,0 +1,47 @@
+Istio in GKE [Part 4] Distributed Tracing using Jaeger [Basic]
+Johanes Glenn
+Johanes Glenn
+Follow
+Dec 23, 2020 · 3 min read
+
+
+
+
+
+This story is just an additional snippet on using Jaeger for Distributed tracing. GCP in particular already have stackdriver which is awesome in my opinion and I may have a single pane of glass for all of my services through monitoring, metric dashboard and alerting, uptimecheck and one of the things to be discussed is tracing.
+Operations: Cloud Monitoring & Logging | Google Cloud
+Monitor, troubleshoot, and improve application performance on your Google Cloud environment. Key features Real-time log…
+cloud.google.com
+
+As I talk with several people, there are some preference that they want to explore the open source (eg. prometheus-grafana-kiali-jaeger) so this short story is about using jaeger to see tracing from istio metrics.
+Notes: this story is about the concept not a guide for any production env. Please follow the official documentation from each of the products for real environment
+For a quick installation we can go to the documentation from Istio-Jaeger (at this point of time the latest istio is on 1.8 so I am using that documentation).
+Jaeger
+After completing this task, you understand how to have your application participate in tracing with Jaeger, regardless…
+istio.io
+
+What need to do: (super simple)
+Install jaeger
+Open dashboard to see the tracing
+Now for this particular test I add one more part on the environment so that the traffic will have a north-south from istio-ingress-gateway and also an east-west to another services calling from the existing pod.
+[Client] ← → [Istio Ingress Gw] ← → [Hello-go3] ← → [hello-go]
+
+I add another http get (sorry just a quick add not a proper one so there is this static url) from hello-go3 to hello-go instance in hello-1 namespace which will be my new image for the hello-go3.
+
+Adding the VirtualService for the hello-go in hello-1 namespace
+
+Then the rest is just to open the jaeger
+#install jaeger - quickinstallation
+kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.8/samples/addons/jaeger.yaml
+#port-forward using istioctl
+istioctl dashboard jaeger
+and open the http://localhost:16686
+
+We can search for specific services we want to see, and list all operation within a period of time
+
+The tracing see the path from [ ingressgateway ] ← → [ hello-go3 ] in hello-3 NS ← → [ hello-go ] in hello-1 NS
+
+👋 Join FAUN today and receive similar stories each week in your inbox! ️ Get your weekly dose of the must-read tech stories, news, and tutorials.
+Follow us on Twitter 🐦 and Facebook 👥 and Instagram 📷 and join our Facebook and Linkedin Groups 💬
+
+If this post was helpful, please click the clap 👏 button below a few times to show your support for the author! ⬇

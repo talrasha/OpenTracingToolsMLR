@@ -1,0 +1,123 @@
+Counts are good, States are better
+Mike Fiedler
+Mike Fiedler
+
+Sep 12, 2016·8 min read
+
+
+
+
+Datadog is great at pulling in large amounts of metrics, and provides a web-based platform to explore, find, and monitor a variety of systems.
+One such system integration is PostgresQL (aka ‘Postgres’, ‘PG’) — a popular Open Source object-relational database system, ranking #4 in its class (at the time of this writing), with over 15 years of active development, and an impressive list of featured users.
+It’s been on an upwards trend for the past couple of years, fueled in part by Heroku Postgres, and has spun up entire companies supporting running Postgres, as well as Amazon Web Services providing PG as one of their engines in their RDS offering. It’s awesome at a lot of things that I won’t get into here, but it definitely my go-to choice for relational data.
+One of the hardest parts of any system is determining whether the current state of the system is better or worse than before, and tracking down the whys, hows and wheres it got to a worse state.
+That’s where Datadog comes in — the Datadog Agent has included PG support since 2011, and over the past 5 years, has progressively improved and updated the mechanisms by which metrics are collected. Read a summary here.
+Postgres has a large number of metrics associated with it, and there’s much to learn from each. The one metric that I’m focusing on today is the “connections” metric.
+By establishing a periodic collection of the count of connections, we can examine the data points over time and draw lines to show the values.
+This is built-in to the current Agent code, named postgresql.connections in Datadog, by selecting the value of the numbackends column from the pg_stat_database table.
+
+Another two metrics exist, introduced into the code around 2014, that assist with using the counts reported with alerting.
+These are postgresql.max_connections and postgresql.percent_usage_connections.
+( Note: Changing PG’s max_connections value requires a server restart and in a replication cluster has other implications.)
+The latter, percent_usage_connections, is a calculated value, returning 'current / max', which you could compute yourself in an alert definition if you wanted to account for other variables. It is normally sufficient for these purposes.
+
+A value of postgresql.percent_usage_connections:0.15 tells us that we're using 15% of our maximum allowable connections. If this hits 1, then we will receive this kind of response from PG:
+FATAL: too many connections for role...
+And you likely have a Sad Day for a bit after that.
+Setting an alert threshold at 0.85 — or a Change Alert to watch the percent change in the values over the previous time window — should prompt an operator to investigate the cause of the connections increase.
+This can happen for a variety of reasons such as configuration errors, SQL queries with too-long timeouts, and a host of other possibilities, but at least we’ll know before that Sad Day hits.
+If you’ve launched your application, and nobody uses it, you’ll have very low connection counts, you’ll be fine. #dadjoke
+If your application is scaling up, you are probably running more instances of said application, and if it uses the database (which is likely), the increase in connections to the database is typically linear with the count of running applications.
+Some PG drivers offer connection pooling to the app layer, so as methods execute, instead of opening a fresh connection to the database (which is an expensive operation), the app maintains some amount of “persistent connections” to the database, and the methods can use one of the existing connections to communicate with PG.
+This works for a while, especially if the driver can handle application concurrency, and if the overall count of application servers remains low.
+The Postgres Wiki has an article on handling the number of database connections, in which the topic of a connection pooler comes up.
+An excerpt:
+If you look at any graph of PostgreSQL performance with number of connections on the x axis and tps on the y access [sic] (with nothing else changing), you will see performance climb as connections rise until you hit saturation, and then you have a “knee” after which performance falls off.
+The need for connection pooling is well established, and the decision to not have this part of core is spelled out in the article.
+So we install a PG connection pooler, like PGBouncer (or pgpool, or something else), configure it to connect to PG, and point our apps at the pooler.
+In doing so, we configure the pooler to establish some amount of connections to PG, so that when an application requests a connection, it can receive one speedily.
+Interlude: Is Idle a Problem?
+Over the past 4 years, I’ve heard the topic raised again and again:
+If the max_connections is set in the thousands, and the majority of them are in idle state, is that bad?
+Let’s say that we have 10 poolers, and each establishes 100 connections to PG, for a max of 1000. These poolers serve some large number of application servers, but have the 1000 connections at-the-ready for any application request. It is entirely possible that most of the time, a significant portion of these established connections are idle.
+You can see a given connection’s state in the pg_stat_activity table, with a query like this:
+SELECT datname, state, COUNT(state)
+FROM pg_stat_activity
+GROUP BY datname, state
+HAVING COUNT(state) > 0;
+A sample output from my local dev database that’s not doing much:
+datname  | state  | count
+---------+--------+-------
+postgres | active |     1
+postgres | idle   |     2
+(2 rows)
+We can see that there is a single active connection to the postgres database (that's me!) and two idle connections from a recent application interaction.
+If it’s idle, is it harming anyone?
+A similar question was asked on the PG Mailing List in 2015, to which Tom Lane responds to the topic of idle: (see link for full quote):
+Those connections have to be examined when gathering snapshot information, since you don’t know that they’re idle until you look.
+So the cost of taking a snapshot is proportional to the total number of connections, even when most are idle.
+This sort of situation is known to aggravate contention for the ProcArrayLock, which is a performance bottleneck if you’ve got lots of CPUs.
+So we now know why idling connections can impact performance, despite not doing anything, especially with modern DBs that we scale up to multi-CPU instances.
+Back to the show!
+Now that we know that high connection counts are bad, and we are able to cut the total count of connections with pooling strategies, we must ask ourselves — how many connections do we actually need to have established, yet not have a high count of idling connections that impact performance.
+We could log in, run the SELECT statement from before, and inspect the output, or we could add this to our Datadog monitoring, and trend it over time.
+The Agent docs show how to write an Agent Check, and you could follow the current postgres.py to write another custom check, or you could use the nifty custom_metrics syntax in the default postgres.yaml to extend the check to perform more checks.
+Here’s an example:
+custom_metrics:
+  - # Postgres Connection state
+    descriptors:
+      - [datname, database]
+      - [state, state]
+    metrics:
+      COUNT(state): [postgresql.connection_state, GAUGE]
+    query: >
+      SELECT datname, state, %s FROM pg_stat_activity
+      GROUP BY datname, state HAVING COUNT(state) > 0;
+    relation: false
+Wait, what was that?
+Let me explain each key in this, in an order that made sense to me, instead of alphabetically.
+relation: false informs the check to perform this once per collection, not against each of any specified tables (relations) that are part of this database entry in the configuration.
+query: This is pretty similar to our manual SELECT, with one key differentiation - the %s informs the query to replace this with the contents of the metrics key.
+metrics: For each entry in here, the query will be run, substituting the key into the query. The metric name and type are specified in the value.
+descriptors: Each column returned has a name, and here's how we convert the returned name to a tag on the metric.
+Placing this config section in our postgres.yaml file and restarting the Agent gives us the ability to define a query like this in a graph:
+sum:postgresql.connection_state{*} by {state}
+
+As can be seen in this graph, the majority of my connections are idling, so I might want to re-examine my configuration settings on application or pooler configuration.
+Let’s take this one step further, and ask ourselves — now that we know the state of each connection, how might we determine which of our many applications connecting to PG is idling, and target our efforts?
+As luck would have it, back in PG 8.5, a change was added to allow for clients to set an application_name value during the connection, and this value would be available in our pg_stat_activity table, as well as in logs.
+This typically involves setting a configuration value at connection startup. In Django, this might be done with:
+DATABASES = {
+  'default': {
+    'ENGINE': 'django.db.backends.postgresql',
+    ...
+    'OPTIONS': {
+      'application_name': 'myapp',
+    }
+    ...
+No matter what client library you’re using, most have the facility to pass extra arguments along, some in the form of a database connection URI, so this might look like:
+postgresql://other@localhost/otherdb?application_name=myapp
+Again, this all depends on your client library.
+I can see clearly now
+So now that we have the configuration in place, and have restarted all of our apps, a modification to our earlier Agent configuration code for postgres.yaml would look like:
+custom_metrics:
+  - # Postgres Connection state
+    descriptors:
+      - [datname, database]
+      - [application_name, application_name]
+      - [state, state]
+    metrics:
+      COUNT(state): [postgresql.connection_state, GAUGE]
+    query: >
+      SELECT datname, application_name, state, %s FROM pg_stat_activity
+      GROUP BY datname, application_name, state HAVING COUNT(state) > 0;
+    relation: false
+With this extra dimension in place, we can craft queries like this:
+sum:postgresql.connection_state{state:idle} by {application_name}
+
+So now I can see that my worker-medium application has the most idling connections, so there's some tuning to be done here - either I open too many connections for the application, or it's not doing much.
+I can confirm this with refining the query structure to narrow in on a single application_name:
+sum:postgresql.connection_state{application_name:worker-medium} by {state}
+
+So now that I’ve applied methodology of surfacing connection states, and increased visibility into what’s going on, before making any changes to resolve.
+Go forth, measure, and learn how your systems evolve!

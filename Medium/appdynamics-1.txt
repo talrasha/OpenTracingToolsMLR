@@ -1,0 +1,33 @@
+AIOps Tools: Dynatrace vs AppDynamics
+Both AppDynamics and Dynatrace offer a wide range of features and tools. This means while some tools are ideal for you, you might find many features redundant too. You can take advantage of the tree trial offered by both vendors to get a sense of how they work and see which tool works best for you.
+Aymen Eon Amri
+Aymen Eon Amri
+Follow
+Feb 22 · 5 min read
+
+
+
+
+
+This article was originally published on The Chief I/O: AIOps Tools: Dynatrace vs AppDynamics
+
+In this article, I’ll be highlighting the AIOps tools — AppDynamics and Dynatrace.
+The term “AIOps” is an acronym for Artificial Intelligence for IT Operations. The term was first coined by Garnet in 2017 in reference to how data and information from applications are managed by IT teams (using AI in this case).
+AIOps is used to describe multi-layered technology platforms that can enhance and automate IT operations using Machine Learning and data analytics. Such platforms leverage large collections of data sourced from various IT tools, operations devices, and analyzes them using AI. This allows IT teams to be able to spot issues and react to them in real-time. AIOps platforms also provide traditional historic data analytics.
+Machine Learning and Big Data are the two main components of AIOps. They work by aggregating observational data (typically sourced in monitoring systems) and engagement data (sourced from event recordings or incident tickets) into a single big data platform. The platform then implements comprehensive analytics of these combined data.
+The main goal of AIOps is to be able to deliver automation driven insights that make it possible to continually improve and fix application. Generally, AIOps tools can leverage Artificial Intelligence and/or Machine Learning to analyze large data volumes. The scope of data they can deal with is virtually unlimited as they integrate with various IT systems and can monitor data from these various systems both reactively and proactively.
+Some of the most popular AIOps software vendors include Dynatrace, Datadog, Splunk Enterprise, AppDynamics, PagerDuty, and BigPanda. However, two vendors that seem to stand out on pretty much any AIOps lists of enterprise platforms are AppDynamics and Dynatrace.
+Both platforms have been around for years with each undergoing different stages of evolution into their current applications. Both AppDynamics and Dynatrace have their roots in Java diagnostics. However, Dynatrace was more of a pre-production performance testing tool built for QA testers and developers. AppDynamics on the other hand started in production use cases and was geared more towards support teams for operations and app development. Today, both platforms have crossed into each other’s territories and now serve the performance monitoring needs for various enterprises.
+What is Dynatrace?
+Dynatrace is an all-in-one platform that is designed to monitor app performance and deliver precise answers about the application’s performance, its underlying infrastructure, and user experience. The goal of Dynatrace is to accelerate digital transformation while simplifying cloud complexity using software intelligence. Companies that use Dynatrace love it because it serves as an intelligent tool for collaboration and faster innovation allowing you to deliver more value with less effort.
+Nordstorm, Luckyvitamin, McGraw Hill Education, Westfield Insurance, and Thomas Cook and some of the many companies that use Dynatrace for performance testing and measuring user experience.
+Dynatrace is very intelligent and does a lot of heavy lifting for you once installed. It allows you to discover assets, carry out automatic injection while monitoring the connectivity rates of processes and identifying potential issues. Dynatrace also produces a multi-dimensional baseline of application data designed to make it easy to make real-time comparisons
+What is AppDynamics?
+AppDynamics is a part of the Cisco Network and one of the most popular tools for Application Performance Monitoring. It is a full-stack AIOps platform designed with a business-centric edge. It is renowned for its ease of use and how efficiently it helps in the prevention of digital performance issues through the monitoring of traditional infrastructure as well as cloud-native technologies.
+Leading companies such as Vodafone, Carhartt, Nasdaq, and Alaska Airlines make use of app dynamics to help them create better customer experiences by identifying potential issues before they arise.
+AppDynamics makes it easier for companies to identify and understand the factors that drive user experiences on their app and to find ways to make improvements and impact their bottom-line. It provides efficient end-to-end monitoring with insights into your application performance and overall customer experience spotting issues that require urgent action.
+Dynatrace vs AppDyanamics
+In terms of ease-of-use, both tools are relatively easy to set up and run. However, due to certain differences in how it collects and transmits data, you might find AppDyanmics slightly easier and cheaper to deploy especially in larger environments.
+Dynatrace has great breadth and depth in terms of end-user experience monitoring but their products for this use case are less unified compared to that of Appdynamics. Dynatrace also has a relatively short list of ecosystem integrations and plugins although these plugins cover various categories like Splunk for Big Data, Docker for Ecosystem, Jira and PagerDuty for notifications, and so on. Appdynamics on the other hand has an open platform for developers to allow more integrations and development of community-based plugins.
+Both platforms offer similar tools that are efficient for capturing anomalies in business transactions. However, Dynatrace has a somewhat limited interface. Many users find AppDynamics a bit more intuitive in this respect since you don’t need to frequently drill-down/rotate views to find what you need.
+In comparing both solutions Dynatrace seems to be the easier of the two solutions in terms of setup and use. Although AppDynamics is positioned more for business use, Dynatrace offers more in terms of ongoing product support which is great for business.

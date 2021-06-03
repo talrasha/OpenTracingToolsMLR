@@ -1,0 +1,67 @@
+Monitoring Confluent Cloud Kafka with Datadog — Natural Intelligence
+Lidor Ettinger
+Lidor Ettinger
+Follow
+Jul 16, 2020 · 3 min read
+
+
+
+
+
+When I came across Apache Kafka and its concept of a streaming platform I asked myself — how will I monitor it?
+SaaS adoption continues to accelerate as the world is moving to services, data streaming, events, messaging frameworks and the like — and it’s not getting any smaller. The fact that you don’t manage the SaaS application doesn’t mean you’re exempt from monitoring it. It’s important to have monitoring and management tools designed to identify what’s happening inside the platforms and help them be a usable tool for business.
+At Natural Intelligence we chose Confluent Cloud Kafka rather than build it on our own.
+In this post, I’ll explain how we monitor Confluent Cloud Kafka via Datadog.
+
+Kafka as a Service with Confluent Cloud
+Using the cloud generally means less control of your workload, whereas on-premises solutions enable a more fine-grained control. With Kafka we considered monitoring these three components:
+Producers
+Consumers
+Brokers
+But, we had a unique challenge: integrate Confluent Kafka with our own standard monitoring and alerts system — Datadog. We had to devise a solution that enables monitoring Confluent Kafka with a tool external to Confluent cloud.
+This is how we did it:
+Unfortunately, Kafka metrics are hidden inside the Confluent Cloud and Datadog can’t access them directly. Therefore, we had to build a “Bridge” that connects Confluent with Datadog.
+The steps to create this “bridge”:
+Step 1- Define a docker compose for the bridge
+Step 2 — Create an open-metrics config file for Confluent metrics
+Step 3 — Create a cloud API key
+Step 1- Define a docker compose for the bridge
+The docker-compose runs a Datadog agent and mounts the config file below and launches it together with the ccloud_exporter in order to be on the same network.
+
+ccloudexporterWithDatadog
+Step 2- Create an open-metrics config file for Confluent metrics
+Here is the baseline config for the container collecting the metrics from Confluent.
+instances:
+  # The prometheus endpoint to query from
+  - prometheus_url: http://ccloudexporter_ccloud_exporter_1:2112/metrics
+    namespace: "production"
+    metrics:
+      - ccloud*
+Rather than setting up a full-blown Prometheus, we decided to expose only the same metrics with a similar API.
+This configuration exposes the Confluent metrics in the configured url:
+http://ccloudexporter_ccloud_exporter_1:2112/metrics
+
+Here you will find all the available configuration options.
+Step 3 — Create a Cloud API key
+A cloud API key is necessary to reach the Confluent cloud metrics.
+ccloud login ccloud
+kafka cluster use lkc-XXXXX ccloud
+api-key create --resource cloud
+Once the API key is created, remember to write down your App Key and Secret — they will be needed in the docker compose.
+Finally, we are ready to launch the docker compose
+After running the service, it will collect the metrics and send them to Datadog.
+The essence of the solution is the way the cloud exporter collects the data, and the config file shared here, which defines what to collect, guiding the Datadog agent accordingly.
+Collecting the metrics happens automatically every 60 seconds.
+Export and launch the docker-compose:
+export CCLOUD_USER=<CCLOUD_USER>
+export CCLOUD_PASSWORD=<CCLOUD_PASSWORD>
+export CCLOUD_CLUSTER=<CCLOUD_CLUSTER>
+export DD_API_KEY=<DD_API_KEY>
+# Deploy the applications
+docker-compose up -d
+Metrics
+Metrics are standardized across the organization, and tailored to its needs. Consider these as the basic metrics for a production environment.
+Here’s a simple dashboard to help us monitor our metrics:
+
+Summary
+It’s pretty easy to connect Confluent Cloud to your Datadog monitoring infrastructure. You are now able to monitor your Kafka topics provided by Confluent on your organization’s Datadog dashboard, and of course add alerts as you do for any internal metrics.

@@ -1,0 +1,99 @@
+Tracking Adobe Experience Manager with Datadog
+Suren Konathala
+Suren Konathala
+Follow
+Jun 11, 2019 · 5 min read
+
+
+
+
+
+
+Image by 200 Degrees from Pixabay
+Adobe Experience Manager (AEM) is a popular content management system (CMS) that allows developers to create websites, user interfaces, and experiences for a variety of devices. The AEM platform is rated as a leader in content management systems by major analyst firms, and AEM adoption numbers show its popularity.
+But the focus of this article is not AEM, but how to make it performant, and how to identify any potential leaks, slowness, breaches, or downtime. Unless we know specifically what the problem is, our teams will not be able to fix it. As a popular quote goes, “You cannot shoot what you don’t know you’re aiming for.”
+We will use Datadog to do the analysis and reporting for us.
+But before we begin…
+Assumptions
+This article is for readers with some working knowledge of AEM.
+Focus of this article
+This article is about integrating AEM with Datadog, and how to access the various reports from within Datadog. We will not discuss the functionalities AEM and Datadog in detail.
+Organization of this article
+The content of this article is in three parts: 1)What are AEM and Datadog and why do we need them; 2) How to install, configure, and integrate Datadog with AEM; 3) How to access and view the reports.
+Now that the stage is set, let’s dive into the abyss.
+Part 1: The What
+Caution: A lot of theory
+What is AEM?
+To put is simply, Adobe Experience Manager is a platform (more than a tool) that lets enterprises build websites and manage digital assets. More.
+What is Datadog?
+Datadog is a SaaS tool that monitors servers and software applications generating metrics, analysis, and various reports. More.
+Why do we need analytics on AEM?
+While AEM is a popular, comprehensive, and robust platform offering a lot of features, it does not include tools that track, analyze, and report on the platform itself. It does have a few reports, but they are not extensive.
+The focus of Adobe for AEM has been more on enabling teams to develop varied customer experiences. Having said that, AEM gets better with more features and capabilities with each annual release/update.
+Why Datadog?
+Monitoring a platform like AEM is very valuable, teams have several options to monitor AEM. Datadog is in this category but is above and beyond any of the comparable tools. The options, in-depth analysis, and reporting make it unique in the market space. Datadog does a really good job at all of this.
+In the next section we will cover how to install and configure Datadog, and how to integrate it with AEM.
+Part 2: How
+Caution: This gets very technical
+Step 1: Installing Datadog
+Log in to your Datadog account to see instructions on how to install.
+
+Screenshot of Datadog Installation Instructions
+Step 2: Configuration
+You will see something like this if Datadog is running successfully on your machine.
+
+Screenshot of Datadog Agent Manager Running Successfully
+Step 3: Running AEM
+AEM can be set up to run as a service (servers) or we can run it from a command (developer machines) like below:
+$ java -jar cq-quickstart-version-p4502.jar
+
+Adobe Experience Manager Home Page
+Step 4: Integrating AEM with Datadog
+Following the instructions from Datadog’s documentation site.
+Enable logs in datadog.yml file under /opt/datadog-agent/etc/datadog.yaml file.
+vi /opt/datadog-agent/etc/datadog.yaml
+Find and change from "# logs_enbaled: false" to "logs_enabled: true"
+Create
+$ cd /opt/datadog-agent/etc/conf.d
+$ mkdir adobe.experience.manager.d
+$ cd adobe.experience.manager.d
+$ vi conf.yaml
+<add the below lines>
+logs:
+  - type: file
+    path: /Users/Software/aem65/author/crx-quickstart/logs/*.log
+    service: aem
+    source: adobe.experience.manager
+Restart datadog-agent
+Get the status of the Agent 
+$ launchctl list com.datadoghq.agent
+Stop the agent
+$ datadog-agent stop
+Start the agent
+$ datadog-agent start
+That’s it. We are done setting up Datadog and AEM.
+In the next section we will see how to access the analytics and read them.
+Part 3: Reading the analysis and reports
+Caution: Get your reading glasses — we will be reading between numbers.
+Now that we have AEM and Datadog running, to access the analytics and reports, we have to do the following:
+Open a browser and go to this url http://127.0.0.1:5002 and under Status, scroll down the page until you see adobe.experience.manager under Logs Agent
+
+Log in to Datadog portal
+There are so many reports you can view here. Below are some of them.
+Logs > Live Tail
+
+Sample report of Logs > Live Tail
+Logs > Analytics > Log Explorer
+
+Sample report of Logs > Analytics > Log Explorer
+Logs > Patterns (this is a great feature)
+
+Sample report of Logs > Patterns
+Dashboard (of my local mac)
+
+There are several other reports and metrics in the Datadog console, like Dashboards, Monitors, Metrics, and several others.
+All of the above are happy paths without any exceptions or errors or warnings because we are tracking AEM from my local machine. If we are tracking from real servers these will make a lot of sense to system administrators, architects, developers, and others. They are invaluable and save a lot of time when managing and debugging AEM running on production servers.
+This bring us to the end of the core content.
+What’s next?
+There is so much that can be done on AEM with the rich reporting from Datadog. Both platforms are continuously innovating and coming up with new features and options, as well as simplifying things. This innovation and enablement helps businesses with value creation and keeps us builders, developers, architects, and system administrators busy learning the new tricks.
+Keep learning, ALWAYS!

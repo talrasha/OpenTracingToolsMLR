@@ -1,0 +1,56 @@
+Why you should consider using a monitoring platform like Datadog
+Asanka Nissanka
+Asanka Nissanka
+Follow
+Oct 12, 2020 · 5 min read
+
+
+
+
+
+
+Photo by Chris Leipelt on Unsplash
+Building applications has never been easy as it is today. Adopting cloud and the models like serverless have reduced the friction with developing and deploying applications to a great extent. Architectural styles like microservices have been widely embraced by most of the organizations, and as a result of all these movements, the way we design or architect an application also has evolved from one or two components to several components that run on top of different environments like dockers or Lambda like Function as a Service platforms. There are several moving parts in a single application. The diagram below is an example of modern solution architecture on AWS.
+Modern Solution Architecture
+
+Ref: https://aws.amazon.com/getting-started/hands-on/build-modern-app-fargate-lambda-dynamodb-python/
+As you see above, several layers per application run on different technologies, services, or programming languages. It’s so cool, huh! and everything works so well, but is it always? Not really, because when we are working with distributed applications, we have to expect the unexpected always. The mastermind of AWS cloud says,
+Everything will eventually fail over time… Werner Vogels
+So the general truth is no system can guarantee a 100% failure-prone operation. Even though your underline infrastructure is reliable enough to handle its failures, end of the day, you are running your own business logic on top of them, and there can be issues or bugs that you haven’t even figured out. So having said that, the real challenge in a distributed application like above is when something goes wrong, there are several places to look at to identify where, why, and how it happened. In most cases, the approach to fix the issues is based on hunches and guesses. This is not a good approach at all and would soon collapse, wasting our time and money.
+Collecting data is cheap, but not having it when you need it can be expensive, so you should instrument everything, and collect all the useful data you reasonably can. — Datadog
+Observability
+The best way to tackle the above problem is by having good observability within the applications.
+Observability is a measure of how well internal states of a system can be inferred from knowledge of its external outputs — Wikipedia
+Basically, the idea is similar to what we know as monitoring. However, observability is more like a property of a system, and it requires insights from metrics, logs, and tracing, which are known as the three pillars of observability.
+There are several services/tools for gaining visibility into the observability pillars. However, the important thing is that if we need to get the best out of it, we should correlate all three pillars. And the monitoring service or the tool we are using should be capable of doing this.
+
+Ref: https://www.datadoghq.com/pdf/dd_SolutionsBriefsTemplate_181003_monitoringconsolidation.pdf
+Datadog
+Datadog comes in handy as a cloud monitoring platform that provides a unified solution to seamlessly combine the three pillars of observability and enable full visibility across our application stack. Other than that, the most important thing is the smooth, frictionless integration process with more than 400 built-in integrations and pre-defined dashboard templates for them. There are multiple products within Datadog to support different use cases at each layer of our applications and provide a single pane of glass across different teams within the organization. The diagram below compiles what is offered by Datadog.
+
+Ref: https://aws.amazon.com/solutionspace/financial-services/solutions/datadog-on-aws/
+As shown in the above diagram, Datadog offers a wide variety of services which cover several use-cases. And the great thing is they have a well organized and easy to follow documentation to understand how to instrument applications to use those services. Anyways let’s look at a high-level view of how Datadog facilitates the observability pillars.
+Metrics
+Datadog offers to ingest metric data via an Agent or the API with a value and a timestamp and then store it as a time series. These time-series data points can be easily queries using the graphical query builder and visualize it in different formats.
+
+Metric Query (Ref: https://docs.datadoghq.com/metrics/introduction/)
+
+Chart Visualization(Ref: https://docs.datadoghq.com/metrics/introduction/)
+Built-in integrations come with a pre-defined set of metrics, and in most cases, it serves our purpose. You can get more details about the metrics from here.
+Logs
+Datadog agent has the capability of tailing log files or listen for logs sent over UDP/TCP. Currently, there are out of the box solutions for collecting logs from these sources.
+Hosts
+Applications
+Docker environments
+Serverless environments
+Cloud providers
+Collected logs can then be processed using Pipelines and Processors.
+A Pipeline takes a filtered subset of incoming logs and applies a list of sequential processors to perform data-structuring actions on logs
+Ingested logs can also be used for generating log-based metrics. You can refer the Datadog’s “Logging without Limits” concept for more details.
+Tracing
+Datadog APM (Application Performance Management) provides a comprehensive solution for collecting, searching, and analyzing traces across fully distributed architectures. And the usage is simple as just adding a client library since it can automatically trace requests across many popular libraries and frameworks. The most important feature is that the collected traces seamlessly correlate to browser sessions, logs, synthetic checks, network, processes, and infrastructure metrics across hosts. Refer here to learn more about Datadog APM.
+On a closing note, let me show a quick snap of a Datadog dashboard, which shows a consolidated view of the observability concerns we discussed above.
+
+Unified Dashboard for Metrics, Logs, and Traces
+Conclusion
+Observability is a must-have property for modern applications to gain full visibility across the stack. The three pillars of observability are often required to be correlated to get the maximum benefits. Thus, selecting a monitoring platform with a unified view that consolidates all three observability pillars is crucial.

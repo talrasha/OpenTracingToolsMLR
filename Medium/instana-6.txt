@@ -1,0 +1,84 @@
+Scaling Distributed Tracing
+Distributed Tracing Workshop — Seoul — July 2019
+Autoletics
+Autoletics
+
+Jul 18, 2019·8 min read
+
+
+
+
+Below I’ve listed the slides I presented on the first day of a distributed tracing workshop organized by Naver Corp. and held in Seoul, South Korea.
+
+At the very beginning of the talk, I made a point to state that the scaling of distributed tracing needed to be both up (more/high) and down (less/low), and importantly reflecting the capacities of the consumers — man or machine.
+
+After introducing my experience and research as well as Instana, the application performance monitoring vendor I’m employed by, I listed some areas of interest driving my current engineering design and development.
+
+The first part of the talk focuses on the high-level architectural issues.
+
+I started the talk with an opinion that there were two directions for the future of observability. One focused on creating far more effective monitoring and management models tailored to human capabilities and capacities. The other on detailed capture and reconstruction of execution.
+
+I then introduced my version of the three pillars of observability as opposed to metrics, tracing, and logging — as promoted by conf speakers these days.
+
+Measurement encompasses the instrumentation, observation, and capturing of some software phenomenon — it is mainly independent of the model.
+Model includes metrics, tracing, and logging. Each model has pros and cons, depending on the context and causation — operational vs. diagnostics. Looking forward, we need to develop newer models that are far more effective at monitoring and managing microservices and reflect many other changes in platforms, runtimes, and libraries as well communication and coordination.
+Memory is concerned with the recording, retrieval, recollection, and reconstruction of changes that occurred to and are represented by the model.
+Scaling up one of the pillars causes a rise in cost and reduction in capability. More measurement leads to higher overhead costs and reduced accuracy. Bigger models result in greater transport costs and impaired attention. Larger memory capacities increase storage and decrease significance signaling.
+
+There are many aspects in scaling observability technology — it is not just more (or less). Is the technology able to record both short and long-running phenomenon? At what level of depth or coverage is the technology targeting? How big or small is the model? How much of the processing by the technology is performed locally as opposed to remotely? Is the data tailored more for a machine than man? Is it focused on signals over data?
+
+Today scaling observability is far more challenging than it needs to be. There is far too much emphasis placed on collecting more and more (big) data than hooking up observations to (re)actions via embedded adaptive controllers. Effective management of any system involves directing attention and action. To scale up to larger systems requires scaling down.
+
+There is a lot of confusion surrounding monitoring and observability. The way I see it monitoring is as a strategic process that directs observability. This is far more apparent when observability is dynamic and adaptive — essential in the scaling of a process to changes in workload and context.
+Controllability, which is focused on steering software behaviors, helps define the policies employed by the Monitoring process and is governed by the Management process.
+All communication lines transfer both data and directives between each other. Each process is self-regulated to a degree in fulfilling promises.
+
+Most of what we observe is insignificant. Monitoring is the process that adds significance to just a tiny slice of the data that is collected by observability. To scale an observability technology requires a reduction in transmission and post-processing costs where there is no novelty.
+
+Monitoring is fundamentally about the discovery and observation of objects of concern. From a series of signals, an observer infers the present state and predicts possible future states were there is a model and a memory of such.
+
+Much of today’s observability tooling is designed with simple (big) data collection in mind. Processing of the model and storage is done in the cloud. Such monitoring offerings operate as a semi-structured backend storage system — effectively a big data dustbin that can be indexed, searched, and presented in charts. The main objective of both application monitoring and management is all but lost in data and chart junk. And it does not scale.
+
+In scaling observability, there needs to be a shift in the locality of computation and storage— from cloud to edge. Measurement, model, and memory need to be regulated by self-adaptive agents (in the general sense) and at different degrees of scoping and time scales. Scaling comes from the smart collective
+
+It is paramount to intelligently and adaptively reduce the size of data, the cost of collection, as well as the time scales and localities involved if we are to scale an observability pipeline. All that is instrumented need not be measured. All that is measured need not be collected. All that is collected need not be transmitted. All transmissions need not be stored. Less is more.
+
+Let’s now be more specific about the scaling concerns with tracing with an example of a service graph where a calls b and c, and c calls d and e.
+
+Alongside the connections and flows between instrumented services we have connections and flows to a trace agent or server where data is stored.
+
+The previous topology presents some glaring problems in scaling, but these can be mitigated somewhat by having each service have a separate datastore. Datastores can then connect when there is linked trace data. This linking does require the transfer of information about the locations of such datastores.
+
+The federated approach does still have some issues in that it is not possible post-completion of a trace to discard all data if it is deemed insignificant. Why not instead let each called service decide whether to propagate its collected trace data back up through the caller chain and have datastores at roots only? A benefit of this approach is that services in other domains can be traced.
+
+Zooming down to the ground level — the measurement of distributed traces.
+
+There are two points in the current and most common distributed trace lifecycle implementation where it is possible to decide whether to measure and then whether to collect and transmit the data to a tracing service — at the point of creation of the root in a trace or following completion of a trace.
+
+Sampling is the more common technique in limiting the amount of trace data collected, transmitted, and stored. Most tracing client libraries offer random.
+Random in that 1 in every N is selected for tracing. The scope can be global to the process or specific to a particular name or some other labeling.
+Windowing is more useful than random when there is a need to compare one measurement with another within a particular time frame.
+Conditional is windowing that is dynamically activated and deactivated based on some varying aspect within the environment of execution.
+It is also possible to combine all sampling techniques in order to collect a minimal amount of trace data in all periods and then vary the degree of collection based on fixed windows and environmental conditions.
+
+Rate limiting can be used to ensure that a fixed amount of requests are traced.
+
+Sampling or other forms of trace reduction create problems to monitoring such as how to make observers, both human and machine, aware of the incompleteness of the data and inform them to what degree within a window.
+The other intervention point in the lifecycle is after completion of a request.
+
+A client side library can choose which data should be transmitted and stored based on some property of the request or trace, such as wall clock timing.
+
+Many libraries and locally deployed agents buffer up the collected trace data before it is transmitted further on down the pipeline to the storage backend. Before sending the library or agent can employ other forms of data reduction.
+
+Buffers can support the dropping of new trace data when the process that drains the buffer and pushes the data onwards is not able to keep up with an arrival rate. Dropping can be more selective when there is a threshold set.
+
+Before forwarding the buffered data, some of the trace data can be discarded.
+
+If it is paramount that all trace data be transmitted, then producers, typically the application threads, can be delayed. This impact would need to be noted.
+
+Another option available both at the tracing source and storage backend is the degradation of the trace memory. This is already employed in storing metrics.
+
+Dropping down to ground zero…
+
+Some costs aspects of a trace are fixed such, as the requirement to collect the time twice. Others such as adding tags, transmitting items along with a trace context, adding logging (a map object), and capturing stacks are optional.
+Note: The chart below was used just to order the items. Stacks go off the charts!

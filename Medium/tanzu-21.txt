@@ -1,0 +1,310 @@
+How to easily(ish!) get SSL/TLS configured for your web hosting needs using Traefik and cert-manager on Kubernetes
+Alex Guedes
+Alex Guedes
+
+Jul 13, 2020·11 min read
+
+
+
+
+Either if you are publishing a personal blog using WordPress or you want to have a nice .com domain for your portfolio, it’s vital to make sure your readers will have a secure connection to your website.
+This used to be a cumbersome process in the old days of web hosting. First, you would have to generate a certificate request (signed by your private key) and send this over with a bunch of other forms to a certification authority like Verisign, and it would take a few days for you to receive a certificate you could use on your website. With that in hand, you would have to figure out how to configure your application server to use it. Then you would have to figure out how to set it up properly, how to keep your private key secure and all the stuff that comes with it.
+With all of that set-up, you would finally have a website that you can access with HTTPS via SSL/TLS, just to find out that in a few months you would have forgotten to renew it and out of the sudden your website wouldn’t be trusted anymore. When that happened, you would have to go through the process all over again.
+A bit of a pain in the ****, isn’t it?
+This is the pain we’re trying to solve with Traefik, Let’s Encrypt and cert-manager. But first, let’s understand what they are and how they will be used.
+Traefik
+From Traefik own’s website:
+Traefik is a leading modern reverse proxy and load balancer that makes deploying microservices easy. Traefik integrates with your existing infrastructure components and configures itself automatically and dynamically.
+Traefik is a Cloud Native Edge Router that will work as an ingress controller to your Kubernetes cluster. It will be responsible to make sure that when the traffic from your web application hits your Kubernetes cluster, it will go to the right Service. Also, it makes it very easy to assign an SSL/TLS certificate to your web application.
+Let’s Encrypt
+From Let’s Encrypt own’s website:
+Let’s Encrypt is a free, automated, and open certificate authority brought to you by the nonprofit Internet Security Research Group (ISRG).
+Let’s Encrypt provides an automated way to request and renew SSL/TLS certificates using the ACME protocol — they describe the process quite well on their website if you are interested in how it works.
+cert-manager
+From cert-manager GitHub repo:
+cert-manager builds on top of Kubernetes, introducing certificate authorities and certificates as first-class resource types in the Kubernetes API. This makes it possible to provide ‘certificates as a service’ to developers working within your Kubernetes cluster.
+We will use cert-manager to manage Let’s Encrypt certificated as an automated process within the Kubernetes cluster.
+We could use a Traefik native integration to Let’s Encrypt to achieve a similar thing that cert-manager is doing, but on version 2 of Traefik, you can’t have an HA deployment of it while using the integration. You can find more details of this here if you are interested. Also, with cert-manager you can do this for any other reason you might need a valid SSL/TLS certificate. For that reason, I decided to use cert-manager instead.
+Installing Traefik
+You’ll need Helm (I have used Helm 3 — so not Tiller required). You should just need the Helm cli for that, but instructions on how to install Helm can be found here.
+First, let’s create a configuration file for the helm chart since we want to customise some of the settings part of the chart.
+Create a values.yml file with the following content:
+additionalArguments:
+  - "--log.level=DEBUG"
+  - "--entrypoints.websecure.http.tls"
+  - "--providers.kubernetesIngress.ingressClass=traefik-cert-manager"
+  - "--ping"
+  - "--metrics.prometheus"
+The most important setting here is what ingressClass to look for when using Traefik and the default to TLS. Everything else are things to help you debug if you encounter issues. A detailed list of the settings you can configure can be found here.
+Let’s now add the Helm repository and install Traefik on the traefik namespace.
+helm repo add traefik https://containous.github.io/traefik-helm-chart
+helm repo update
+kubectl create namespace traefik
+helm install --namespace traefik traefik traefik/traefik --values values.yaml
+You should be able to check if everything worked by trying to access the Traefik dashboard. You can expose it using a port-forward with the following command:
+kubectl port-forward -n traefik $(kubectl get pods -n traefik --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000
+Now head to http://127.0.0.1:9000/dashboard/ and you should be able to see the Traefik dashboard.
+
+The Traefik Helm chart will create a service of type LoadBalancer, that should expose a port via LoadBalancer if you are using EKS (AWS), GKE (GCP) or AKS (Azure) or if you’re using TKG on AWS (VMware). If you are not using any of these options, you might have to find a way to expose the services. What I personally do on my Raspberry Pi at home is to use MetalLB. That should allow you to use a routable IP range and then you could configure your router with a port-forward, but I won’t cover this as part of this post.
+Installing cert-manager
+You’ll also need Helm to install cert-manager but before installing the chart, you’ll need to apply the CRDs (Custom Resource Definitions) first as stated on the cert-manager docs. There’s also an option to install them as part of the Helm chart but I opted for the separate option for no particular reason.
+First, let’s install the CRDs:
+kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v0.15.2/cert-manager.crds.yaml
+Now let’s create the namespace, add the Helm repository and install it:
+kubectl create namespace cert-manager
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+helm install cert-manager jetstack/cert-manager --namespace cert-manager --version v0.15.2
+To check if the installation succeeded you can check if the pods are running:
+kubectl get pods --namespace cert-manager
+You should see three pods running: cert-manager, cert-manager-cainjector and cert-manager-webhook.
+Configure your DNS provider to point to your Traefik service
+I’m going to use the domain secure.alexguedes.com for this exercise, but you’ll need to configure your DNS provider to point this domain to the IP address of the LoadBalancer created by Traefik.
+You can see the IP address of the LoadBalancer created with the following command:
+kubectl -n traefik get svc
+Use the EXTERNAL-IP field when configuring your DNS provider. If you try to open the URL now, you should see Traefik coming back with a 404 error message 404 page not found. This happens because we haven’t configured the Ingress rules for the application. We will do this at a later stage after we deploy the web service.
+Deploy a website with Nginx
+In case you don’t have a website running, here’s an example of how you can deploy a sample one. I’m using a ConfigMap to change the index.html file of it, but you could use any type of volume you wish.
+Create an 01-nginx.yaml file with the following content:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: secure-alexguedescom-nginx
+  name: secure-alexguedescom-nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: secure-alexguedescom-nginx
+  template:
+    metadata:
+      labels:
+        run: secure-alexguedescom-nginx
+        app: secure-alexguedescom-nginx
+    spec:
+      containers:
+      - image: nginx
+        name: secure-alexguedescom-nginx
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - mountPath: /usr/share/nginx/html
+          name: alexguedescom-volume
+      volumes:
+      - name: alexguedescom-volume
+        configMap:
+          name: nginx-index-html
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: secure-alexguedescom-nginx
+  name: secure-alexguedescom-nginx
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: secure-alexguedescom-nginx
+---
+apiVersion: v1
+data:
+  index.html: |-
+    <!doctype html>
+    <html>
+      <head>
+        <title>Welcome to your secure web page using Nginx</title>
+      </head>
+      <body>
+        <p>This will be a secure web page at the end of the tutorial!</p>
+      </body>
+    </html>
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: nginx-index-html
+This will create a Deployment, a Service and a ConfigMap when you apply this to your Kubernetes cluster. To apply, lets first create a namespace and then apply the yaml created.
+kubectl create namespace secure-alexguedescom
+kubectl apply -f 01-nginx.yaml
+You should be able to see the nginx pod running inside the secure-alexguedescom namespace.
+kubectl get pods --namespace secure-alexguedescom
+Creating a Staging certificate with Let’s Encrypt
+Now that we have our web site running with Nginx, we need to create a certificate to be used with it. This is where cert-manager comes to play.
+Let’s Encrypt has two different services, one for staging and one for production. The production one has some protections like rate-limiting etc, so let’s start with the staging one while we try our configuration and then move to the production one.
+The first thing we have to do is to create a ClusterIssuer object. This configures the staging service from Lets Encrypt so we can request certificates:
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    # You must replace this email address with your own.
+    # Let's Encrypt will use this to contact you about expiring
+    # certificates, and issues related to your account.
+    email: your@email.com
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      # Secret resource used to store the account's private key.
+      name: your-own-very-secretive-key
+    solvers:
+      - http01:
+          ingress:
+            class: traefik-cert-manager
+Create a staging-cluster-issuer.yaml with the content and apply to your cluster. Since we’re using an Object of type ClusterIssuer, this will be available to the whole cluster. If you want to restrict access to this Issuer to only an specified namespace, you should look at the Issuer object.
+This should be enough configuration for us to start requesting certificates. To request a certificate for your domain, you’ll need to create a Certificate object that will look like this:
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: secure-alexguedescom-cert
+  namespace: secure-alexguedescom
+spec:
+  commonName: secure.alexguedes.com
+  secretName: secure-alexguedescom-cert
+  dnsNames:
+    - secure.alexguedes.com
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+Make sure you apply this to the same namespace you’re deploying your website to (I have used the metadata namespace for that as part of the YAML), because we will need to configure it as part of the Ingress rule later on.
+Now let’s apply that with kubectl:
+kubectl apply -f secure-alexguedescom-staging-cert.yaml
+Now let’s check if the cert has been generated by describing the certificate:
+kubectl -n secure-alexguedescom describe certificate secure-alexguedescom-cert
+If everything worked, you should see at the bottom of the describe output the following:
+Events:
+  Type    Reason        Age   From          Message
+  ----    ------        ----  ----          -------
+  Normal  GeneratedKey  66s   cert-manager  Generated a new private key
+  Normal  Requested     66s   cert-manager  Created new CertificateRequest resource "secure-alexguedescom-cert-153924917"
+  Normal  Issued        40s   cert-manager  Certificate issued successfully
+The new certificate and key will be stored as a Kubernetes secret as part of the same namespace.
+Using the newly created staging certificate with your website
+Now that we have a working nginx service and we have a certificate that we want to use as part of our Ingress, lets create an IngressRoute on Traefik that says that all traffic originating on secure.alexguedes.com will land onto that service.
+Create a YAML called traefik-ingressroute.yaml with the following content:
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: secure-alexguedescom-ingress-https
+  namespace: secure-alexguedescom
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`secure.alexguedes.com`)
+      kind: Rule
+      services:
+        - name: secure-alexguedescom-nginx
+          port: 80
+  tls:
+    secretName: secure-alexguedescom-cert
+If you now try to access your web domain, which in my case is https://secure.alexguedes.com you’ll see that it now has an non-trusted certificate issued by Fake LE Intermediate X1. This is because we used the staging server to issue that certificate.
+
+This tells us that all the configuration worked, and we can move on onto issuing a trusted cert using Let’s Encrypt production servers.
+Creating a Production certificate with Let’s Encrypt
+We will now add another ClusterIssuer, but this time using the Let’s Encrypt production servers.
+Firt we will need to create a ClusterIssuer with the following content:
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    # You must replace this email address with your own.
+    # Let's Encrypt will use this to contact you about expiring
+    # certificates, and issues related to your account.
+    email: your@email.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      # Secret resource used to store the account's private key.
+      name: your-own-very-secretive-key
+    # Add a single challenge solver, HTTP01 using nginx
+    solvers:
+      - http01:
+          ingress:
+            class: traefik-cert-manager
+Then apply this configuration to your Kubernetes cluster:
+kubectl apply -f cluster-issuer-prod.yaml
+Now we have two different ClusterIssuers: letsencrypt-staging and letsencrypt-prod.
+Lets delete the previous certificate created with the staging Issuer, and create a production one instead.
+To delete the previous created certificates, use the following command:
+kubectl -n secure-alexguedescom delete certificate secure-alexguedescom-cert
+kubectl -n secure-alexguedescom delete secrets secure-alexguedescom-cert
+Now let’s issue a new production certificate:
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: secure-alexguedescom-cert
+  namespace: secure-alexguedescom
+spec:
+  commonName: secure.alexguedes.com
+  secretName: secure-alexguedescom-cert
+  dnsNames:
+    - secure.alexguedes.com
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+Now let’s apply that with kubectl:
+kubectl apply -f secure-alexguedescom-prod-cert.yaml
+Now let’s check if the cert has been generated by describing the certificate:
+kubectl -n secure-alexguedescom describe certificate secure-alexguedescom-cert
+If everything worked, you should see at the bottom of the describe output the following (like we did with the staging cert):
+Events:
+  Type    Reason        Age   From          Message
+  ----    ------        ----  ----          -------
+  Normal  GeneratedKey  3s    cert-manager  Generated a new private key
+  Normal  Requested     3s    cert-manager  Created new CertificateRequest resource "secure-alexguedescom-cert-153924917"
+  Normal  Issued        1s    cert-manager  Certificate issued successfully
+Now if you head back to your domain, in my case https://secure.alexguedes.com, you should be able to see now that you have a valid certificate (some browsers will still show the only certificate until you close and open the browser, for example with Chrome, if you want to see this working without doing that, use an Incognito window).
+
+Extra: Redirect your http requests to https
+Now that you have a fully working website with SSL/TLS, all the connectivity can be secure in transit. But you might have noticed that if you try to open your website without https, you’ll get a 404 from Traefik. That’s because we’re only serving traffic via 443 with https.
+To create a redirect for all http (port 80) traffic to https (port 443) you’ll need to create a Traefik Middleware rule that redirects traffic to https and also another Ingress route with a web entrypoint that uses that Middleware.
+This is what the configuration looks like:
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: https-only
+  namespace: secure-alexguedescom
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: secure-alexguedescom-ingress-https
+  namespace: secure-alexguedescom
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`secure.alexguedes.com`)
+      kind: Rule
+      services:
+        - name: secure-alexguedescom-nginx
+          port: 80
+  tls:
+    secretName: secure-alexguedescom-cert
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: secure-alexguedescom-ingress-http
+  namespace: secure-alexguedescom
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: Host(`secure.alexguedes.com`)
+      middlewares:
+        - name: https-only
+      kind: Rule
+      services:
+        - name: secure-alexguedescom-nginx
+          port: 80
+Now if you head to http endpoint of your web site, which in my case is http://secure.alexguedes.com you’ll see that you’ll get a redirect to https.
+Questions?
+You can find all the yamls on my GitHub repo if you just want to follow the guide and apply them. https://github.com/alexguedes/traefik-cert-manager-sample
+If you have any questions, please reach out in the comments and I’ll try my best to help out.

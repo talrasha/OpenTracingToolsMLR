@@ -1,0 +1,69 @@
+Datadog — Azure API Management logs
+Raphael Yoshiga
+Raphael Yoshiga
+Follow
+Nov 7, 2020 · 3 min read
+
+
+
+
+
+
+Source
+Azure resources generally have good integration with App Insights for logs and APM (Application performance monitoring). But sometimes your monitoring stack is with a 3rd Party company, like New Relic, Zabbix or Datadog.
+In this guide, we are going to how to log every single request hitting an Azure API management into Datadog.
+What is Datadog?
+Datadog is a monitoring service for cloud-scale applications, providing monitoring of servers, databases, tools, and services, through a SaaS-based data analytics platform. [Wikipedia]
+Logging from API Management
+The base documentation where I learned this logging flow.
+The steps
+
+Diagram: Azure API management > Event Hub > Function App > Datadog
+This integration requires a few components, so let’s go over configuring this manually:
+* Make sure you are adding the resources to the same region
+1. Add the event hub namespace
+
+Create Event hub namespace Azure page
+2. Create the event hub in the namespace:
+
+Create Event hub Azure page
+3. Enable the diagnostic logging:
+Azure seems to be moving towards this model, where every resource is going to expose diagnostic settings, so this tutorial could be used for other resource types to have Datadog integration.
+
+Enable diagnostic in the API management
+
+Enable diagnostic settings for log “GatewayLogs” into the event hub we created
+So up to this point, we have half the integration:
+
+Diagram: Azure API management > Event Hub > other components disabled
+4. Create the Function app:
+
+5. Add the configuration:
+
+DD_API_KEY — The API key for Datadog
+DD_SITE — The function bellow uses it to decide to which Datadog site to use. (US by default)
+The function bellow uses for metadata: DD_SERVICE, DD_SOUCE, DD_TAGS, DD_SOURCE_CATEGORY
+6. Deploy the function code:
+Create an app function with an Event Hub Trigger
+
+Make sure the connection is pointing to the event hub we created previously:
+
+Deploy this code:
+
+Source
+7. Test the function in isolation
+
+8. Confirm the logs arrive into Datadog
+Test the entire flow by making API calls in the API management instance.
+
+Datadog logs page
+
+Datadog logs
+Terraform automation:
+And of course, I wouldn’t leave you with a manual setup, here are the Terraform scripts:
+
+Terraform script, creating all the steps and linking them together.
+On Github
+I haven’t automated the Node.js Function deployment at this point, as it was the least complicated bit, but that won’t be too hard to do if needed.
+Conclusion
+That isn’t a straight forward integration, but hopefully, I showed that is possible to integrate API management logs with Datadog, and that a complex manual setup like this can be automated using Terraform.

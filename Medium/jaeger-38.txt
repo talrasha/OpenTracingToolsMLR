@@ -1,0 +1,180 @@
+Instrumenting your Go distributed application for tracing with Jaeger
+Carlos Eduardo
+Carlos Eduardo
+
+Oct 7, 2019·8 min read
+
+
+
+
+Recently I've been reading about application observation and got fascinated with Jaeger Tracing and the benefits tracing brings to visualize your data flow.
+
+For deeper understanding, I recommend the book Mastering Distributed Tracing by Yuri Shkuro, an engineer at Uber, creator of Jaeger. He wrote a great tutorial on tracing and optimizing an application so here I’ll mostly focus how to basically instrument your Go application for tracing.
+Since I was already playing with Echo, a nice and minimalist web framework for Go I decided to use it together with other tools to create some sample applications. I also contributed a tracing middleware and submitted a Prometheus Metrics middleware as well, waiting to be merged.
+The example is composed of 3 “microservices”. The first is a Formatter, taking a name and returning a “Hello [Name]” string. The second, Publisher, just receives a string, calls the Echo microservice and prints the string to the console. The base of these two came from Yuri’s own tutorial repo and uses Go standard lib and a tracing library that provides some methods to make one’s life easier that I will detail later.
+The third is a server created with Echo Framework, and the middleware to provide tracing that can be found it on the echo-contrib repo. It receives the “Hello” string, prints it out and calls a simulated function that takes some random time to execute.
+The complete code is in my Go-playground repository under microservices and can be used as base for your own applications or tests.
+To run this code, you can use Jaeger all-in-one on your own machine, just run it in Docker and open http://localhost:16686 on your browser.
+$ docker run -d --name jaeger \
+  -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 \
+  -p 5775:5775/udp \
+  -p 6831:6831/udp \
+  -p 6832:6832/udp \
+  -p 5778:5778 \
+  -p 16686:16686 \
+  -p 14268:14268 \
+  -p 9411:9411 \
+  jaegertracing/all-in-one:latest
+This is a good post that discusses Jaeger infrastructure and it's components. Take a look if planning to deploy on your cluster:
+Distributed Tracing Infrastructure with Jaeger on Kubernetes
+One cannot overstate the importance of monitoring infrastructure as an integral component of distributed systems (or…
+medium.com
+
+Let's go deeper on code.
+Client app
+The client app generates the initial call for the data flow with a name as argument. The main method starts by creating a tracer instance, where you set the type of tracing required like sampling or constant, log the traces and etc. On our example it’s wrapped by an Init function on the lib and reused for other services as well.
+func main() {
+...
+tracer, closer := tracing.Init("hello-client")
+defer closer.Close()
+opentracing.SetGlobalTracer(tracer)
+helloTo := os.Args[1]
+span := tracer.StartSpan("say-hello")
+span.SetTag("hello-to", helloTo)
+defer span.Finish()
+ctx := opentracing.ContextWithSpan(context.Background(), span)
+helloStr := formatString(ctx, helloTo)
+printHello(ctx, helloStr)
+}
+In the main function, we create the tracer named “hello-client” and a span which is the definition of a unit of work within a service then we call two internal functions with the created context. This is important so the tracing IDs are persisted during the whole execution of the flow not only in the application but also between different applications or services as we will see.
+func formatString(ctx context.Context, helloTo string) string {
+  span, _ := opentracing.StartSpanFromContext(ctx, "formatString")
+  defer span.Finish()
+  v := url.Values{}
+  v.Set("helloTo", helloTo)
+  url := "http://localhost:8081/format?" + v.Encode()
+  req, err := tracing.NewTracedRequest("GET", url, nil, span)
+  if err != nil {
+    panic(err.Error())
+   }
+  resp, err := xhttp.Do(req)
+   if err != nil {
+     panic(err.Error())
+   }
+  helloStr := string(resp)
+  span.LogFields(
+    otlog.String("event", "string-format"),
+    otlog.String("value", helloStr),
+   )
+  return helloStr
+}
+In this function we initially create a span to trace it’s execution, then do the logic required in the function like encoding the data into the URL. Finally we call the NewTracedRequest function from our lib. This function is similar to the http.NewRequest from std library but it takes the span and embeds the trace headers into the call.
+Let’s take a look into this function:
+// NewTracedRequest generates a new traced HTTP request with opentracing headers injected into it
+func NewTracedRequest(method string, url string, body io.Reader, span opentracing.Span) (*http.Request, error) {
+ req, err := http.NewRequest(method, url, nil)
+ if err != nil {
+  panic(err.Error())
+ }
+ ext.SpanKindRPCClient.Set(span)
+ ext.HTTPUrl.Set(span, url)
+ ext.HTTPMethod.Set(span, method)
+ span.Tracer().Inject(span.Context(),
+  opentracing.HTTPHeaders,
+  opentracing.HTTPHeadersCarrier(req.Header))
+return req, err
+}
+Here we can see that we take the request parameters, create a standard http.NewRequest and inject into this request the span information to be sent to the external service. If the called service uses tracing too it can add “child” spans that will be linked to this execution.
+Going back to our formatString function, we send the HTTP request and then with the call results we add this info to the trace itself as log fields. This can be seen in the trace details:
+
+Formatter service
+This microservice is a simple HTTP server listening for a URL and formatting the output.
+func main() {
+ tracer, closer := tracing.Init("formatter")
+ defer closer.Close()
+ http.HandleFunc("/format", func(w http.ResponseWriter, r *http.Request) {
+  spanCtx, _ := tracer.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(r.Header))
+  span := tracer.StartSpan("format", ext.RPCServerOption(spanCtx))
+  defer span.Finish()
+  helloTo := r.FormValue("helloTo")
+  helloStr := fmt.Sprintf("Hello, %s!", helloTo)
+  span.LogFields(
+   otlog.String("event", "string-format"),
+   otlog.String("value", helloStr),
+  )
+  w.Write([]byte(helloStr))
+ })
+log.Fatal(http.ListenAndServe(":8081", nil))
+}
+The service creates it’s own tracer named “formatter” so it’s correctly identified by Jaeger, then on the handler we extract the tracing information from the request, create a span to report this execution and do the function business logic. See that we also add logging information to this span so it can be seen on the trace:
+
+Notice that each function (tracer) is identified by a color
+We will see that by using the Echo framework and it’s tracing middleware, all the header extraction, injection is transparent. We have to do it here because this service uses pure Go Std library.
+Publisher App
+The publisher app is very similar in structure to the Formatter where we create a tracer and in the handler we extract the trace information from HTTP headers, create the function span and call the Echo-app microservice. See that in case this call fails, we add the info to the trace with an error tag so it get indicated on Jaeger (small exclamation mark on the span):
+...
+resp, err := xhttp.Do(req)
+  if err != nil {
+   span.LogEvent("Could not contact echo: " + err.Error())
+   span.SetTag("error", true)
+   return
+  }
+
+Echo app
+The Echo app is a little more complete and provides easy to use functions so you can focus on the business logic.
+First we define new Echo app, add the tracing middleware and start it:
+package main
+import (
+...
+"github.com/labstack/echo-contrib/jaegertracing"
+"github.com/labstack/echo/v4"
+"github.com/labstack/echo/v4/middleware"
+)
+func main() {
+ e := echo.New()
+ c := jaegertracing.New(e, nil)
+ defer c.Close()
+ // Application routes
+ e.GET("/test/:name", testHandler)
+ e.Logger.Fatal(e.Start(":8080"))
+}
+Whenever we create an Echo app and attach the tracing middleware to it, the tracer “echo-tracer” is created and a root span also is created to trace the whole execution of the call inside the Echo application. We can then add “child” spans to the handlers:
+func testHandler(c echo.Context) error {
+ sp := jaegertracing.CreateChildSpan(c, "test handler")
+ defer sp.Finish()
+ var name = ""
+ name = c.Param("name")
+ sp.LogEvent("Called testHandler function, HTTP name param is: " + name)
+ sp.SetBaggageItem("name", name)
+ sp.SetTag("name_tag", "name")
+ time.Sleep(10 * time.Millisecond) // Simulate longer execution
+// Call slow function 5 times, it will create it's own span
+ ch := make(chan string)
+ for index := 0; index < 5; index++ {
+  // Do in parallel
+  go jaegertracing.TraceFunction(c, slowFunc, "Test String", ch)
+ }
+ for index := 0; index < 5; index++ {
+  fmt.Println(<-ch)
+ }
+ret := fmt.Sprintf("Test path, name: %s", name)
+ return c.String(http.StatusOK, ret)
+}
+// A function to be wrapped
+func slowFunc(s string, c chan string) {
+ time.Sleep(time.Duration(rand.Intn(50)) * time.Millisecond)
+ c <- "received " + s
+}
+Here in the testHandler function, we create a child span called “test handler” by using a convenience function from the tracing middleware lib by just passing the http context and the name. Then we add a log event, a tag and baggage to the span as optional items to show tracing capabilities. Baggages can be added to the trace and be persisted thru other services.
+
+Then we call slowFunc (which just sleeps a random amount of time) by using another convenience function from our middleware in Echo (the tracing lib in the playground project also has this for Std lib) called TraceFunction. This is a wrapper that receives the http context, the called function and it’s arguments. Then it wraps the execution with a span adding some information to it.
+
+The advantage of using the middleware or the lib is that the amount of tracing code added to your business logic is minimal taking little time and effort to add this instrumentation. The idea of this function is to work like a Python Decorator, avoiding changes on the calling or called code. Of course more info can be added to the traces as tags, logs or baggages as seen in the example.
+Complete trace
+Here Jaeger shows the complete timeline for our event and the functions that were called on multiple services shown in different colors.
+
+Jaeger also generates the trace graph for all services, times and amount of calls.
+
+Conclusion
+As demonstrated, instrumenting an application with tracing brings fantastic visibility of your data flow and does not put a burden on the developers to add boilerplate to the code. The libs created for this example shows that can be simple to add proper tooling to your arsenal making everyone’s life easier.
+If you have suggestions, want to contribute or support me, message me on Twitter or open an issue on the tracker repository.

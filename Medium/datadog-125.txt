@@ -1,0 +1,35 @@
+Rootless DataDog Container
+Christian Oestreich
+Christian Oestreich
+
+Nov 7, 2017·3 min read
+
+
+
+
+We live in a time where so many of our tools in software development make our lives so unbelievably easy, but at the same time so !@#$ing miserable. Recently we faced a dilema with our PaaS tool OpenShift that created a bunch of friction between our own internal teams and our metrics platform and vendor DataDog.
+TL;DR
+The code to solve your DataDog non-root headache can be found at https://github.com/ctoestreich/datadog-agent-rootless
+The Players
+DataDog
+I won’t make this a sales pitch for DataDog and keep this more about the issue, but their metrics platform and alerting are amazing. You can read more about their offering at http://www.datadoghq.com
+OpenShift
+Red Hat built a pretty nice PaaS around kubernetes that is called OpenShift. I will also not pitch this tool and you can, again, read about this on your own if you are unfamiliar with it at https://www.openshift.com/container-platform/index.html
+Docker
+
+Containers Though!
+The Problem
+OpenShift allows ops admins to set a policy that disables running containers using root. I have read their information and other info on security and our operations team has decided, for better or worse, to disable root access globally and only allow running as non-priviledged users.
+I will admit that this is PROBABLY the correct thing do. However, it created a bunch of issues for us running supporting infrastructure containers as many platforms designed their conatiners to run as root whether intentional or otherwise. These simply would not start when attempting to deploy to OpenShift.
+The DataDog agent is no exception to this rule as it both uses root to run supervisord and to access the docker socket.
+Recent changes in Kubernetes would seem to address some of these general concerns about “escaping” containers if running root, but we are merely a consumer of the platform and despite some begging and pleading we were unable to affect these enterprise policies.
+The Fix
+We asked DataDog to help fix this issue and create a non-root runtime. They were helpful in their repsonses but creating and maintaining a rootless container wasn’t a priority for them. I finally dove in and made the appropriate changes to get this running. It was a combiniation of hacking the supervisor.conf to run as nobody and fixing directory permissions. The repo can be found at https://github.com/ctoestreich/datadog-agent-rootless.
+
+Github Repo
+The github repo contains two docker images; one based on DataDog’s own docker-dd-base and another that uses a centos base image. The reason for both is that we specifically have a custom jdk base image and we needed the ability to have our own base image. I tried to reflect installing the agent via the web inside a container using a custom base image in the centos-base directory.
+In the centos-base image I did a bit more modifications as some of the logic that is normally baked into the docker-dd-base needs to be setup manually; very specifically we need to provide our own datadog.conf file as the agent install from the web will provide a default one that doesn’t contain any of our specific tags or host name. Below is the datadog.conf filethat has some place holders that the entrypoint.sh will replace with environment variables of the same name when the container starts.
+
+Conclusion
+Hopefully if you are root-challenged like we are you will find this post and code useful. If you have faced this same challenge or have another solve for this problem, please let me know.
+The views and opinions expressed in this article are those of the author and do not necessarily reflect the official policy or position of any vendor or employeer associated with the author.

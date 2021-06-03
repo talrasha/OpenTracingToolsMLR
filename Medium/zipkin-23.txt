@@ -1,0 +1,41 @@
+The Art of Tracing in the world of microservices
+Bhavani Ananth
+Bhavani Ananth
+
+Jun 8, 2019·4 min read
+
+
+
+
+The world of microservices is like a maze where one can easily get lost. Unlike monolithic systems, microservices ecosystem is more complex with many moving parts and disparate modules. Typical challenges faced by organizations adopting microservices are manageability, dependency management, increased failure points, trace-ability of service transactions, disparate logging sources and service request correlation to name a few.
+This article discusses some of these challenges and potential solutions to address them using open source technologies. The current article discusses the challenges associated with tracing in the context of disparate services interacting with each other.
+Challenges with tracing
+‘Tracing’ brings forth a plethora of challenges with each challenge posing more questions. Some of the challenges are as follows:
+1. Root cause analysis: As the number of services increase, it is extremely difficult to perform the root cause analysis. Given the volatility of service runtime and location independence, finding the service dependencies for a given request is a challenge. In such a scenario it is all the more relevant to answer the following — What is the big picture? How many services are there and how are they interdependent?
+2. SLA management across services: Ability to analyze a specific service behavior and violations of SLA parameters at any given point in time is a challenge. Therefore it is important to know — What Service Level Objectives are getting violated in a sea of disparate services interacting with each other?
+3. Business context propagation across services: In a typical microservices world, how is the business context propagated between services?
+4. Integrated traceability management across legacy and new age digital ecosystems: What if the enterprise is dealing with a mix of micro services and legacy systems? How is the context propagated between legacy services to micro services?
+5. Non-standard log formats: Most of the applications use their own custom tracing frameworks to correlate information across subsequent service calls and don’t conform to common standards within the enterprise. How should this dichotomy be handled — custom frameworks vis-s-vis standardized frameworks?
+6. Lack of correlation metadata in existing legacy services: Legacy applications use their own custom tracing frameworks without any means of correlation between subsequent service calls. How do we achieve traceability here?
+7. Poly-cloud traceability management: In a multi cloud enterprise how do we address the interesting challenge related to end-to-end traceability across services?
+From above, it is clear that there is a need to enhance existing tracing capabilities across services and to additionally capture contextual data related to the application performance and other useful metrics. This is where Distributed Tracing comes into the picture — something akin to leaving breadcrumbs while a request hops through different services.
+Distributed Tracing
+Observability in the context of monitoring comprises of metrics, logs and tracing.
+Distributed tracing, an important pillar of Observability, is used extensively for debugging and monitoring distributed software architectures such as microservices. It is especially useful in pinpointing latency issues in microservice architectures.
+Distributed Tracing — Mechanisms
+Non-intrusive tracing
+Nonintrusive or Zero touch mechanisms trace the request flows, analyze and debug the performance of the services without requiring any modification to the source code. These mechanisms are especially useful in managing Legacy services — i.e. services where logs are available but do not have intricate details (such as trace Id or correlation Id) for correlating across the business flows.
+Nonintrusive tracing mechanisms use a combination of statistical and AI/ML techniques on these logs to discover the service interactions, the dependencies and the performance metrics associated with each interaction. There are not many matured frameworks in this category.
+Refer the following paper for insights into one such non-intrusive distributed profiling tool called “lprof” https://www.usenix.org/system/files/conference/osdi14/osdi14-paper-zhao.pdf
+Intrusive tracing
+Distributed tracing mechanisms that fall under the ‘Intrusive’ category require some amount of additional instrumentation using frameworks like Zipkin, Jaegar, etc. This approach requires modification to existing services, and can be easily enabled in Greenfield services — i.e services which are implemented from scratch using new age frameworks like cloud-sleuth for zipkin. Similarly, the same approach can be applied in Brownfield services — i.e. services which are undergoing minor repackaging or refactoring with inbuilt mechanism to log trace details across business flows.
+Intrusive tracing mechanisms can be further classified as follows:
+One-plus configuration
+In this category, the application source code needs minor refactoring to include the libraries, or dependencies to be added across modules. It might also need some base code changes to generate meaningful instrumentation. eg adding zipkin to spring cloud project entails adding zipkin dependencies to the pom.xml file
+Zero touch configuration
+This category requires zero changes to be made in the application source code. But they are not non-intrusive as they might require e.g. process id to be attached to the java agent (and probably restart of the software application). One such tool is java Agent InspectIT Ocelot that uses Java byte-code manipulation to set up the OpenCensus instrumentation library with zero-configuration. It just requires the java agent to be attached when starting the respective java application.
+Conclusion
+Distributed tracing tools are an indispensable part of the Observability toolkit in any organization embarking on microservice adoption. These tools enable the teams to debug performance issues and view the dependency graphs- thereby saving a lot of time and effort during root cause analysis.
+However, there is always the other side to the coin. A business user might find the traces too technical and hard to understand. Added to that is the innate ‘Sampling’ employed by Open tracing tools. There is a possibility that only a small portion of all requests are collected and therefore the complete view could be missing.
+Would it not be interesting to have mechanism in place that caters to both IT and business? Let’s explore this and more in my next blog
+Disclaimer: The views expressed in this article are mine and my employer does not subscribe to the substance or veracity of my views

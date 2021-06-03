@@ -1,0 +1,106 @@
+Comparison of Log Aggregation & Analysis Tools
+Logs tell us important stories, but they also ramble a lot. If we can’t find a log it is as if we didn’t log it.
+Oliver de Cramer
+Oliver de Cramer
+Follow
+Oct 21, 2020 · 9 min read
+
+
+
+
+
+
+https://imgflip.com/
+In my last 2 articles about maintenance, we have talked about properly handling exceptions and how to log properly. Both subjects are simple enough, but done improperly will make our application unmaintainable.
+In this article, I won’t explain how to configure these log aggregation and analysis tool. We rather are going to see the difference between the various tools I have tested. This way we can choose which tool we wish to have. There is plenty of tutorials on how to set up the tools.
+Why aggregate logs
+If we can’t find something it is as if we didn’t have it.
+It is true for things we own, it’s also true for logs. For most small applications we can search and find logs using a simple grep command on the server. Most often this is enough. But when we start having multiple files and multiple servers, with thousands of users, finding the right log might start to become a problem. Log aggregation will help us find these logs.
+Errors/Exceptions; are usually easy to find; because we often have one error repeating itself; or a single error log that’s easy to find. In this case, finding the log and fixing the issue shouldn’t be hard. But this means that either someone checks our error logs manually, or someone has noticed the error and is complaining. Log aggregation will allow us to see if there have been any errors and with some tools even alert us.
+What aggregation also allows us to do, is statistics. As discussed in a previous article, this will allow us to understand the impact of a particular error or log. If our website registers thousands of orders per day and we have a single order in error; even if the error is important the issue is not critical.
+How to aggregate logs
+There are 3 steps to log aggregation:
+The first step is to have a storage solution. We can’t just store logs in files anymore; we need something more. In this article, we will discuss 3 solutions. Elasitcsearch, Loki & Datadog
+The second step is to tail the logs to send it to our storage of choice. This step could be removed if the application sends its logs directly to our storage. I have never used this technique as I don’t think that the application should depend upon another service for logs. I rather use a tailing agent that reads the log files written by the application. We are going to talk about 3 solutions for this; Filebeat, Promtail, & Datadog Agent
+Finally, we need a visualisation tool, a tool that allows us to easily search the logs, make statistics and even alerts. 3 other solutions are present here; Kibana, Grafana & Datadog
+Datadog is a SASS tool that takes care of both the visualisation and the storage. It is plugged to the Datadog agent that fetches the logs (and other metrics) on the server it is installed on. Most of the configuration is done directly in the interface once the agent is installed.
+Elasticsearch, Filebeat and Kibana are all 3 tools made by Elastic.co.
+Loki, Promtail and Grafana are all 3 tools made by Grafana.
+We actually can intermix the Grafana & Elastic.co solutions. Datadog stands apart as a SASS solution. Grafana can use both Loki and Elasticsearch as a data source but some features are more limited when using elastic search.
+Before continuing I would like to point out that I am going to compare these tools from the perspective of a developer and not a DevOps. Loki for example has a few compromises that will allow it to be lighter to host compared to an Elasticsearch.
+Also, for the second step of tailing the logs, there are more generic solutions such as Fluentd that can be used to populate both Loki & Elasticsearch.
+Our contenders
+The software used to tails the logs has little impact on the final results and as we are focusing on the developer aspect we will ignore them.
+Our contenders are :
+Elasticsearch for storage & Kibana for visualisation.
+Elasticsearch for storage & Grafana for visualisation.
+Loki for storage & Grafana for visualisation.
+Datadog.
+Comparison
+Here we can see a list of features and the support for these features by the combination of our tools. Let’s look closer.
+
+Parsing context
+Logs contain multiple information, a date, a level, a message. It also should contain a context. This context is what gives meaning to the log. If an order can’t be captured we should log “Order can’t be captured” and put the order id as well as any additional information in the context.
+It is therefore important to be able to read the data but also to parse it so that we can query it and use it instead of it just being a string where all the data is dumped. If you use Monolog in php this will be a json at the end of the log.
+All the tools we tested with the proper configuration will allow the information to be accessible.
+For Elasticsearch used file beats we need to add an ingest.
+For Loki, it needs to be parsed by the tailing agent
+For Datadog this is done directly in the applications web page.
+Dynamically taking context into consideration
+Our storage solutions require to be configured to make use of our fields in the context. For example, we need to define “order_id” as an int.
+For Elasticsearch + Kibana this can be done very easily through the interface. A button even allows the mapping to be updated automatically based on the existing data.
+For Grafana with Elasticsearch, it’s slightly more complicated. We will need to make a query manually to Elasticsearch to update the index configuration.
+For Loki and Grafana, you need to change the configuration of the tailing tool. Which makes it the harder of the 4 to configure. To add to the complexity fields extracted from the context can be just “visible” or filterable depending on the configuration.
+For Datadog, this can be easily configured on their website.
+Taking context into consideration for older logs
+Does changing the configuration affect older logs? This can an interesting feature if we forgot to update our tool after adding additional data in the context.
+This feature is directly related to the storage solution.
+Both Loki & Datadog will take the new “mapping” into account for new logs only.
+Elasticsearch on the other hand will do the changes on all the logs of the current index. This means(depending on your configuration) for logs written the same day. But you can force it on the older indexes if you need it, but that will require you to manually do queries.
+Searching logs with keyword
+All of our tools have dedicated interfaces for searching through logs.
+The only exception is the combination of Grafana with Elasticsearch. Grafana’s log exploration interface is only compatible with Loki.
+Grafana’s interface is also less practical in my opinion. In requires us to have at least one filter element in place. It limits the number of results making it difficult to zoom into a particular timeframe.
+
+The graph’s in Grafana are “truncated”.
+In this particular example, we might think that there are nogs logs before 11h45. That’s not true it’s just that the graphic displays only the last 1000 logs.
+By comparison, Kibana will show a complete graph.
+
+Kibana on the log search page showing a complete graph of all logs.
+Searching logs with precise search terms from the context
+Beside our Grafana & Elasticsearch duo; all tools allow us to search in data from the context. For example, we can find all logs concerning a certain order.
+Once again Grafan’s interface is lacking. Datadog & Kibana, both have facets that make seeing the values that might concern us much easier.
+
+The Kibana facet view is very useful
+We can quickly see information from our context. And can add filters to narrow our search.
+So even though Grafana allows us to filter data it doesn't give us this facet view that makes applying filters easier.
+Visualizing logs with graphs
+Visualising log rates with a graph can be practical to understand the error by bettering visualising its occurrences. It can also allow us to better assess the criticity of the error.
+For example, Magento logs every time it purges a cache from varnish. This can allow us to diagnose slowdowns.
+All three of our solutions allows us to make such graphs.
+Creating graphs from context data
+We can visualise the error rate but what if we could use the context data as well for our graphs. For example; on an e-commerce website we could visualise the number of errors per country.
+According to the documentation, it’s not possible to do this with Loki & Grafana. But the feature is currently being developed and it’s actually possible to use.
+This can be done by configuring the Loki server as a Prometheus data source in Grafana. So the Loki data source is configured 2 times. Even though this works; I encountered a lot of issues with the Prometheus queries:
+There are different behaviours, valid Prometheus queries don’t always work.
+All Prometheus aggregations have not been implemented.
+The aggregations don’t work correctly. It gives a good view of what’s on with the order of magnitude visible. But the exact numbers don’t always match.
+Random errors that go away by re-executing the same query a few seconds later.
+Grafana with Elasticsearch works very well; as well as Kibana. Datadog has a few limitations as some graphs can’t use context data but is still a strong contender.
+Alerting from aggregations
+Now that we have graphs we could use the aggregations to automate alerts. This is can be a quick and dirty way of making a critical problem manageable.
+If we have shipping issues for example for 1 order nearly every day. If we can alert the person responsible and give him the necessary information; he can then contact the client, manually fix the order until we fix the issue properly. It gives us alternatives; it gives us time.
+Grafana allows us to configure alerts with both Elasticsearch & Loki. When using Loki, as for graphs, we will need to configure it as a Prometheus source for the alerting to work.
+Datadog allows alert’s as well.
+Kibana has no alerting.
+User accounts
+Finally the possibility to create accounts and limit user privileges. This is interesting when we have people of different profiles checking our tools. Our client for example might have his own dashboard that he manages and we have our own that he can see but not modify.
+Grafana is the most complete solution; we could even use a single Grafana for multiple clients/websites and separate accesses properly. Permissions can be configured per dashboard and also per source.
+With Datadog we will be able to have multiple accounts but we can’t set up permissions per dashboard. So our client would have read-only access and we would need to create graphs and dashboard for him if we wish to prevent him from changing our own dashboards.
+Finally; Kibana. Kibana has no user support. By default, it’s public and everyone can connect to it. We can add some privacy by putting it behind a proxy but there won’t be a per person permission setup.
+My opinion
+If we do not want to use a SASS solution; I think Kibana + Elasticsearch is the easiest to set up and is the most practical. Kibana’s interface for searching is very good, and creating graphs is easy. Nevertheless, it’s missing 2 important features:
+User accounts
+Alerting
+Therefore if we need one of these features I would also add a Grafana. In which case we would only use Kibana to configure the indexes & to search the logs and use Grafana for the graphs and the alerts.
+If we have the budget and are okay to use a SASS solution; I think that Datadog is very easy to install and it’s pricing is very reasonable.

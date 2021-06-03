@@ -1,0 +1,53 @@
+Observability for front-end web clients with OpenTelemetry and Jaeger in 5 minutes
+Daniel Wild
+Daniel Wild
+
+Oct 28, 2019·3 min read
+
+
+
+
+This is a super-alpha-example-only*, intended as a proof of concept for integrating observability tools into a front-end web application.
+*OpenTelemetryJS and many related tools are in ALPHA at time of writing, in addition, the below example hacks around some yet-to-be-implemented components for the sole purpose of demonstrating the tools we will likely be using a little further down the track! (more on this in Notes section at the end).
+In short — lets focus on the concepts, not the implementation 😬
+Observability?
+O’Reilly have a nice writeup here — but put very simply, it refers to the utility provided when you combine the three pillars (as defined in Distributed Systems Observability by Cindy Sridharan):
+Logs:
+“An event log is an immutable, timestamped record of discrete events that happened over time”
+Metrics:
+“Metrics are a numeric representation of data measured over intervals of time.”
+Traces:
+“A trace is a representation of a series of causally related distributed events that encode the end-to-end request flow through a distributed system.”
+This article relates to the integration of tracing into front-end web applications (e.g. React apps).
+The tools
+OpenTelemetry JS: is the (alpha) JavaScript version of OpenTelemetry, a framework for collecting traces, metrics and logs from applications.
+Jaeger: provides “open source, end-to-end distributed tracing. Monitor and troubleshoot transactions in complex distributed systems”
+Step #1: run all the Jaeger things:
+# yes this example uses docker, cos, easy
+docker run -d — name jaeger -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p 5775:5775/udp -p 6831:6831/udp -p 6832:6832/udp -p 5778:5778 -p 16686:16686 -p 14268:14268 -p 9411:9411 jaegertracing/all-in-one:1.14
+Open Jaeger UI: http://localhost:16686/
+Step #2: run a CORS proxy
+docker run -p 8888:3000 psimonov/cors-anywhere
+Step #3: clone demo repo
+git clone https://github.com/danwild/opentelemetry-js.git
+Step #4: build packages and example
+# core repo
+cd opentelemetry-js
+npm install
+# crude demo exporter
+cd packages/opentelemetry-exporter-zipkin-web
+npm install
+npm run prepare
+# crude demo web app
+cd ../../examples/tracer-web-jaeger
+npm install
+npm start
+Point your browser at: http://localhost:8090 to run the demo traces + export.
+Step #5: explore Jaeger UI
+Refresh http://localhost:16686, and you should be able to see your service:
+
+Finding your service via the Jaeger UI
+Once you select your service, hit “Find Traces”:
+
+List of traces matching search params in Jaeger UI
+Then select a trace to explore it’s spans in more detail:

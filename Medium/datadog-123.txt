@@ -1,0 +1,43 @@
+How to Make Metrics for Business People and Why Should I Care?
+Pattern Match
+Pattern Match
+
+Mar 16, 2018·6 min read
+
+
+
+
+By Pattern Match | March 16, 2018
+
+Introduction
+In this short post we would like to share our experiences regarding large systems monitoring. The focus however will be put on cooperation between dev/devops and business. Why is this important? Why should we care? Is it worth it? Are there any obstacles or pitfalls? Let’s dive into what we think are best practices and see how they finally work out.
+Best practices distilled
+Present data in concise and clear manner, ideally aggregated. Show data aggregated from last hour, day, week or month depending on your needs. If possible allow to select time period (timeline) but don’t overdo it.
+Try to avoid timelines in business dashboards. Timelines are important for your (as developer/operations) daily work: when hunting for bugs, preparing post-mortems, finding correlations or searching for so much desired reasons of change (most probably not expected :) ).
+In some very special cases make an exception and display timeline on business dashboard. When some metric is very dependant on other one and business people know about that relationship and specifically demand it, only then add such graphs.
+Allow to drill down and have more detailed data ready. Do not overwhelm on main metrics pages. Such more detailed views are crucial to you as well. They allow to quickly get more insights about current system performance and potential problems.
+Prepare for questions. A lot of questions. You will need to work with business people and explain a lot. It works the other way too, you will need to extract details about business needs and goals. If this is not your cup of tea, leave metrics management to someone else.
+If you can attach documentation for the metrics, do it. Create such documentation no matter what — you will be asked the same questions over and over again by different people — it will be very handy to just open it up and read it or just pass the link. You will be creating presentations. We are using Datadog for monitoring and there is a concept of Notebooks with which you can combine markup documentation with interactive graphs — perfect tool for business dashboards.
+If you break something — take responsibility, mark it clearly on the dashboards (you can label it with text invalid for example, or hide it completely). And most importantly communicate. It builds trust and shows that you care. Remember — invalid data is worse than no data at all.
+When presenting current value of some metric, so basically taking into account near real time, very recent data, you must be prepared for some spikes. They may be related to spikes in traffic, cluster restart/deployment etc. — just prepare business people for such cases. Calm them down as they can get worried unnecessary.
+Keep descriptions clear and simple. Do not make anyone to guess what is being presented. Plainly describe each value. If you are conducting A/B testing, make sure the two streams are nicely labeled. Common trait of good metric? You have to be able to explain it within one sentence without ambiguity. It’s easy to achieve when the metric is a ratio, percent or interest rate.
+
+An example showing dashboard with business metrics
+Keep technical names away. Do not show host or any other infrastructural names. Try to use labels that are being used by business people, even if code uses different ones (We know, it should never happen, but…yeah). In Datadog you can easily name your metric by assigning it an alias. Do not hesitate to use it.
+Try to keep relevant and logically connected data together and keep such clusters as a separate dashboards. Of course there are exceptions — sometimes two or more clusters together, as overview, must be presented side by side to quickly provide some answers. In that case think about what you can remove from clusters to focus on important aspects.
+Try to understand business needs thoroughly — what are the goals, KPIs (Key Performance Indicators), reference point? Does business want to just see some data to know how the system behaves? Or do they want to know some very specific detail, like revenue on particular time of the day in particular region? It is a mistake to just dump all the data you have — it quickly loses necessary focus and stops being visited. If there is a need to fish, to skim the data in searching for some relevance, still try to at least distill some top level business goals that are currently strategically executed — you will need to talk, maybe talk a lot but it will pay off.
+Extending previous point, beware of Vanity Metrics (https://fizzle.co/sparkline/vanity-vs-actionable-metrics) — try to really understand what is meaningful and actionable. It can really be addictive to watch metrics all day long but what if they don’t matter?
+Be very careful when you modify, delete or add any new metrics..or just make any code changes in business logic or processing. Test the changes well and be the first to monitor metrics after deployment. Make sure you have additional technical metrics at hand. You do want to quickly react in case of any failures — in that case no data is better than incorrect data.
+Create detailed technical metrics. They can be invaluable for you and ops. They allow fast reaction times to issues and shorten debugging time as usually you can quickly pick out the culprit. Eliminate false positives immediately, modify alarms that create a lot of noise and for which you can see that they quickly get ignored. You monitoring system must be actionable.
+
+An example taken from Datadog blog which shows some more advanced technical metrics dashboard. Invaluable to developers, not so much for business guys
+Offer your help with creation of any new dashboards. Such need may arise if communication and understanding is at high level. And this is good because basically you have created a successful business intelligence platform.
+Do not create and maintain your own monitoring system — buy SaaS one. Focus on business value and not on fighting with keeping your own system working, be scalable and up to date. You will quickly find out that you would like more and more data and your monitoring system cannot be a bottleneck. We are using Datadog to gather data from a couple of thousand applications and it is doing very well.
+Why does it all matter?
+Well, mainly because it allows business people to make better decisions…or make decisions in general. They allow to constantly monitor ROI which can have good psychological effect as well.
+Moreover, lack of metrics could easily postpone or even make impossible for certain actions to be executed.
+Good metrics allow to observe changes to the system, to see how they affect revenue or any other important indicator. Then proper decisions can be made — drop the feature or continue..or modify and reevaluate? Without metrics such features could well be dropped without evaluation, without a try.
+Most of these best practice points are aimed to create good working relations between devs, ops and business. They help build mutual understanding, trust, respect and communication. You, as a developer don’t like to hear that something is wrong or something is not working (we all have heard it before) — it is much better to hear that such and such metric is at suspicious value and then investigate while being on the same level.
+Good metrics systems give the feeling of system stability, when everyone interested knows about current system status. It doesn’t matter if you manage 2 or 2000 servers — you need to have good metrics and monitoring system in place. Actually, for 2000 servers this is necessary, no questions asked, but if you will think about all of this when you have only 2 servers, then you are perfectly ready for the future. You know exactly what is going on and why and it is much easier to upscale. Who doesn’t like to have relevant information at the right time? We know we do!
+Here at Pattern Match we are highly experienced with monitoring and keeping tight operations for massive scale distributed enterprise applications. The best reference for us is that most of the time we know about problems before client does. We can help you write scalable solutions hosted in public cloud. We hire only engineers with 8+ year of experience. We are experienced in many languages and tech stacks. We are happy to help you architect, prototype, implement and scale your software. We are full-stack employees, not developers.
+If we gained your attention, and you would be interested in working with us, please drop us a line here.

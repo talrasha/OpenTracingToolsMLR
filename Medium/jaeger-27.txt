@@ -1,0 +1,65 @@
+Traefik 2 and Open Tracing
+Trace Incoming incoming requests and visualize the requests flows
+Al-Waleed Shihadeh
+Al-Waleed Shihadeh
+
+Apr 28, 2020·5 min read
+
+
+
+
+
+Photo by Marten Bjork on Unsplash
+One of the challenges of running microservice architecture software is to be able to trace requests between the hosted services including the reverse proxy or the load balancer. This feature is very helpful for improving the effectiveness of the operation shifts and provides the SRE engineers with all the needed information for investigating incidents on the production environments.
+While using the “X-Request-ID” header and pass it to the called service can help in correlating the logs from the involved services in responding to a single request, It does not provide the needed information about the flow of the request. In other words, The “X-Request-ID” can not tell which service called which service. Comparing the timestamps of the logs can helps in getting this information. However, It will be a lot of effort and it will not be accurate always.
+Another way to trace web requests flows is my implementing and using OpenTracing frameworks, libraries, and tools for tracing web requests between microservices.
+OpenTracing is comprised of an API specification, frameworks and libraries that have implemented the specification, and documentation for the project. OpenTracing allows developers to add instrumentation to their application code using APIs that do not lock them into any one particular product or vendor.
+https://opentracing.io/docs/overview/what-is-tracing/
+OpenTracing supports several programming languages such as Go, Ruby, and Python (The full list can be found here). In addition, several tools and third party services are already implying and supporting OpenTracing.
+One of the tools that support OpenTracing is Traefik which is a reverse proxy and load balancer. In this post, I will review and demonstrate Traefik operating support.
+Traefik OpenTracing Support
+The main idea behind OpenTracing is built around two fundamental types:
+Span: is the basic object of a distributed trace. The span represents an action or event occurred during serving the request. It also encapsulates all the needed information regarding the action such as the start time, end time and attached tags. A distributed trace of a given request consists of one or more spans.
+Tracers: These are applications that are responsible for creating and updating spans. These applications can be used also to visualize the collected spans or traces. Each of the tracers compatible with OpenTracing API must provide clients to be integrated with services and collect the span data. Example of such applications Jaeger and Zipkin,
+Traefik supports several OpenTracing backends or tracers such as Jaeger, Zipkin, Instana, and Datadog. That means Traefik is utilizing several tracer clients and can be configured to publish events to different OpenTracing backends based on the needs of the project.
+Implementation
+In this section, I will present how to use the open tracing feature from Traefik with two different backend Jaeger and Zipkin,
+Common Configuration
+The below configurations are common and applies to all the supported backends. The first items set the service name on the backend application, spans and traces can be searched based on this value. The second item allows the truncation of the span names in case they exceed the defined length. The 0 value can be used to disable this feature.
+
+Zipkin
+Below is all the Traefik configuration that can be used to integrate Zipkin with Traefik. The Configuration items include:
+zipkin: Enable Zipkin as a tracing backend.
+httpEndpoint: setting the Zipkin endpoint used for collecting the events.
+sameSpan: Use Zipkin SameSpan RPC style traces or not.
+id128bit: Use Zipkin 128 bit trace IDs.
+sampleRate: a value between 0 and 1 that represents the rate of the traced requests. This is helpful in case we need to trace only a percentage of the requests and not 100% or the requests.
+
+After deploying Traefik with the above configurations, we will start seeing that Traefik added a set of HTTP headers to be able to trace the request and pass it also the backend service so they can contribute to the trace information in case they are also supporting OpenTracing. The below Image show the added headers
+
+The below image shows the Zipkin web interface, form this UI it possible to perform the following actions
+Search for a specific request trace
+View The trace tags and other details.
+View the trace flow and the component or services involved in serving the request. For instance, as shown in the below image we can see the involved middleware and the entry points in serving the requests.
+
+Jaeger
+Jaeger is the default tracing backend for Traefik. Below is all the Traefik configuration that can be used to integrate Jaeger with Traefik. The Configuration items include:
+jaeger: Enable Jaeger as a tracing backend.
+samplingServerURL: The Jaeger sampling server URL.
+samplingParam: The enabled sampling strategy, supported values are constz: 0 or 1 value that specifies either sampling or not. probabilistic: sampling based on a percentage value ranges between 0 and 1. rateLimiting: sampling a specific number of requests per second.
+localAgentHostPort: Jaeger agent address (IP + port) that will be used to send data to it.
+gen128Bit: Boolean value to enable generating 128-bit trace IDs. This is optional.
+propagation: Propagation header type either b3 or jaeger.
+traceContextHeaderName: The HTTP header name used for the trace id.
+endpoint: The jaeger collector URL (Optional).
+user: Jaeger user (Optional).
+password: Jaeger Password (Optional).
+
+After deploying Traefik with the above configurations, we will start seeing that Traefik added the defined jaeger HTTP header to be able to trace the request and pass it the backend service so they can contribute to the trace information in case they are also supporting OpenTracing. The below Image show the added header.
+
+One difference between Zipkin and Jaeger is that Jaeger uses one HTTP header for defining the trace span while Zipkin is using several HTTP headers for defining the trace span. Another difference is the Backend UI. Jaeger UI is more friendly and supports more features such as trace filtering and comparing different traces. The below image shows the Jaeger interface and how the spans are viewed on the UI.
+
+Below is the docker swarm stack that I used to deploy Traefik with Both Zipkin and Jaeger.
+
+Conclusion
+Distributed Tracing is very helpful for debugging and monitoring modern distributed software architectures, such as microservices. Trafik supports several OpenTracing backends and it provides straightforward and simple configurations for integrating Traefik with these backends.

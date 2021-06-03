@@ -1,0 +1,31 @@
+Switching monitoring from DataDog to Librato
+Sorin Ionuț Sbârnea
+Sorin Ionuț Sbârnea
+Follow
+Oct 7, 2016 · 4 min read
+
+
+
+
+
+I discovered DataDog monitoring services while I was working at Citrix as part of the DevOps team. We needed a system monitoring solution that was flexible and easy to use, one where anyone could add or remove hosts or alerts.
+The department that was supposed to provide us with such an infrastructure kind of service failed to provide one so we looked around and ended up picking a hosted service, DataDog.
+DataDog provided excellent support, and the overall user experience with their platform was a pleasure too. It would be impossible to compare it with Nagios, Zabbix and the other similar solutions born in the dark ages of the system administration.
+Still, there was a problem with DataDog, its price tag: $15/host/month. If you use it to monitor critical services running on expensive machines that would be ok but we are talking about times where VMs can make it very expensive. So, we limited its usage to only a few sensitive hosts. Yep, due to its costs, DataDog was not able to entirely replace other monitoring systems.
+As at the beginning of 2016, I decided to try the startup life, and I ended up working for a promising startup in London. It took just one day to deploy it there entirely. Everyone was happy.
+After getting a quite expensive bill from DataDog in August and September, we decided that we need to identify a less expensive solution. I don’t want to have to disable monitoring on some hosts or environment to keep costs under control.
+That’s how I found Librato, a service that is remarkably similar to DataDog but that has better pricing model: they charge you per metric monitored. Instead of paying a fixed fee per host, you pay for the amount of data you store on their servers. This model allows you to tune your monitoring to your needs.
+With the default deployment settings, Librato was only about 20% less expensive per host than DataDog, but this was before I started to filter out the noise (monitored metrics that we didn’t need).
+Two weeks later, the costs were approximative only 1/5 of the DataDog ones, yes 80% less! I am still surprised about this; my target was to cut monitoring costs per host to only about 50%.
+I need to mention that it took me less than two days of work to learn how to stop measuring some metrics twice as many of them can be recorded using AWS integration instead of using the agent. As a result, we had a complete Ansible role for deploying the tuned monitoring agent to our hosts.
+In case you were wondering why we were just using CloudWatch for monitoring AWS. CloudWatch is cool and really useful but is not a full monitoring solutions, is more like a half baked one. Librato is able to get data from CloudWatch but you cannot really do monitoring with only CloudWatch. Well, AWS will tell you that you can but they fail to tell you that you would have to hire a team of developers for writing and maintaining the missing bits.
+Another benefit of using Librato is that their agent is collectd which is entirely open source. Collectd can be used to report data to any other monitoring platform, meaning that you are not locked-in by Librato.
+I like the idea that the time invested in adding monitors for additional metrics would not be wasted if we decide to switch to another service.
+While DataDog has its agent written in Python and open source you will not be able to use without their platform.
+I have to say that I observed that unless you are a key customer (massive monthly bills), you will not be able to get much attention from DataDog team. In fact, the usual answer is that they may get your contributions if you make them. Sorry guys but even if I still have your stickers on my laptop, I would not be very keen to spend my time coding for free for growing your business.
+Librato, being a challenger in the monitoring market, seems to be considerably more open to implementing missing features. I was pleased to be able to get an estimate regarding when they think they will implement a particular feature, something I was never able to get from DataDog.
+One thing that I like about DataDog is that they have an open issue tracker for their agent on GitHub. Librato also has one open issue tracker. Before making a decision you may want to have a look at both of them and see how fast they are dealing with bugs and feature requests.
+For those that are already using DataDog, I should mention that their service is clearly more feature rich and more polished than Librato. Still, if I would have to put a price on the additional functionality, it would not be more than 20% and is the kind of bells and whistles that are not deal-breakers.
+The reality is I would probably enable Librato even for my personal “infrastructure”, seems to be too cool not to do so.
+I hope that the DataDog guys will not hate me for writing this article. Both of these services are wonderful and if you are not using one of them you are probably making a big mistake.
+If you still have nightmares about having to deal with Nagios, Zabbix or raising a ticket for making a minor change on monitoring maybe is time to make your old-school sysadmin… less confident about his future ;)

@@ -1,0 +1,78 @@
+Using Jaeger with Eclipse Che
+Gary Brown
+Gary Brown
+Follow
+Oct 31, 2019 · 4 min read
+
+
+
+
+
+As explained on the Eclipse Che website, “Che brings your Kubernetes application into your development environment and provides an in-browser IDE, allowing you to code, build, test and run applications exactly as they run on production from any machine”. However when deployed in your production environment, those same applications can be monitored using observability tools to understand their performance to help inform future improvements. Wouldn’t it be nice if we could also leverage these observability tools within the Che development environment, to identify these improvement opportunities before rolling out the changes to a test (staging) or production environment?
+In this blog post we will show how simple it is to add Jaeger to your development workspace and observe how your application performs. We will use che.openshift.io as the hosting environment, although you could setup a local Che server.
+Create the Workspace
+Che 7 introduced the capability to define a development workspace in a yaml format called a devfile. Example devfiles can be found in the Red Hat Developers GitHub organization.
+For this post, we are going to use a modified version of the Spring Boot getting started devfile that adds the Jaeger all-in-one backend to the workspace. The main change is to add the following section just before the commands top level node:
+-
+    type: dockerimage
+    alias: tracing
+    image: jaegertracing/all-in-one:latest
+    env:
+      - name: MEMORY_MAX_TRACES
+        value: "5000"
+      - name: COLLECTOR_ZIPKIN_HTTP_PORT
+        value: "9411"
+    memoryLimit: 128Mi
+    endpoints:
+      - name: 'tracing-ui'
+        port: 16686
+      - name: 'collector-grpc'
+        port: 14250
+        attributes:
+           public: 'false'
+      - name: 'collector-http'
+        port: 14268
+        attributes:
+           public: 'false'
+      - name: 'collector-zipkin'
+        port: 9411
+        attributes:
+           public: 'false'
+      - name: 'agent-config'
+        port: 5778
+        attributes:
+           public: 'false'
+      - name: '6831/udp'
+        port: 6831
+        attributes:
+           public: 'false'
+      - name: '6832/udp'
+        port: 6832
+        attributes:
+           public: 'false'
+    volumes:
+      - name: tmp
+        containerPath: /tmp
+The modified version of the devfile can be found here, with some additional memory limit changes required when using with che.openshift.io.
+To start the workspace on che.openshift.io, open a browser (Chrome recommended due to issue on some versions of Firefox), with this url.
+Add OpenTracing instrumentation
+When the workspace is initially opened, there is no OpenTracing instrumentation of the application.
+
+OpenTracing instrumentation can implicitly be added by including a dependency on opentracing-spring-jaeger-cloud-starter as shown in the updated pom.xml below, along with updating the spring-boot-starter-parent version to 2.2.0.RELEASE (required by the OpenTracing instrumentation).
+
+This dependency automatically instruments the inbound and outbound HTTP requests. It also bootstraps the Jaeger tracer to report the tracing data to the Jaeger backend (included in the workspace). The default configuration of the tracer will report the data via UDP to the Jaeger agent, although the application can be configured to report the data via HTTP directly to the collector.
+
+The final step is to add a property that will define the service name within the tracing data. This is achieved by creating the src/main/resources folder and then create a file application.properties with the contents above.
+Tracing the running application
+On the righthand side of the workspace is a cube symbol that when selected causes a tree to be expanded. Under the User Runtimes/tools tree node is a task called run webapp. Selecting this option will run the Spring Boot application. When started, a window will appear with a button Open Link. Press this button to start a browser for the application.
+
+In the same tree, select the User Runtimes/tracing option tracing-ui which will launch the Jaeger UI in a separate browser tab.
+
+Press the refresh button at the top of the browser a couple of times to see the text Span reported in the console window.
+
+Change to the Jaeger UI tab to see the resulting traces that were reported from the application.
+
+
+Summary
+This post has demonstrated how OpenTracing with Jaeger can easily be introduced into an Eclipse Che workspace, to allow a developer to obtain tracing information from their application during development.
+Although this particular example is simple, only capturing tracing from a single service, the benefit offered by Che is to enable complete applications (multiple services) to be used within the same workspace — thus producing more interesting traces, and enabling the developer to understand the performance of their developed service in the context of the complete application.

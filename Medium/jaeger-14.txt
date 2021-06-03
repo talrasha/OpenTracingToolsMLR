@@ -1,0 +1,105 @@
+Creating a custom jaeger plugin to Monitor and troubleshoot complex distributed systems.
+As on-the-ground micro-service practitioners are quickly realizing, the majority of operational problems that arise when moving to a distributed architecture are ultimately grounded in two areas: networking and observability. It is simply an orders of magnitude larger problem to network and debug a set of intertwined distributed services versus a single monolithic application.
+Joshua Isaac
+Joshua Isaac
+
+Nov 21, 2020·4 min read
+
+
+
+
+
+Continuing from the previous gateway service tutorial, we can now know howto implement open tracing to our application.
+Why open tracing?
+Jaeger terminology and components
+Just to recap to another article. Jaeger presents execution requests as traces. A trace shows the data/execution path through a system.
+A trace is made up of one or more spans. A span is a logical unit of work in Jaeger. Each span includes the operation name, start time, and duration. Spans may be nested and ordered.
+Jaeger includes several components that work together to collect, store and visualize spans and traces.
+
+Jaeger Client includes language-specific implementations of the OpenTracing API for distributed tracing. These can be used manually or with a variety of open source frameworks.
+Jaeger Agent is a network daemon that listens for spans sent over User Datagram Protocol. The agent is meant to be placed on the same host as the instrumented application.
+Jaeger Collector receives spans and places them in a queue for processing.
+Query is a service that retrieves traces from storage.
+
+Jaeger Console is a user interface that lets you visualize your distributed tracing data.
+Prerequisites:
+Creating a gateway service with node js, typescript and fastify.
+In this article we are going to create a gateway service that will serve all future micro-services that we will learn…
+jsisaacdev.medium.com
+
+Create a folder called tracer and in it create a logger.ts. create a logger function that will receive a span, an event and data obtained from our response.
+export function logger(span, event, data) {
+    span.log({ event: event, value: data })
+    span.finish();
+}
+export function head(request, name) {
+    let ctx = request.ctx;
+    return  ctx.tracer.startSpan(name, { childOf: ctx.span });
+}
+create a tooling.ts
+import fastify from 'fastify';
+import {Span, Tracer} from 'opentracing';
+export default async function(req: fastify.FastifyRequest, res, next){
+
+const ip = req.ips;
+let source = req.headers['user-agent'] || ''
+
+if (req.headers['x-ucbrowser-ua']) {  //special case of UC Browser
+    source = req.headers['x-ucbrowser-ua'];
+}
+const tracer = req['jaeger']().tracer as Tracer;
+const span = req['jaeger']().span as Span;
+req['useragent'] = {
+    ip: ip,
+    userAgent: source
+}
+req['ctx'] = { span, tracer }
+return
+}
+How to use it in your service
+Let us get started by importing our library to our service in the server.ts file: The custom plugin file can be found and downloaded in github in the folowing link https://github.com/jayisaac0/tracer-jaeger-custom-plugin/releases/tag/0.1
+Download the zip file and extract it in the src folder of the gateway service
+import jaegerCustomPlugin from './libraries/tracer/jaegerCustomPlugin';
+Before you register swagger to our fastify app add the following lines of code:
+const host = process.env.HOST || (require('../config/url.json')[process.env.NODE_ENV]).host;
+const scheme = process.env.SCHEME || (require('../config/url.json')[process.env.NODE_ENV]).scheme;
+const expose = process.env.NODE_ENV === 'production' ? false : true;
+const configs = (require('../config/url.json')[process.env.NODE_ENV]);
+app.register(jaegerCustomPlugin, {
+    serviceName: process.env.PROJECT_NAME,
+        reporter: {
+        agentHost: configs.jaeger.host,
+        agentPort: configs.jaeger.port
+    }
+});
+The code is responsible for fetching jaeger configs from the url.json. Add the a jaeger object in it containing a client host and port.
+"jaeger": {
+    "host": "localhost",
+    "port": 6832
+},
+In our auth.ts file let us import our logger and tooling modules from our tracer library:
+import {logger, head} from '../../../libraries/tracer/logger';
+Using it:
+const createUserSchema: RouteSchema = {
+    tags: [`${action}`], summary: `Login to app`,
+    body: Requests.requestBody(userInterface, ['email', 'password']),
+}
+app.post('/auth', { schema: createUserSchema}, async(request, response) => {
+let span = head(request, 'GATEWAY USER AUTHENTICATION: Login user');
+let user;
+try {
+    user = await requestmaker({
+        service: 'auth',
+        action: 'user/auth',
+        method: 'POST',
+        data: request.body,
+        ctx: request['ctx']
+    })
+} catch (ex) {
+    return response.code(400).send(ex)
+}
+    logger(span, "login", user);
+    response.send(user);
+});
+done();
+};

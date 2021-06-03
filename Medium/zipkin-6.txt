@@ -1,0 +1,148 @@
+How we got Zipkin Brave to accept UUIDs
+My journey through enhancing distributed tracing
+José Carlos Chávez
+José Carlos Chávez
+Follow
+Aug 27, 2020 · 7 min read
+
+
+
+
+
+A Portuguese, a Mexican and a Peruvian walk into a bar and order a beer…
+… in New Delhi.
+
+Photo by Bhumika Singh on Unsplash
+This sounds like the start of a classical bar joke, but was actually the day my colleagues and I were checking-in for our trip to Delhi. That day, while looking for the trip in the Expedia™ App, we experienced some latency when retrieving the trips list. When we contacted the Trips team to report the latency, the maintainers of the flights service wondered why it was taking so long to respond. They started with Haystack to view the relevant distributed traces.
+Distributed Tracing is an observability tool for understanding latencies and error requests that traverse distributed systems. Its model is based on two main concepts: traces and spans. A trace is a hierarchical tree of spans distributed over a timeline, describing the whole operation in a system, whereas spans represent meaningful operations between components of the system (e.g. a database call or an http request) linked by a parent-child relationship. One trace can contain many spans but one span can only belong to one trace and can have zero or one parent.
+the /my-trips trace consists of several spans, a /auth one, and a /trips one which itself has /tracking and /flights spans
+The whole graph represents a trace and every box represents a span
+In the graph above we can see a hypothetical example trace at expedia.com where a call to /my-trips goes through the authorization service first to get the user context and then to the trips API which calls the tracking API and the flights API to retrieve the flights. Quite straightforward to understand isn’t?
+However when the maintainers of the flights service looked at the distributed trace for the/my-trips request, it looked incomplete. There were many gaps in the timeline of what happened and it was really hard for them to understand why the flight listing was presenting a higher latency to respond. To explain how we fixed that, I’ll take a quick detour into our tracing implementation history.
+
+Once upon a time…
+Some time ago Expedia Group decided to use Zipkin instrumentation to complement the powerful features brought by Haystack
+
+Unfortunately, in practice this was harder than expected: some of the legacy systems were emitting spans using UUIDs for traceId and spanId thus downstream services using Zipkin instrumentation met some incompatibilities as their IDs are 128-bit (two Long values) for traceId but 64-bit (one Long value) for spanId and parentSpanId hence the UUIDs (two Long values) can’t fit. Whether UUIDs for spanId are appropriate or not is not relevant to this story but it is worth mentioning that spanIds are only unique within a trace and hence using a high random value like UUID feels too heavy.
+This is how the Mexican, the Portuguese and the Peruvian from three different brands inside Expedia Group, decided to tackle the problem, following their open source spirit and trusting that their complementary skills would end up with a solution or at least a nice story to tell (about either Indian beers or distributed tracing).
+Brave is the standard distributed tracing library for Zipkin in Java (but not limited to Zipkin). It has quite a mature model and includes 25+ instrumentations out of the box.
+Our approach to avoid the problem of fitting a UUID (two Long) in the Brave’s spanId (one Long) was based on one main idea: We use any random IDs in the trace context but we keep the UUIDs in the context so later we could replace them for both reporting and propagation. The idea is that no matter what the value of spanId we set in the context, if we keep the UUID somewhere, we could do the mapping later.
+After digging in to the Brave API looking for a way to trick its model, we found we didn’t even need to trick it, there was a way to do exactly what we were looking for: Brave Extra Context API to store the UUIDs in the context.
+Extra Context accepts objects, keeps them in the context and transmits them to its child contexts.
+/**
+ * Extra holds the information of the inbound context to be kept 
+ * and use as replacement in propagation and reporting.
+ */
+internal data class OriginalIDs(
+    val traceIdAsUUID: String, // The incoming trace ID in UUID
+    val spanIdAsUUID: String,  // The incoming span ID in UUID
+    val parentSpanIdAsUUID: String?, // The incoming parent span ID
+                                     // in UUID
+    val syntheticRootSpanId: Long,  // The synthetic local root span
+                                    // ID for the trace
+)
+The OriginalIDs.traceIdAsUUID is the propagated trace ID in UUID format coming from the upstream call.
+The OriginalIDs.spanIdAsUUID is the propagated span ID in UUID format coming from the upstream call.
+The OriginalIDs.parentSpanIdAsUUID is the propagated parent span ID in UUID format coming from the upstream call.
+The OriginalIDs.syntheticRootSpanId is a synthetic 64-bit value for the assigned spanId in the trace context, this is when we create the context on extraction, we set this value as spanId even when this value has no direct relationship with the propagated span ID from upstream.
+// Copied from Brave as we need to generate IDs in the same way https://github.com/openzipkin/brave/blob/ae2b26adda/brave/src/main/java/brave/Tracer.java#L645
+private fun nextId(): Long {
+    var nextId = Platform.get().randomLong()
+    while (nextId < 0L) {
+        nextId = Platform.get().randomLong()
+    }
+    return nextId
+}
+internal class Extractor<C, K>(
+    private val propagation: UUIDPropagation,
+    private val getter: Propagation.Getter<C, K>,
+): TraceContext.Extractor<C> {
+    override fun extract(carrier: C): TraceContextOrSamplingFlags {
+        var samplingFlags = SamplingFlags.EMPTY
+        if (getter.get(carrier, propagation.debugKey) != null) {
+            samplingFlags = SamplingFlags.DEBUG
+        }
+        val traceIdAsUIDString = getter.get(carrier, propagation.traceIdKey) ?: return TraceContextOrSamplingFlags.create(samplingFlags)
+        
+        val spanIdAsUIDString = getter.get(carrier, propagation.spanIdKey) ?: return TraceContextOrSamplingFlags.create(samplingFlags)
+        val parentIdAsUIDString = getter.get(carrier, propagation.parentSpanIdKey) ?: null
+        var result = TraceContext.newBuilder()
+        val syntheticRootSpanId = nextId()
+        val extra = OriginalIDs(traceIdAsUIDString, spanIdAsUIDString, parentIdAsUIDString, syntheticRootSpanId)
+        result = result
+                 .sampled(true)
+                 .debug(samplingFlags.debug())
+                 // we will always replace the traceId
+                 .traceId(nextId())
+                 .traceIdHigh(nextId())
+                 // if spanId == syntheticRootSpanId we replace the
+                 // spanId from the original IDs
+                 .spanId(syntheticRootSpanId) 
+                 .extra(listOf(extra))
+        if (parentIdAsUIDString != null) {
+            // if spanId == syntheticRootSpanId we replace the
+            // parent from the original IDs
+            result.parentId(nextId()) 
+        }
+        
+        return TraceContextOrSamplingFlags.create(result.build())
+    }
+}
+This means, the value of syntheticRootSpanId (that can appear in TraceContext.spanId or TraceContext.parentSpanId) should be replaced by the OriginalIDs.spanIdAsUUID on reporting (i.e. sending the tracing information to the tracing collector) or propagation (i.e. propagating the context in subsequent calls). As mentioned before, one advantage of the extra context is that they get transmitted to all descendant contexts and that solves the need for replacing the value of syntheticRootSpanId in TraceContext.parentSpanId of immediate children.
+
+Once the local propagation of the UUIDs was guaranteed, we just needed to tackle outbound propagation and the reporting. For both cases it was important to set a convention on how to turn Brave’s spanId into UUIDs (remember, child contexts will have 64 bit spanId and we need to report and propagate UUIDs), the easiest way was to prepend zeros to the value of spanId as UUID is composed of two Long. That is easy:
+val spanIdAsUUID = new UUID(0L, context.spanId)
+This convention ensures the consistency of IDs between reporting and outbound propagation because we need to propagate UUIDs to downstream services anyway.
+With all the details sorted out, we were ready to implement the solution for the both parts:
+The outbound propagation piece was fairly straightforward as we just need to use the OriginalIDs.traceIdAsUUID and maybe replace the TraceContext.spanId value with the OriginalIDs.spanIdAsUUID if TraceContext.spanId == syntheticRootSpanId .
+The reporting piece was a bit more complicated. If we take a look at the Reporter API:
+import zipkin2.Span;
+...
+public interface Reporter<S> {
+   /**
+    * Schedules the span to be sent onto the transport.
+    *
+    * @param span Span, should not be <code>null</code>.
+    */
+    void report(S span);
+}
+We notice that span being used on reporting zipkin2.Span does not have access to the trace context.
+But again the Brave API came to rescue with the FinishedSpanHandler API. This interface allows us to do changes in the reported span, and we have access to the context at this step. We took advantage of this by copying the information from the OriginalIds into synthetic tags which can be accessed and later ignored by the Reporter.
+...
+import brave.handler.MutableSpan as ZipkinMutableSpan
+object SyntheticTagsHandler : FinishedSpanHandler() {
+    private const val SYNTHETIC_ID = "x-message-propagation-synthetic-id"
+    private const val TRACE_ID = "x-message-propagation-trace-id"
+    private const val SPAN_ID = "x-message-propagation-span-id"
+    private const val PARENT_SPAN_ID = "x-message-propagation-parent-id"
+override fun handle(context: TraceContext, span: ZipkinMutableSpan): Boolean {
+    val originalIDs = context.findExtra(OriginalIDs::class.java) ?: return
+    span.tag(SYNTHETIC_ID, originalIDs.syntheticId.toString(16).padStart(16, ‘0’))
+    span.tag(TRACE_ID, originalIDs.traceId)
+    span.tag(SPAN_ID, originalIDs.spanId)
+    if (originalIDs.parentSpanId != null) {
+        span.tag(PARENT_SPAN_ID, originalIDs.parentSpanId)
+    }
+    return true
+}
+    internal fun isSyntheticTag(key: String): Boolean {
+        return key == SYNTHETIC_ID 
+            || key == TRACE_ID 
+            || key == SPAN_ID 
+            || key == PARENT_SPAN_ID
+    }
+    private fun getTraceId(tags: Map<String, String>): String = tags[TRACE_ID] ?: throw NullPointerException("Missing $TRACE_ID synthetic tag")
+    private fun getSyntheticId(tags: Map<String, String>): String = tags[SYNTHETIC_ID] ?: throw NullPointerException("Missing $SYNTHETIC_ID synthetic tag")
+    private fun getSpanId(tags: Map<String, String>): String = tags[SPAN_ID] ?: throw NullPointerException("Missing $SPAN_ID synthetic tag")
+    private fun getParentId(tags: Map<String, String>): String? = tags[PARENT_SPAN_ID]
+}
+This handler makes sure the original ids are added as tags and it is the serializer’s responsibility (or the reporter’s if there is no serializer) to obtain the final traceId, spanId and parentSpanId from the synthetic tags and discard the synthetic tags after that.
+The advantage of this approach is big, we can not only use all Brave instrumentations without friction but we could also later introduce hybrid propagation — meaning that we could accept both UUIDs and B3 for a progressive rollout — as Expedia Group is moving towards B3 format for propagation.
+We wonder what can’t be done with Brave (and what beer we should order when in Delhi)
+Recommended readings/videos:
+https://medium.com/nikeengineering/hit-the-ground-running-with-distributed-tracing-core-concepts-ff5ad47c7058
+https://medium.com/observability/want-to-debug-latency-7aa48ecbe8f7
+https://www.youtube.com/watch?v=WM_FZn7Wr0Y
+https://www.youtube.com/watch?v=XcRWj5pMhdQ
+https://medium.com/@autoletics/scaling-distributed-tracing-c848d911ae2e (more advance reading about distributed tracing)
+Learn more about technology at Expedia Group

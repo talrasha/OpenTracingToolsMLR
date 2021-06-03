@@ -1,0 +1,55 @@
+WSO2 Enterprise Integrator Performance Monitoring with AppDynamics
+Thejan Rupasinghe
+Thejan Rupasinghe
+
+Oct 15, 2017·5 min read
+
+
+
+
+Image result for wso2 ei
+WSO2 Enterprise Integrator is a 100% Open Source Integration Platform which brings together all the functionalities of WSO2 Enterprise Service Bus (WSO2 ESB), WSO2 Message Broker (WSO2 MB), WSO2 Data Services Server and WSO2 Business Process Server to one package. You can download WSO2 Enterprise Integrator from here, simply by entering your email.
+
+AppDynamics is a platform for Application Performance Monitoring & Management. It can be used to monitor various types of application performance metrics, to analyze the performance of your applications and database servers, to measure the user experience of your app and many more.
+So then let’s see how to monitor the performance of WSO2 EI with the AppDyanamics platform.
+1. Setting up the environment
+First, log into AppDynamics and then click on “Start Free Trial”.
+Note: AppD platform has main two components. One is the AppD Agent and other is the AppD Controller. Agents are the ones who collect the data from our applications. Agents are reporting to a common Controller and it stores and analyzes our data. Now we are going to get into our controller. It can be a SaaS controller hosted by AppD or an On Premise controller which we have to setup on our own server.
+Let’s try the SaaS controller as it has everything setup and pre-configured for us. Click on “SaaS Controller” and wait for few seconds until your platform is setuped.
+Then select Java under Applications in Getting Started Wizard. Keep all the selections as it is ( JVM as Sun/JRockit and Configure as the default address, port and SSL enabled)and download the App Agent. Unzip the download App Agent and copy the path to the javaagent.jar.
+Note: AppD has mainly three types of Agents; App Agent, Standalone Machine Agent and Database Agent. App Agent runs in the application process and collects metrics about the app. Standalone Machine Agent runs separately and collects performance metrics of the server; CPU, Memory, Network utilization and etc. Database Agents monitor your database server.
+2. Configuring App Agent and WSO2 EI
+Go to conf directory of the extracted App Server Agent and edit the controller-info.xml file to have values for <application-name>, <tier-name> and <node-name>.
+
+controller-info.xml
+Then edit the integrator.sh in the EI-Installation/bin by inserting the line
+— javaagent:"/path-to-app-agent-directory/javaagent.jar" \
+as another $JAVA_OPTS, as shown below, to make App Agent run with the WSO2 EI.
+
+integrator.sh
+Now we are good to go, after these configurations.
+3. Monitoring WSO2 EI
+Start EI server from integrator.sh and wait for the connection at the Getting Started Wizard page of AppD controller. After there appeared “Agent Connected”, put some load on EI for agent to send data to the controller. After all green, continue to monitor your application.
+
+Main Dashboard
+Main dashboard shows an overview of the whole infrastructure of your application; nodes, remote web services and app databases. It shows Load and Response Time variation graphs and an overview of the application health.
+AppD automatically identifies all the Business Transactions and Service Endpoints, and monitor their performance. You can view them by clicking the respective tabs on the left side pane.
+
+Business Transaction details
+
+Service Endpoints details
+You can monitor EI’s memory usage through AppD platform. Go to Tiers & Nodes → Select your tier and node → Memory → Heap & Garbage Collection.
+
+Heap and Garbage Collection
+Automatic Leak Detection gives us the capability to track the memory leaked objects. “On” the detection and start a capturing session by giving a session time period and minimum age for Collections to reside in memory. You can configure the minimum Collection size from right top Gear icon → AppDynamics Agents → select the agent → Configure → minimum-size-for-evaluation-in-mb.
+In Object Instance Tracking, we can view the number of instances created from various classes in EI.
+
+Object Instance Tracking
+In Slow Response Times, you can identify the slow business transactions happened and their time. By viewing the details of each transaction, from the below table, you can even drill down the it to analyse the time taken by each step in the transaction and find the reason for the slowness.
+Another cool feature in AppDynamics platform is alerting. Left pane → Alert & Respond navigates you to the page.
+​We can create Health Rules on Transaction Performance, Node Health, Error rates and etc, which affects to the whole application or a specific transaction/node/tier. Critical conditions and Warning conditions can be defined to a health rule based on previous records or a specific value. You can define Actions to send an email, send a SMS, create a JIRA ticket etc. Policies can be configured to trigger Actions when Health Rule/s violated.
+After all these, you can even create custom dashboards to monitor EI. Various widgets can be easily added to the dashboard to view all the metrics at a glance.
+
+Sample Custom Dashboard to monitor WSO2 EI
+These are some of the important features in AppDynamics which are really useful in monitoring the performance of WSO2 Enterprise Integrator. Refer to AppDynamics Documentation to have a deeper knowledge about the platform.
+So that’s all for this blog and happy monitoring 😛 !

@@ -1,0 +1,192 @@
+Setup a distributed tracing infrastructure with Zipkin, Kafka and Cassandra
+Abhishek Gupta
+Abhishek Gupta
+Follow
+Feb 27, 2018 · 9 min read
+
+
+
+
+
+For a master table-of-contents for blog posts on microservice topics, please refer — https://medium.com/oracledevs/bunch-of-microservices-related-blogs-57b5f1f062e5
+This blog will demonstrate how you can set up a scalable distributed tracing infrastructure on Oracle Cloud
+One of my earlier blogs showcased a simple example of distributed tracing for microservices (based on Spring Boot) using an example revolving around Spring Cloud Sleuth and Zipkin
+Distributed tracing for microservices on Oracle Cloud with Spring Cloud Sleuth and Zipkin
+medium.com
+
+There are couple of key points which need to be highlighted with regards to the default behavior of the system
+Sending data to Zipkin — Spring Cloud Sleuth sends spans/trace data to Zipkin over HTTP
+Persisting the trace data — Zipkin stores span data in-memory
+This is obviously not a bullet-proof solution
+Single point of failure — Since Zipkin is core component of our distributed tracing solution, it also has the potential of becoming a bottleneck both from an availability and performance standpoint
+Ephemeral storage — since Zipkin stores span data in-memory, it will be lost if the Zipkin instance restarts or crashes
+Although nothing is perfect, this situation can be improved. Here is an overview of what this blog will demonstrate in terms of the solution
+Zipkin runtime — we will continue to use Oracle Application Container Cloud as the runtime for the Zipkin server
+Cassandra for persistent storage — Oracle Data Hub Cloud is a managed Cassandra offering which we will use as the NoSQL persistent store for Zipkin
+Kafka as the message bus — Oracle Event Hub Cloud is a managed Kafka service which will be leveraged in order to decouple Spring Cloud Sleuth from Zipkin
+Time to dive deeper… !
+Use case overview
+The use case is still the same as the earlier blog i.e. distributed tracing. But this particular blog is focused on the infrastructure side of things, hence the sample itself is very simple — so all we have is a single Spring Boot app (named inventory) to test things out (as opposed to a couple of microservices which were used as an example to illustrate the concepts in the earlier blog post)
+Here is the high level flow
+the inventory app sends span data to Kafka..
+… which is (asynchronously) consumed by Zipkin and persisted to Cassandra
+The key focus is on
+revamping the Zipin server to communicate to Kafka and Cassandra on Oracle Cloud
+updating the inventory service to talk to Kafka rather than interface directly with Zipkin
+Architecture components
+Here is a diagram to give you a high level idea of what the architecture is..
+
+High level arch diagram
+Kafka (on Oracle Event Hub Cloud)
+As mentioned above, since Kafka sits between your application (which is using Spring Cloud Sleuth) and Zipkin, trace data will be sent to Kafka which Zipkin can consume asynchronously and persist to Cassandra
+Although it is another piece of infrastructure to deal with, the obvious benefits are
+It acts as buffer and helps manage the back pressure — think multiple microservices pumping trace data
+It also helps with availability — if the Zipkin cluster is unavailable, applications still continue enqueue data into Kafka which can be picked up by Zipkin when its back up
+Both Zipkin server as well as the individual applications talk to Kafka
+The Zipkin server component…
+… uses @EnableZipkinStreamServer (thanks to the spring-cloud-sleuth-zipkin-stream dependency) annotation to signal that it will be receiving span/trace messages from Kafka
+the Spring Cloud Stream Kafka binder is pulled in via spring-cloud-starter-stream-kafka and this takes care of the Kafka consumer part
+the application.properties use spring.cloud.stream.kafka.binder.brokers and spring.cloud.stream.kafka.binder.zkNodes to specify the co-ordinates of Kafka and Zookeeper respectively
+Our Sleuth enabled Spring Boot microservice ..
+.. also pushes trace/span data to Kafka spring-cloud-sleuth-stream and (the usual) spring-cloud-starter-stream-kafka modules
+it also uses the same application.properties as the Zipkin server to specify Kafka and Zookeeper co-ordinates
+Cassandra (on Oracle Data Hub Cloud)
+Only the Zipkin server (not the applications) interacts with Cassandra to persist the trace data/messages it receives from Kafka. It uses a Java driver for Cassandra and zipkin-autoconfigure-storage-cassandra3 module
+The key highlights are the configuration parameters in application.properties
+zipkin.storage.type — value used is cassandra3
+zipkin.storage.cassandra3.contact-points — where is the Cassandra cluster
+zipkin.storage.cassandra3.username and zipkin.storage.cassandra3.password — quite obvious
+zipkin.storage.cassandra3.keyspace — which keyspace should Zipkin create objects in
+zipkin.storage.cassandra3.ensure-schema — if set to true, Zipkin automatically seeds the schema with the required objects (UDTs, tables etc.).. isn’t that sweet !
+More details on the Cassandra objects in the next section
+Service Bindings in Oracle Application Container Cloud
+Its important to reiterate as to how important Service Bindings are and they how they make things much simpler in terms of secure and hassle-free communication between applications (Zipkin and other microservices) and downstream infrastructure components like Kafka (Eventh Hub) and Cassandra (Data Hub)
+All you really need to do is declare a dependency (binding) and you’ll get a internal communication channel set up for free without punching holes in the firewalls/access rules of the respective services
+This concept will be highlighted in the upcoming sections and you can always refer to the official documentation for more info
+Using Oracle Application Container Cloud Service
+The Deployments page of an application enables you to redeploy the application, configure environment variables and…
+docs.oracle.com
+
+Let’s quickly cover the setup for our infrastructure components
+Cassandra, and
+Kafka
+Infrastructure setup
+Oracle Data Hub Cloud
+Provision Cassandra cluster
+Start by bootstrapping a new cluster — detailed documentation here
+
+Cluster create options
+It is also possible to do this using a CLI
+Below snippet shows a basic single node cluster running Cassandra 3.10.0
+
+Oracle Datahub cloud Cassandra Cluster
+Check Zipkin related schema objects
+As mentioned above, Zipkin related Cassandra schema objects are auto created — these include user defined types and tables
+To check these,
+SSH into the Cassandra cluster node — documentation available here
+Fire up cqlsh — execute sudo su oracle (relevant information here) and then cqlsh -u admin `hostname`
+
+Logged into cqlsh
+get the details of your zipkin specific keyspace (which you configured in application.properties) — e.g. desc zipkin .. if don’t remember it, just use desc keyspaces and you should see yours there
+Here is a screenshot of some of the objects
+
+Zipkin schema objects in Cassandra
+Oracle Event Hub Cloud (Kafka broker)
+The Kafka cluster topology used in this case is relatively simple i.e. a single broker with co-located with Zookeeper). You can opt for a topology specific to your needs e.g. HA deployment with 5-node Kafka cluster and 3 Zookeeper nodes
+Please refer to the documentation for further details on topology and the detailed installation process (hint: its straightforward!)
+
+Kafka broker on Event Hub Cloud
+Creating custom access rule
+You would need to create a custom Access Rule to open port 2181 on the Kafka Server VM on Oracle Event Hub Cloud — details here
+Oracle Application Container Cloud does not need port 6667 (Kafka broker) to be opened since the secure connectivity is taken care of by the service binding
+Build, configure & deploy
+Start by fetching the project from Github — git clone https://github.com/abhirockzz/accs-zipkin-tracing-infra-with-kafka-cassandra.git
+Build
+Zipkin server
+cd zipkin
+mvn clean install
+The build process will create zipkin-dist.zip in the target directory
+Inventory service
+cd inventory
+mvn clean install
+The build process will create inventory-dist.zip in the target directory
+Configuration
+Before you launch these into the cloud, please tweak the configuration parameters as per your environment
+deployment.json and manifest.json for Zipkin server
+
+deployment.json and manifest.json for inventory service
+
+Now that you have configured your apps, it’s time to deploy them
+Deployment a.k.a push to cloud
+With Oracle Application Container Cloud, you have multiple options in terms of deploying your applications. This blog will leverage PSM CLI which is a powerful command line interface for managing Oracle Cloud services
+other deployment options include REST API, Oracle Developer Cloud and of course the console/UI
+You can download and setup PSM CLI on your machine (using psm setup) — details here
+Here are the CLI commands to deploy the apps
+Zipkin — psm accs push -n zipkin -r java -s hourly -m manifest.json -d deployment.json -p target/zipkin-dist.zip
+Inventory — psm accs push -n inventory -r java -s hourly -m manifest.json -d deployment.json -p target/inventory-dist.zip
+
+Sanity checks
+check service bindings, and,
+access the Zipkin server to confirm its functional
+After the Zipkin server has been successfully deployed, you can check Service Binding its details by navigating to the details screen -> Deployments section — you will see both Data Hub (Cassandra) and Event Hub (Kafka) bindings along with their respective environment variables (cropped image)
+
+Zipkin bindings to Kafka, Cassandra
+Same applies for the inventory service (it binds only to Kafka)
+
+Inventory service binding to Kafka
+Finally, access the Zipkin server — note the app URL e.g. https://zipkin-<mydomain>.apaas.us2.oraclecloud.com
+
+Zipkin on Oracle Application Container Cloud
+Test drive…
+Alright, everything is setup for us to test things out
+Invoke inventory service
+To start with, check the URL of the inventory app and invoke it a few times
+curl https://inventory-<mydomain>.apaas.us2.oraclecloud.com/inventory/iPhone4
+curl https://inventory-<mydomain>.apaas.us2.oraclecloud.com/inventory/iPhone5
+curl https://inventory-<mydomain>.apaas.us2.oraclecloud.com/inventory/iPhoneX
+Access Zipkin dashboard to see the span data
+
+Zipkin dashboard with span/trace data
+If you dig down further into the span, you’ll see more details
+
+Span details
+Above is the span from our invocation of iphoneX (one of the three invocations listed above). This is relatively simple since you just have single service, but the same would apply if you had a chain of invocations with different (micro) services involved
+If you dig in even further, there is more to unearth — focus on the highlighted info
+
+More details about a specific trace
+Span data in Cassandra
+you can double check Cassandra as well. Using cqlsh, you execute select * from zipkin.traces; (assuming zipkin is the keyspace name)
+You can also query other related tables
+What about Kafka ?
+As you might understood, the span data is sent by Sleuth to a Kafka topic (unsurprisingly named sleuth) which is then consumed by Zipkin and persisted to Cassandra.. try this out as well
+Use the kafka CLI to set up a consumer — kafka-console-consumer.bat --bootstrap-server <event_hub_kakfa_IP>:6667 --topic sleuth
+Invoke the inventory app again — curl https://inventory-<mydomain>.apaas.us2.oraclecloud.com/inventory/AppleWatch
+You will see a rather cryptic message whose contents are pasted below for your easy reference — recall that you saw the same trace data in Zipkin before
+
+Monitor the sleuth topic in Kafka for trace data
+♣♂contentType ♀”text/plain”‼originalContentType “application/json;charset=UTF-8”♠spanId ↕”e7bd0aabba1fa09c”♂spanTraceId ↕”e7bd0aabba1fa09c”♂spanSampled ♥”0"{“host”:{“serviceName”:”inventory”,”address”:”172.17.0.2",”port”:8080},”spans”:[{“begin”:1516776180246,”end”:1516776180258,”name”:”http:/inventory/AppleWatch”,”traceId”:8394174692565835560,”spanId”:8394174692565835560,”exportable”:true,”tags”:{“mvc.controller.class”:”InventoryApplication”,”http.status_code”:”200",”mvc.controller.method”:”getInventory”,”spring.instance_id”:”inventory.oracle.local:inventory:8080",”http.path”:”/inventory/AppleWatch”,”http.url”:”http://inventory-<mydomain>.uscom-central-1.oraclecloud.com:443/inventory/AppleWatch","http.method":"GET","http.host":"inventory-<mydomain>.uscom-central-1.oraclecloud.com"},"logs":[{"timestamp":1516776180246,"event":"sr"},{"timestamp":1516776180258,"event":"ss"}],"durationMicros":12550}]}
+Summary
+Well, that’s all there is to this blog post which was the second (and final) installment in the distributed monitoring series..
+A quick recap never harms!
+we covered the drawbacks of the default monitoring setup and introduced Kafka and Cassandra as core infrastructure components to overcome some of the issues
+went through the details of the architecture
+provisioned the infrastructure on Oracle Cloud as ready-to-use managed services — Data Hub Cloud and Event Hub Cloud
+built and deployed our revamped apps to Oracle Application Container Cloud
+and finally, tested everything end-to-end !
+Don’t forget to…
+go through the Oracle Data Hub Cloud documentation for a deep dive
+Oracle Data Hub Cloud Service — Get Started
+Documentation that helps administrators, developers, and users get started using Oracle Event Hub Cloud Service.
+docs.oracle.com
+
+check out the tutorials for Oracle Application Container Cloud — there is something for every runtime!
+Oracle Application Container Cloud Service — Create Your First Applications
+Tutorials for Oracle Application Container Cloud Service. Learn to create your first applications.
+docs.oracle.com
+
+other blogs on Application Container Cloud
+Latest stories and news about App Container Cloud — Medium
+Read the latest writing about App Container Cloud. Every day, thousands of voices read, write, and share important…
+medium.com
+
+Cheers!

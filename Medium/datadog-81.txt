@@ -1,0 +1,60 @@
+Datadog IPO — The Most Incredible SaaS IPO In 2019
+The Koch.Fund
+The Koch.Fund
+
+Aug 30, 2019·8 min read
+
+
+
+
+8,846 customers across 100+ countries.
+The company did $198.1M of revenue in 2018, up 97% YoY.
+~24% of their ARR came from customers outside of North America in 2018.
+Their dollar-based gross retention rate has been in the low-to-mid 90% range.
+~35% of the Fortune 100 were Datadog customers, while only about 20% were customers with ARR of $100K+.
+Datadog [DDOG], the leader in cloud-based infrastructure and multifunctional service that brings together metrics and events from servers, databases, applications, tools, services to present a unified view of the infrastructure, filed for a $100M IPO. Many developers who are closely associated with the development process of HL applications are already well-known Datadog as the company provider for monitoring. It was no secret that Datadog platform was one of the best private SaaS companies, even if compare it with companies that have become public years earlier, their growth is impressive.
+
+Offering to IPO
+The $100M dollar figure is a placeholder and will almost surely rise significantly in the actual offering. Morgan Stanley is leading the IPO and the company plans to trade on the Nasdaq under the ticker [DDOG]. The company calls out digital transformation, the move to the cloud, the rapid proliferation of applications and modern tech, and the need for collaboration as core industry trends in their favor. As the amount of software grows within both small and large companies, the need to understand performance and manage this ever-growing and disparate infrastructure — whether in the public cloud, private cloud, on-premise or multi-cloud hybrid environments — is mission-critical to a company’s success. Datadog platform provides a unified and real-time single pane of glass view into a company’s entire technology stack. Datadog had the right product at the right time — they launched their infrastructure monitoring product in 2012 as the move to the cloud, primarily on AWS, started to accelerate rapidly.
+The results and efficiency of Datadog’s growth have been outstanding
+
+Datadog was founded “on the premise that the old model of siloed developers and IT operations engineers is broken, and that legacy tools used for monitoring static on-premise architectures do not work in the modern cloud or hybrid environments”. Their platform enables developers, operations and business teams to collaborate, build and improve software applications and understand business and user performance. Moreover, their product is self-serve in nature and can be easily installed in minutes. Datadog was also the first company to combine monitoring across infrastructure and applications as well as offering logging in one solution. In addition, this year they announced products including network performance monitoring and real user monitoring. It’s important to note that each of Datadog’s products is fully-capable on a stand-alone-basis and customers can choose to deploy one or more of the products at once. When deployed together, the sum is greater than the parts as it offers customers a single pane of glass view across their entire technology stack. In the last 6 months, ~40% of customers use more than one product, up from ~10% only a year ago. Moreover, in the same time period, ~60% of new customers landed with 1 or more products, up from ~15% a year ago. It shows Datadog is incredibly proficient at building (and selling) new products. Unlike legacy solutions, which are typically used only by IT, Datadog becomes ubiquitous and in many cases is deployed across a customers’ entire infrastructure environment (including public cloud, private cloud, on-premise, and multi-cloud hybrid). For the first time, companies are offered a single choke-point of performance in one solution and can consolidate all their needs onto the Datadog platform. Some more information about each of their 5 product offerings is below:
+Infrastructure Monitoring: Datadog’s original and flagship product offering. Provides real-time monitoring of IT infrastructure across public/private cloud and hybrid environments ensuring performance/availability of applications. The data is located in one repository with automatic correlation, regardless of environment size or rate of change, to provide a fulsome view of everything that is occurring across a customers’ IT ecosystem.
+Application Performance Monitoring (APM): Launched in 2017, provides full visibility into the health and functioning of applications regardless of deployment environment. Distributed tracing across microservices, hosts, containers and serverless computing functions enabling customers to gain deep insights into application performance.
+Log Management: Launched in 2018, offers log management for applications, systems and cloud platforms that ingests data, creates indexes and enables querying of logs with visualizations and alerting. Also has machine-learning powered pattern detection of frequently occurring logs for predictive functionality.
+User Experience Monitoring: Launched in beta in 2019 and now generally available, user experience monitoring brings visibility up the stack to monitor the digital experience of the customer. Datadog user experience monitoring includes both the simulation of customers (through Synthetics) and the monitoring of actual users (Real User Monitoring).
+Network Performance Monitoring: Launched this year and currently in beta, enables the analysis and visualization of the flow of network traffic in cloud-based or hybrid environments. It is very lightweight, allowing customers to monitor the flow of network traffic without sacrificing performance.
+Datadog also enables customers to use the full spectrum of their SaaS and open source products and have 350+ out-of-the-box integrations. As mentioned, customers sign up and can start seeing value in minutes without training or implementation. The Datadog platform is scalable and is currently monitoring more than 10 trillion events a day and millions of servers and containers. An output of their many integrations is below:
+
+A few interesting stats Datadog cites from industry research
+Global spend on public cloud services, including infrastructure-as-a-service and platform-as-a-service is expected to increase from $60B in 2018 to ~$173 billion in 2022, according to the IDC, representing a 30% compound annual growth rate.
+Gartner notes the need for companies to trim down the number of monitoring tools used, which in the case of larger enterprises is more than 30, while some smaller organizations have monitoring tools ranging in number from 3 to 10.
+According to Gartner, enterprises will quadruple their use of APM due to increasingly digitalized business processes from 2018 through 2021 to reach 20% of all business applications.
+Moreover, according to Gartner, only 5% of applications were monitored as of 2018.
+Market Opportunity
+Datadog’s market is massive and strategic, but also highly competitive and their suite of products touches many different markets. The company believes they can address a large portion of the IT Operations Management market and according to Gartner that market represents a $37B opportunity in 2023.
+Datadog estimates their current market size is $35B by taking a bottoms-up approach and applying their average ARR by customer segment against various company size segments. They also believe they’re still under-penetrated in the base so that number could theoretically be larger.
+Competition
+
+Given the massive market across its many products, Datadog’s market is competitive. Datadog has a head start as they’re the only company with a unified platform across these categories — a compelling value proposition for customers. The company believes they compete across numerous categories including:
+On-premise infrastructure monitoring: They compete with diversified technology companies and systems management vendors including IBM, Microsoft, Micro Focus, BMC Software and CA (Computer Associates).
+APM: Cisco, New Relic, Dynatrace and emerging start-ups such as Instanaand LightStep.
+Log management: Splunk, Elastic [ESTC], and emerging start-ups such as LogDNA and Sumo Logic. It’s relevant that Splunk just announced the acquisition of SignalFX for $1B, which provides a modern APM solution. Competition is heating up and large incumbents are no doubt taking notice of Datadog’s multi-product success.
+Cloud infrastructure monitoring: Competes with native solutions from cloud providers such as AWS (Amazon), Google Cloud Platform (Google) and Azure (Microsoft) as well as emerging products from start-ups like Grafana.
+Real User Monitoring and Network Performance Monitoring:Datadog does not call out competitors here, but New Relic also offers a real user monitoring product as well as emerging companies like LogRocket. SolarWinds is a large incumbent on the network monitoring side too.
+Home-grown solutions: Datadog also mentions they compete with internally built products from open-source companies but compete favorably.
+Acquisitions
+Datadog disclosed details around 2 acquisitions. In March of 2017, they acquired Focusmatic for $7.4M ($5.4M in cash), a logging company, and Madumbo, an AI solution, which in September of 2018 for $1.6M in cash.
+Revenue Run-rate
+
+Valuation
+Since Datadog is a fast-growth SaaS company, it’ll likely get valued on a Next-Twelve-Month ARR multiple.
+The fastest-growing SaaS companies (90%+ YoY) like Zoom, Crowdstrike trade for 20–25x+ NTM ARR and other fast-growth companies (40–80% YoY growth) like Zscaler, Alteryx, Twilio, Slack, MongoDB trade between 13–18x NTM ARR.
+
+Using 13–18x NTM ARR as a rough b/p and assuming Datadog grows 85% (see growth persistence) of its current growth rate of 82% so roughly ~70% YoY, Datadog should be~$560m ARR 12 months from now which implies $7.28b — $10b enterprise value.
+Conclusion
+Based on a fundamental analysis of the market for companies that are at different stages of growth — Datadog will definitely attract the attention of investors, book subscription is expected to increase up to 12–16 times. It’s hard to say currently about a spectacular movement as we’ve seen on Twilio stocks, but already strong S1-numbers will show us a huge demand in [DDOG] shares in the first days after IPO.
+Simultaneously with an optimistic view of the public offering, all investors must be aware of the risk of political influence between Mr. Trump and Mr. Xi Jinping. Pressure and recession indices can significantly reduce income expectations and involve negative factors in the prospect of a dynamic increase in revenue.
+— -
+The content was collected from various open sources and does not make any one-stop recommendation for the purchase of shares.
+— -

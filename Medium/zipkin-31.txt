@@ -1,0 +1,72 @@
+Building the Micro service stack
+Parijat Rathore
+Parijat Rathore
+
+Jun 7, 2018·9 min read
+
+
+
+
+Why Microservice
+What is the difference between building tech for an early stage start up and a mid-size organization — at early stage you build tech against time and at mid-size against scale. Everything is time critical and design and development mostly revolves around — how fast we can roll this out in production. A growing company is establishing everything from business to operation to tech, so the solutions implemented on field are mostly things at trail. This is validated more so in the case when you are solving a problem which has never been solved before. So, market and competition compel the organization at a neck break pace and if you don’t, you would overtake by competition which nullifies the whole purpose of starting up. Phase 2 of the organization comes when you see that your solutions have worked, and you see a strong growth path for your business. This is the phase where you build everything for scale keeping in mind the volume of business 5–7 years down the line. The involves solving problems in a way which will be completely different from how we have done things initially.
+For building scalable service stack, a lot terms and ideas pop on the web — micro services, centralized logging, monitoring, alerting, auditing, spring cloud, Netflix OSS and many more. Also, in discussion would be a self-healing micro service stack. I will come to everything eventually but first things first — let me go through a brief about what all things were considered and how did we come up with the stack architecture.
+Mostly all business problem will have a solution that will require different components of business pipeline to talk to each and come up with a decision or transaction to perform. This is what happens in physical world, until there is money in the wallet you can’t perform a purchase. So, it makes logical sense to separate out the concerns in the system synonymous to the business component, example in this case being, if the logic for checking wallet balance changes in future, no change is effected in purchase. Micro service architecture fits the bill here since it is driven by Single Responsibility Principle.
+Benefits
+Simplifies development and enhancements
+Testability becomes better as each service can be tested in silos
+Continuous integration becomes easier as each service needed to pass automation criteria independently
+Enables continuous deployment of large scale complex systems
+Helps manage the hardware as you scale the service which has increased utilization
+If you are using dockers the problem of machine utilization is also solved
+It enables you to organize the development effort around multiple teams. Each 2 PT (two pizza team) owns and is responsible for one or more single service. Each team can develop, deploy and scale their services independently of all of the other teams provided best practices for versioning are adopted by the org.
+Application start up time is reduced which speeds up deployment and also improves productivity.
+Fault isolation is improved drastically. Complete system doesn’t go down.
+Free to choose the technology implementation basis the problem being solved.
+Complexity
+Complex distributed architecture
+Implementation of robust inter-service communication.
+Implementation of strategy for distributed transactions.
+Set up of strong co-ordination between different 2 PT teams.
+Building micro services requires an investment of time and effort, so when is the right time when you should move from monolithic to a µService based architecture.
+Operational pipeline of business has pretty much stabilized.
+The scale of business has reached a level where hardware/software optimization is required for business functions.
+Since initially building a micro-services stack takes more time compared to a monolithic the pace of roll out should be aligned with business
+And of course, organization should have enough money in the bank to sustain and build a team of engineers for maintaining development, testing and infra for the services.
+Architecture
+Below flow diagram gives a basic overview of stack set up.
+
+Service Stack
+I will talk about some basics consideration to be kept in mind while designing the complete stack.
+Module Design
+The first step for was to structure the overall code base in a way so as to achieve the maximum reusability of common modules across services. We figured out some basic modules which are part of almost every web application and qualified them to be a part of a commons layer:
+Entity state machine — This module was needed to transition entities from one state to another, but the state transition could only be done by certain user role(s) in the application. Since it was user triggered operation it was decided to drop the FSM implementation and introduced a simple module which constrained flow from one state to another and also checked the user role. So, the table would have columns as From_State, To_State and a bitmap of user roles. Being a loosely coupled design this allowed us a lot of flexibility in implementing multi step maker checker flows.
+Task Manager and Scheduler — This was designed as a micro task scheduler based on spring scheduler which handles the flow of maintaining its state machine, generating and mailing error files and retrying itself. We defined an abstraction layer and every implementation would implement a handler which would parse the payload JSON stored with each task row or do some other custom business processing. This simplified the initial task management for us.
+Import/export module — The idea while designing it was to keep the user flow very simple and easy to use. An abstraction layer was responsible for defining an import/export as sync/a-sync, validating the mandatory columns (stored in DB — this solved our problem of defining a dynamic config for any import/export) and data types in each row and then passing on the data to a handler which was implement by the business processor. Each handler would receive a list of rows where it could do its custom validations and processing. The abstracted part also maintains an error log for every failed row which is later used to generate failed CSV file. This failed CSV file is formatted in the same way as the upload template except one additional column for error message.
+Audit Module — As the name suggest the purpose of this was to keep a change log for all entities in the system. For all persistent objects we defined some marker base entities which prototypes them as audit-able. The audit flow is currently based on Hibernate’s post commit handler which passes on the before/after payload to an audit service. The audit module is an independent Elastic based micro service which is responsible for determining the delta between the copies, indexing them in elastic and enable search via various keys for audit logs. For future this would rearchitected to a “mysql-binlog+debezium+kafka-stream” based service which is much more resilient and accurate.
+The release versions and snapshots for these modules are managed via an arti-factory. Inclusion is easily managed via maven.
+Service discovery and communication
+Why is service discovery important in a micro-service architecture?
+This brings us to the concept of client-side load balancing where a client or service node knows about all the IPs registered to a service domain and decide which IP to fire the request to. In an up-scaling/down-scaling environment nodes constantly come up and go down and need to register themselves on service domain(s), post which a client-side load balancer distributes request coming on it. The basis for load balancer can be default ones or you can build a custom one (which was our requirement for a self-healing service design). The client-side load balancer can be separate layer or it can be managed in the application itself. Netflix OSS provides ribbon for this use case which binds which each service node as a sidecar. For our use case we have used Consul as service discovery & registry server. Reason for choosing this will come in further posts as this provides consul templates which we have used in our self-healing micro service architecture.
+For communication across services we are using Netflix OSS’s Feign Client and Hystrix for circuit breaker.
+Feign Configuration:
+
+For more libraries you can refer — Spring Cloud which provides suite of tools for designing distributed systems.
+Centralized Logging and Distributed Traceability
+
+This is pipeline we chose to implement the logging. A detailed blog will follow soon on why we made this choice.
+Sharing a brief from there -
+“Filebeat helps throttle the shipping of data (Filebeat uses a backpressure-sensitive protocol when sending data forward to account for higher volumes of data) as well as there is no loss of data as logs are written to a file first. The major concern was eliminating logstash to prevent useless resource consumption, and that is achieved by using Inode. Moreover, filebeat has configurations to optionally specify the Ingest pipeline which would process data before dumping it into ES indices, so we can specify the necessary grok filters in the pipeline and add it to the Filebeat config file. Once data is there in Elasticsearch, all sorts of analytics and visualizations can be done through Kibana.”
+Distributed tracing is being able to trace the request initiated through a client across all services it has been served by. For this we are using Zipkin, a distributed traceability tool which seamlessly integrates with spring based services and also provides an out of box web UI for request tracing. It is based on Dapper and HTrace and works on by joining traces across http request/message boundaries.
+It binds a span and a trace with each request/thread/message, terminologies for which are:
+SPAN — Basic unit of work with unique 64-bit Identifier
+TRACE — Tree like data structure, each node as a span
+Sample demonstration of an incoming request being traced via Zipkin:
+
+Besides being able to trace request it gives one major advantage in centralized logging. We were able to insert traceid and spanid through log4j in the application logs and through grok filtering were able to index it in elastic. Now searching a traceid in elastic helps me trace logs for a request across all services and debugging becomes a lot faster. The combination of centralized logging and distributed tracing has created quite a useful tool for debugging requests across services in app logs.
+Monitoring and alerting
+We needed to set up basic monitoring to be able to generate alerts and have real time charts for NOC teams to monitor. Further use case was gathering data around application, database and instance behavior and be able to use that for self-healing service architecture. After considering various options we finalized Prometheus, Alert Manager and Grafana. We piped the data from two sources — spring actuator metrics and nginx logs.
+
+Set up is very simple with changes in pom and yml files.
+
+Currently we are in the process of setting up a self healing deployment pipeline which involves decision making from above data and using docker, ECS, Nginx & Consul to orchestrate complete deployment, load balancing as per health score and continuous monitoring. Once we have enough data ML models can be used to off load some of decision making and also find anomalies in different flow in the system, whether be it incoming requests, sudden spike in machine metrics, sudden spike in error count etc. We will soon share blog posts on setting up the above systems.
+The focus of this blog post was to give an basic overview of designing and setting loosely coupled architecture from the word go. This sets up a strong foundation of scaling up the system later. Both business requirement and tech architecture require an upgrade for unforeseen and unpredictable issues, designing a system which is loosely coupled enables you to makes those changes much easily and with controlled releases and lesser rollbacks.

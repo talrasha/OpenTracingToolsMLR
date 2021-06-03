@@ -1,0 +1,51 @@
+Elastic APM Integration with Java Service
+Anant Krishan Joshi
+Anant Krishan Joshi
+
+Jan 21·3 min read
+
+
+
+
+Nowadays, in this competitive world every single software company analyses the following parameters in one form or the other :-
+Their products reach to the users(No of hits per minute) and their user’s experience.
+How are their applications performing in terms of response time of APIs, database transaction time etc.?
+What are the areas of concern in a particular service that’s causing the errors or delaying the response rate corresponding to the request by the users?
+There are several other concerns similar to the above mentioned ones on which the health of a distributed software ecosystem of a software Organisation depends.Doing the Application Performance Monitoring(APM) of all the application/services involved in a product provides us with solutions for the above mentioned concerns.
+In software world we refer these concerns as metrics and to track these metrics corresponding to the services involved in our software product we do APM.There are several tools in the market to analyse these metrics some of them are Elastic, New Relic.
+Elastic APM
+Elastic APM is an application performance monitoring system which is built on top of the Elastic Stack (Elasticsearch, Logstash, Kibana, Beats). Similar to other APM solutions, Elastic APM allows us to track key performance-related information such as requests, responses, database transactions, errors, etc. regarding our software service.
+High Level Overview of the working of Elastic APM :-
+
+High Level Diagram(HLD) of the working of Elastic APM
+Edge machines contains our services and there is an APM Agent(Which we will see how to integrate with our service)attached to our service, it sends the data to APM Server(Which is an open source application written in GO) and the server transform the recieved data into Elasticsearch documents and send them to Elasticsearch and from here its gets reflected in our Kibana APM UI in terms of charts and other metrics.
+In this post, I will describe how to integrate Elastic APM to your java service so that we can track the above mentioned key metrics of our service.Most commonly used methods are :-
+Using Dependency injection (Genrally used when there is a single entry point in our service).
+Using the Elastic APM JavaAgent(can be used in all types of services).
+Using Dependency Injection
+Step 1. In your pom.xml file add the following dependency of Elastic APM :-
+<dependency>
+    <groupId>co.elastic.apm</groupId>
+    <artifactId>apm-agent-attach</artifactId>
+    <version>1.15.0</version>
+</dependency>
+Step 2. Adding these following environment variables in the run configuration of your service :-
+ELASTIC_APM_APPLICATION_PACKAGES=com.docon.yourServiceName
+ELASTIC_APM_CAPTURE_BODY=true
+ELASTIC_APM_ENVIRONMENT=yourEnvironment(local/qa/staging/prod)
+ELASTIC_APM_SERVER_URLS=http://localhost:8080
+ELASTIC_APM_SERVICE_NAME=yourServiceName
+OR you can also add these as system properties in the argument section of the configurations :-
+-Delastic.apm.application_packages="co.yourServicePackage"
+-Delastic.apm.capture_body="true"
+-Delastic.apm.environment="yourEnvironment(local/qa/staging/prod)"
+-Delastic.apm.server_urls="http://localhost:8080"
+-Delastic.apm.service_name="yourServiceName"
+Step 3. The Final step is to update the file in your service where your main function(Single Entry Point source) is present and add the following piece of code :-
+public static void main(String[] args){
+   ElasticApmAttacher.attach();
+   SpringApplication.run(MyApplication.class, args);
+}
+Using Elastic APM Java Agent
+Setting up the APM Agent depends on the type of Application server we are using , detailed Steps regarding Setup of Elastic APM Java Agent can be found in its authentic documentation.
+You’re done with the integration.Start using your service and see the various performance related information(requests, response, database transaction.. etc) and monitor your service in the Elastic’s Kibana APM UI after running the service locally or deploying it to the respective environment (stage/qa/prod).

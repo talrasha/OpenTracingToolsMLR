@@ -1,0 +1,155 @@
+Creating namespaces and initial cluster configuration on vSphere 7 with Tanzu Kubernetes Grid Service (TKGS)
+Zercurity
+Zercurity
+
+Feb 1·7 min read
+
+
+
+
+Following from our last three posts. There are three primary ways of standing up Kubernetes on vSphere. Each with there own benefits and drawbacks. This post will be the final post of our tree part post looking at VMware’s TKGS.
+Tanzu Kubernetes Grid (TKG)
+Deploy Kubernetes via Tanzu (TKG) without the need for a licensed Tanzu supervisor cluster. This does not provide a load balancer.
+Tanzu Kubernetes Grid Service (TKGS)
+Deploy and operate Tanzu Kubernetes clusters natively in vSphere with HA Proxy as the load balancer. Without VMware Harbor as a container repository.
+- Deploying and configuring HA Proxy
+- Deploying workloads via the supervisor cluster
+- Creating namespaces and initial cluster configuration (this post)
+VMware Tanzu Kubernetes Grid Integrated Edition (TKGI)
+Fully featured Tanzu deployment with NSX-T.
+- Deploying and configuring NSX-T
+- Deploying workloads via the supervisor cluster
+- Creating namespaces and initial cluster configuration
+Prerequisites
+If you haven’t already please read through our first post on TKGS as it provides a lot of detail on what TKGS is and the configuration we’ll be using for our deployment. Further to the first post. Our second post covers the initial setup and configuration of the supervisor cluster. Which is required in order to create your first namespace.
+Deploying TKGS Namespaces
+No that we’ve stood up and successfully configured and tested both our HA Proxy and supervisor cluster. The next stage is to deploy our first namespace. Each namespace will have its own Kubernetes cluster. With its own subsequent Kubernetes namespaces. Where you’ll be able to deploy Zercurity and any other Kubernetes deployment.
+From our last post the context we were using was that of our supervisor cluster. For this next step we’ll create our namespace and then use this new namespace as our next context from which we’re going to stand up our Kubernetes cluster.
+Namespace creation
+From the vSphere dashboard. Click again on the Workload Management icon and from there make sure you’re on the Namespaces tab and click, New namespace. This will open the dialog below.
+Select our primary cluster used by our supervisor cluster. Give your namespace a name. We’re using production. However, you may choose to dive these up by teams or projects. Or maybe if you’re resource constrained everything will just live under one namespace.
+
+Once you’ve created your new namespace. Click on the namespace name which will take you to the namespace overview pane.
+
+Adding permissions
+From here we can our current user to the namespace with edit permissions. This can be done for additional users that require management access to the cluster. This will enable them to add additional nodes and provisioning requirements.
+
+Adding storage
+More importantly, we also need to let the namespace know which storage policies are available to it for persistent volume claims (PVC).
+
+Awesome, we’re ready to create our cluster.
+Creating our cluster spec
+If you’re still logged from our last post. You can use the logout command to close your session to the supervisor cluster.
+$ kubectl vsphere logout
+$ kubectl vsphere login --server=10.64.32.1 --insecure-skip-tls-verify
+Here you’ll be prompted for your login credentials and once you’ve successfully authenticated you should be able to see the production context listed.
+$ kubectl config use-context production
+Now in order for us to create our Kubernetes cluster we need to create a spec to let the supervisor cluster know what to provision. Below is an example spec you can use. This spec will create one control plane and 3 worker nodes. If you’re planning on deploying a larger cluster then you can simply increase the number of workers and I wold set the control plane nodes to 3. To provide some redundancy. Create this file as tkgs-cluster-production.yaml .
+Anything defined within the spec can be updated at a later date. Some downtime will be incurred. However, the cluster will come back up.
+apiVersion: run.tanzu.vmware.com/v1alpha1
+kind: TanzuKubernetesCluster
+metadata:
+  name: zercurity
+  namespace: production
+spec:
+  distribution:
+    version: v1.18.5
+  topology:
+    controlPlane:
+      count: 1
+      class: best-effort-small
+      storageClass: tanzu-storage-policy
+    workers:
+      count: 3
+      class: best-effort-small
+      storageClass: tanzu-storage-policy
+The storageClass will need to be the name of your storage policy. This will be all lower case. If you have used spaces then use hyphens as a substitute. You can check the policy name using $ kubectl get sc command. Which will retrieve the available storage classes. You can then copy over the name.
+As for the class this represents the instance size you want to provision. You can get a list of the available instance types like so:
+$ kubectl get virtualmachineclasses
+The best-effort prefix will thinly provision resources. Where as the guaranteed prefix will allocate all the resources required to the VM. You can get a detailed breakdown on the VM class with:
+$ kubectl describe virtualmachineclasses best-effort-small
+Once you’ve created your spec file. Deploy it like so:
+$ kubectl apply -f tkgs-cluster-production.yaml
+If there are no errors the shell will return. You can check on the status of the creation of the cluster with the command:
+$ kubectl get tanzukubernetescluster
+$ kubectl get cluster
+The status of the creation of he cluster will also be visible from the GUI.
+
+Troubleshooting
+Should you run into any issues there are a number of commands you can use to get an idea of what might be going wrong.
+$ kubectl get machines
+$ kubectl get virtualmachines
+$ kubectl get cluster
+$ kubectl describe tanzukubernetescluster
+On the last command. Check that all the add-ons have the status of applied.
+Error: ErrImagePull
+If you’re getting image pull errors whilst the containers are creating then check that both the VMs being provisioned are route-able to the internet and that DNS is working to resolve domain requests.
+If you still have issues. Then try simplifying your deployment. We ended up having to create a separate cluster to troubleshoot some inter-VLAN routing issues.
+Creating a default storage class
+By default there is no default storage class provided (kubectl get sc). You’ll have to manually specify the storage class when deploying for example helm apps like so:
+helm install harbor bitnami/harbor --set global.storageClass=tanzu-storage-policy ...
+To overcome this we need to update the running cluster spec to set our default storageClass.
+kubectl edit tanzukubernetescluster zercurity
+Then under the settings section add:
+spec:
+  distribution:
+    fullVersion: v1.18.5+vmware.1-tkg.1.c40d30d
+    version: v1.18.5
+  settings:
+    network:
+      cni:
+        name: antrea
+      pods:
+        cidrBlocks:
+        - 192.168.0.0/16
+      serviceDomain: cluster.local
+      services:
+        cidrBlocks:
+        - 10.96.0.0/12
+    storage:
+      defaultClass: tanzu-storage-policy
+Once you’ve made the changes highlighted in bold. Exit the editor and then you can check you’re cluster storage spec (you’ll need to login to the namespace first. See the accessing the cluster section).
+$ hugh@hugh-ubuntu-dev-2004:~$ kubectl get sc
+NAME                             PROVISIONER              
+tanzu-storage-policy (default)   csi.vsphere.vmware.com  ...
+Accessing the cluster
+As with before. Logout of the previous session. This time we’re going to add our new cluster name and namespace parameters.
+$ kubectl vsphere logout
+$ kubectl vsphere login --server=10.64.32.1 --insecure-skip-tls-verify --tanzu-kubernetes-cluster-namespace production --tanzu-kubernetes-cluster-name zercurity
+Once you’ve logged in. Set the context to your new cluster.
+$ kubectl config use-context zercurity
+You can then check the status of all pods.
+kubectl get pod -A
+Deploying harbor
+Harbor is an opensource container repository. Not only does it provided permissioned access to pull and push docker images but it also provides vulnerability scanning, webhooks and other functionality.
+As we’ve mentioned before Harbor cannot be deployed as part of TKGS through the vSphere management portal. The option for Container repository simply isn’t there unless you’re using NSX-T. You can however, still deploy Harbor via helm.
+$ kubectl create ns harbor
+$ helm install harbor bitnami/harbor \
+--set harborAdminPassword='adminpass' \
+--set global.storageClass=tanzu-storage-policy \
+--set service.type=LoadBalancer \
+--set externalURL=harbor.test.corp \
+--set service.tls.commonName=harbor.test.corp \
+-n harbor
+$ helm uninstall harbor -n harbor
+You can check on the deployment status like so:
+$ kubectl get pod -n harbor
+NAME                                  READY  STATUS    RESTARTS  AGE
+harbor-chartmuseum-657b95d5f7-fxzll   1/1    Running   0          9d
+harbor-clair-586d8cf9f6-rhzzd         2/2    Running   0          9d 
+harbor-core-5cd79cc5f6-2r2sw          1/1    Running   4          9d
+harbor-jobservice-b6fff8654-kvnmn     1/1    Running   5          9d
+harbor-nginx-55d7d6d846-vfr6c         1/1    Running   0          9d
+harbor-notary-server-8695c547f5-hrvft 1/1    Running   0          9d
+harbor-notary-signer-5647c4968c-pqwmc 1/1    Running   0          9d
+harbor-portal-54cc4dbc8c-dgswz        1/1    Running   0          9d
+harbor-postgresql-0                   1/1    Running   0          9d
+harbor-redis-master-0                 1/1    Running   0          9d
+harbor-registry-dd67784b8-hbthw       2/2    Running   0          9d
+harbor-trivy-0                        1/1    Running   0          9d
+Once everything is running you can get the external IP address of the LoadBalancer service:
+$ kubectl get svc -n harbor
+If you connect to this address you should see the harbor service up and running:
+
+Its all over!
+This is our last part into standing up TKGS on vSphere. We hope you found it helpful. Please feel free to get in touch if you have any questions.

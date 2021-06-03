@@ -5,6 +5,7 @@ import requests.auth
 import pandas as pd
 import numpy as np
 import time
+import re
 import csv, json
 import itertools
 from difflib import SequenceMatcher
@@ -16,6 +17,40 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from bs4 import BeautifulSoup
 import ssl
 from urllib.request import urlopen
+import glob
+import gensim
+from gensim.utils import simple_preprocess
+import re
+import seaborn as sns
+from nltk.corpus import stopwords
+from time import time
+from nltk.corpus import stopwords
+from nltk.tokenize import RegexpTokenizer
+from nltk.stem.porter import PorterStemmer
+from nltk.stem import WordNetLemmatizer
+import spacy
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
+from sklearn.naive_bayes import MultinomialNB
+from sklearn import metrics
+from pprint import pprint
+import tqdm
+import gensim.corpora as corpora
+from gensim.models import CoherenceModel
+from copy import deepcopy
+from scipy.sparse import csr_matrix, vstack
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import GaussianNB
+from scipy.linalg import get_blas_funcs
+from sklearn.semi_supervised import LabelPropagation, LabelSpreading
+
+from sklearn.datasets import fetch_20newsgroups
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split, StratifiedShuffleSplit
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.model_selection import KFold, StratifiedKFold, ShuffleSplit
+from sklearn import metrics
 
 desired_width=320
 pd.set_option('display.width', desired_width)
@@ -35,6 +70,12 @@ df_answers_sent = pd.read_csv('answers_sents.csv')
 
 testingString = df_questions.loc[df_questions['question_id']==36596678, 'body'].values[0]
 testingDzoneLink = "https://dzone.com/articles/appdynamics-introduces-support-for-sap"
+
+monthDict = {'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+             'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
+
+dzone_all_files = glob.glob('Dzone/*.txt')
+medium_all_files = glob.glob('Medium/*.txt')
 
 def displayQuestionAnswerDistribution():
     a4_dims = (11.7, 8.27)
@@ -92,8 +133,8 @@ def displayQuestionAnswerMediumDZoneDistribution():
     rect1 = ax.bar(x - width*1.5, toolquestioncount, width, label='StackOverflow Qs.')
     rect2 = ax.bar(x - width/2, toolanswercount, width, label='StackOverflow As.')
 
-    mediumpostcount = [25,132,4,1,7,63,1,2,1,26,51]
-    dzonepostcount = [370,197,35,3,45,122,48,22,2,12,188]
+    mediumpostcount = [25,139,4,1,9,65,1,2,1,28,51]
+    dzonepostcount = [339,170,70,4,46,104,38,4,1,12,171]
     rect3 = ax.bar(x + width/2, mediumpostcount, width, label='Medium Articles')
     rect4 = ax.bar(x + width*1.5, dzonepostcount, width, label='DZone Articles')
 
@@ -219,8 +260,261 @@ def readStaticHTMLArticle(thelink):
     #for item in textitems:
     #    print(item)
 
-with open('appdynamics.txt', 'r', encoding='utf-8') as txtfile:
-    linklist = [x.strip('\n') for x in txtfile.readlines()]
+def fromtextlist2csv(toolappname):
+    with open(toolappname+'.txt', 'r', encoding='utf-8') as txtfile:
+        linklist = [x.strip('\n') for x in txtfile.readlines()]
+    features = ['tool', 'text']
+    count = 0
+    for item in linklist:
+        html = urlopen(item, context=context)
+        bsObj = BeautifulSoup(html.read(), 'lxml')
+        thetitle = bsObj.find('h1', {'class': 'article-title'}).get_text()
+        thecontent = bsObj.find('div', {'class': 'content-html'}).get_text()
+        #thetime = bsObj.find('span', {'class': 'author-date'}).get_text()
+        #thetime = pd.to_datetime('20'+thetime.split(', ')[-1]+'-'+monthDict[thetime.split('. ')[0]]+'-'+thetime.split(', ')[0].split('. ')[1])
+        with open('dzone.csv', 'a', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerow([toolappname, (thetitle + thecontent)])
+        count += 1
+        print(toolappname+str(count))
 
-#print(len(linklist))
-#print(len(list(set(linklist))))
+def mediumfromtextlist2csv(toolappname):
+    ########### Clean Text
+    selected = [x for x in medium_all_files if toolappname in x]
+    count = 0
+    for article in selected:
+        with open(article, 'r', encoding='utf-8') as txtfile:
+            text = txtfile.read()
+        if "min read" in text:
+            textmain = text.split("min read")[1]
+            textmain = textmain.strip()
+        else:
+            textmain = text.strip()
+        with open('medium.csv', 'a', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile, delimiter=',')
+            writer.writerow([toolappname, textmain])
+        count += 1
+        print(toolappname+str(count))
+
+def getSentenceLevelDatasetAndTxtMedium():
+    df = pd.read_csv('medium.csv')
+    for i in range(df.shape[0]):
+        print(i+1)
+        tempair = df.iloc[i].values.tolist()
+        thetext = tempair[1]
+        sentlist = sent_tokenize(thetext)
+        sentlist = [str(x).strip('\n').strip('\r') for x in sentlist]
+        for sent in sentlist:
+            with open('medium_sents.csv', 'a', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',')
+                writer.writerow([tempair[0], sent])
+            with open('medium_sentlist.txt', 'a', encoding='utf-8') as txtfile:
+                txtfile.write(sent + '\n')
+
+def getSentenceLevelDatasetAndTxtDzone():
+    df = pd.read_csv('dzone.csv')
+    for i in range(df.shape[0]):
+        print(i+1)
+        tempair = df.iloc[i].values.tolist()
+        thetext = tempair[1]
+        sentlist = sent_tokenize(thetext)
+        sentlist = [str(x).strip('\n').strip('\r') for x in sentlist]
+        for sent in sentlist:
+            with open('dzone_sents.csv', 'a', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile, delimiter=',')
+                writer.writerow([tempair[0], sent])
+            with open('dzone_sentlist.txt', 'a', encoding='utf-8') as txtfile:
+                txtfile.write(sent + '\n')
+
+#for item in ['appdynamics', 'datadog', 'elasticapm', 'inspectit', 'instana', 'jaeger', 'lightstep', 'skywalking', 'stagemonitor', 'tanzu', 'zipkin']:
+#    mediumfromtextlist2csv(item)
+# {'Wavefront VMware', 'Jaeger', 'Datadog', 'InspectIT', 'Zipkin', 'Instana', 'SkyWalking', 'LightStep', 'AppDynamics', 'Elastic APM', 'Stagemonitor'}
+
+def regularizeToolname(thestr):
+    if thestr == 'Wavefront VMware':
+        return 'tanzu'
+    else:
+        return ''.join(thestr.split()).lower()
+
+def getSentenceLevelDatasetAndTxtStackOverflow():
+    df_questions_sent['tool'] = df_questions_sent['toolname'].apply(regularizeToolname)
+    df_questions_sent_reg = df_questions_sent.loc[:,['tool', 'sentence']]
+    df_answers_sent['tool'] = df_answers_sent['toolname'].apply(regularizeToolname)
+    df_answers_sent_reg = df_answers_sent.loc[:, ['tool', 'sentence']]
+    df_stack = pd.concat([df_questions_sent_reg,df_answers_sent_reg])
+    df_stack.to_csv('stackoverflow_sents.csv', index=False)
+    sentlist = df_stack['sentence'].values.tolist()
+    for sent in sentlist:
+        with open('stackoverflow_sentlist.txt', 'a', encoding='utf-8') as txtfile:
+            txtfile.write(sent + '\n')
+
+df_medium = pd.read_csv('medium_sents_ss.csv')
+df_dzone = pd.read_csv('dzone_sents_ss.csv')
+df_stack = pd.read_csv('stackoverflow_sents_ss.csv')
+with open('nbdata\\informative.txt', 'r', encoding='utf-8') as txtfile:
+    inlist = [x.strip('\n') for x in txtfile.readlines()]
+with open('nbdata\\noninformative.txt', 'r', encoding='utf-8') as txtfile:
+    nlist = [x.strip('\n') for x in txtfile.readlines()]
+with open('nbdata\motivation.txt', 'r', encoding='utf-8') as txtfile:
+    mlist = [x.strip('\n') for x in txtfile.readlines()]
+with open('nbdata\\benefit.txt', 'r', encoding='utf-8') as txtfile:
+    blist = [x.strip('\n') for x in txtfile.readlines()]
+with open('nbdata\issue.txt', 'r', encoding='utf-8') as txtfile:
+    islist = [x.strip('\n') for x in txtfile.readlines()]
+
+train_data_n = []
+train_target_n = []
+test_data_n = []
+test_target_n = []
+
+for i in range(300):
+    train_data_n.append(nlist[i])
+    train_data_n.append(inlist[i])
+    #train_data_n.append(mlist[i])
+    #train_data_n.append(blist[i])
+    #train_data_n.append(islist[i])
+    train_target_n.extend([0,1])
+for i in range(300,600):
+    test_data_n.append(nlist[i])
+    test_data_n.append(inlist[i])
+    #test_data_n.append(mlist[i])
+    #test_data_n.append(blist[i])
+    #test_data_n.append(islist[i])
+    test_target_n.extend([0,1])
+
+test_target_n = np.array(test_target_n)
+train_target_n = np.array(train_target_n)
+
+stop_words = stopwords.words('english')
+def removeSpecialCharacters(s):
+    stripped = re.sub('[^\w\s]', '', s)
+    stripped = re.sub('_', '', stripped)
+    stripped = re.sub('\s+', ' ', stripped)
+    stripped = stripped.strip()
+    return stripped
+
+def remove_noise2(sentence):
+    result = ''
+    poster = PorterStemmer()
+    lemmatizer = WordNetLemmatizer()
+    stopword_set = set(stopwords.words('english'))
+    wordlist = re.sub(r"\n|(\\(.*?){)|}|[!$%^&*#()_+|~\-={}\[\]:\";'<>?,.\/\\]|[0-9]|[@]", ' ', sentence) # remove punctuation
+    wordlist = re.sub('\s+', ' ', wordlist) # remove extra space
+    return wordlist
+
+def remove_stopwords(texts):
+    return [[word for word in simple_preprocess(str(doc)) if word not in stop_words] for doc in texts]
+
+def make_bigrams(texts):
+    return [bigram_mod[doc] for doc in texts]
+
+def make_trigrams(texts):
+    return [trigram_mod[bigram_mod[doc]] for doc in texts]
+
+def lemmatization(texts, allowed_postags=['NOUN', 'ADJ', 'VERB', 'ADV']):
+    """https://spacy.io/api/annotation"""
+    texts_out = []
+    nlp = spacy.load("en_core_web_sm", disable=['parser', 'ner'])
+    for sent in texts:
+        doc = nlp(" ".join(sent))
+        texts_out.append([token.lemma_ for token in doc if token.pos_ in allowed_postags])
+    return texts_out
+
+def remove_noise(sentence):
+    result = ''
+    poster = PorterStemmer()
+    lemmatizer = WordNetLemmatizer()
+    stopword_set = set(stopwords.words('english'))
+    wordlist = re.sub(r"\n|(\\(.*?){)|}|[!$%^&*#()_+|~\-={}\[\]:\";'<>?,.\/\\]|[0-9]|[@]", ' ', sentence) # remove punctuation
+    wordlist = re.sub('\s+', ' ', wordlist) # remove extra space
+    wordlist_normal = [poster.stem(word.lower()) for word in wordlist.split()] # restore word to its original form (stemming)
+    wordlist_normal = [lemmatizer.lemmatize(word, pos='v') for word in wordlist_normal] # restore word to its root form (lemmatization)
+    wordlist_clean = [word for word in wordlist_normal if word not in stopword_set] # remove stopwords
+    result = ' '.join(wordlist_clean)
+    return result
+
+def cross_validation(clf, data_X, data_y, unlabeled=None, n_folds=5):
+    print('=' * 80)
+    print("Validation: ")
+    print(clf)
+    kf = StratifiedKFold(n_splits=n_folds)
+    start_time = time()
+    train_accuracies= list() # training accuracy
+    fold_count = 1
+    original_clf = deepcopy(clf)
+    for train_ids, valid_ids in kf.split(data_X, data_y):
+        cv_clf = deepcopy(original_clf)
+        print("Fold # %d" % fold_count)
+        fold_count += 1
+        #print(train_ids, valid_ids)
+        train_X = data_X[train_ids]
+        train_y = data_y[train_ids]
+        valid_X = data_X[valid_ids]
+        valid_y = data_y[valid_ids]
+        if unlabeled==None:
+            cv_clf.fit(train_X, train_y)
+        else:
+            cv_clf.fit(train_X, train_y, unlabeled)
+        pred = cv_clf.predict(valid_X)
+        train_accuracies.append(metrics.accuracy_score(valid_y, pred))
+    train_time = time() - start_time
+    print("Validation time: %0.3f seconds" % train_time)
+    print("Average training accuracy: %0.3f" % np.mean(np.array(train_accuracies)))
+    return train_accuracies, train_time
+
+df_all = pd.read_csv('data_sents_ss_info.csv', lineterminator='\n')
+df_info = df_all.loc[df_all['informative']==1, :]
+df_noninfo = df_all.loc[df_all['informative']==0, :]
+print(df_info.shape)
+
+def infoSentenceBarChart():
+    a4_dims = (11.7, 8.27)
+    smaller_dim = (8, 4.5)
+    fig, ax = plt.subplots(figsize=smaller_dim)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    labels = list(df_info.groupby('tool').count().index)
+    listcountinfosent = df_info.groupby('tool').count().loc[:, 'sentence'].values.tolist()
+    #print(licensenumberCount)
+    x = np.arange(len(labels))
+    width = 0.35
+    rect1 = ax.bar(x, listcountinfosent, width, label='#Found License')
+    plt.title("Number of informative sentences each tool")
+    plt.xlabel("Tools")
+    plt.ylabel("Number")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation='vertical')
+    ax.legend()
+    ax.bar_label(rect1, padding=3)
+    fig.tight_layout()
+    plt.savefig('InformativeSentence.png', bbox_inches='tight')
+    plt.show()
+
+def infononinfoBarChart():
+    a4_dims = (11.7, 8.27)
+    smaller_dim = (8, 4.5)
+    fig, ax = plt.subplots(figsize=smaller_dim)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    labels = list(df_info.groupby('tool').count().index)
+    listcountinfosent = df_info.groupby('tool').count().loc[:, 'sentence'].values.tolist()
+    #print(licensenumberCount)
+    listcountnoninfosent = df_noninfo.groupby('tool').count().loc[:, 'sentence'].values.tolist()
+
+    x = np.arange(len(labels))
+    width = 0.35
+    rect1 = ax.bar(x - width / 2, listcountinfosent, width, label='Informative')
+    rect2 = ax.bar(x + width / 2, listcountnoninfosent, width, label='Non-informative')
+
+    plt.title("Number of Informative and Noninformative Sentences for each Tool")
+    plt.xlabel("Tools")
+    plt.ylabel("Number")
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation='vertical')
+    ax.legend()
+    ax.bar_label(rect1, padding=3)
+    ax.bar_label(rect2, padding=3)
+    fig.tight_layout()
+    plt.savefig('InfoNoninfoSentencesNumber.png', bbox_inches='tight')
+    plt.show()
+

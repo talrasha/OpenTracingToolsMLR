@@ -1,0 +1,15 @@
+Making AWS CloudWatch Logs browsable
+Hadrien Chauvin
+Hadrien Chauvin
+
+Jun 13, 2019·1 min read
+
+
+
+
+You can find terraform-aws-cloudwatch-to-syslog-server on GitHub, and in the Terraform Registry.
+AWS CloudWatch is meant for durable and scalable log archiving. It is tightly integrated with ECS and, overall, the AWS ecosystem, which makes it an interesting choice for low-cost, long-term log archiving. However, the browsing experience is poor (AWS CloudWatch logs for Humans, Elasticsearch+Kibana).
+Many third-party services with better browsing experience for logs offer a syslog server interface. That’s why we have open sourced a full solution, terraform-aws-cloudwatch-to-syslog-server, written as a Terraform module complete with an example and infrastructure tests (using the excellent Terratest), to pipe CloudWatch Logs to a syslog TCP server.
+
+terraform-aws-cloudwatch-to-syslog-server subscribes to the AWS CloudWatch Logs put by various AWS services and streams them to third-party services via a TCP syslog server interface.
+The source code for rpc_ts is available on GitHub under the MIT license. Feel free to contribute.

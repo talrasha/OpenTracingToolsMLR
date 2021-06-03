@@ -1,0 +1,28 @@
+Centralized Logging Solution with Datadog
+Pankaj negi
+Pankaj negi
+
+Jan 8, 2020·4 min read
+
+
+
+
+Overview
+Traditional logging solutions require teams to provision and pay for a daily volume of logs, which quickly becomes cost-prohibitive without some form of server-side or agent-level filtering. But filtering logs before sending them inevitably leads to gaps in coverage, and often filters out valuable data. After all, logs constantly change in value based on factors that can’t be anticipated ahead of time, such as whether the log was generated during normal operations, or during an outage or deployment.
+Datadog log management (SaaS based solution) removes these limitations by decoupling log ingestion from indexing, which makes it possible to cost-effectively collect, process, and archive all logs. Datadog logging without limits enables us to collect all our logs from all sources without the cost or complexity. Datadog can parse, enrich, live tail n archive every log in our environment, generate metric from logs, dynamically choose which log to retain n index for further analysis and detect pattern and anomaly in our data.
+· Dynamically choose which logs to index and retain for troubleshooting and analytics (and override these filters as needed)
+· Archive enriched logs in your long-term cloud storage solution at no additional cost
+· Observe and query a Live Tail of all processed logs across your entire infrastructure (even the ones you choose not to index)
+
+Best practice for centralized logging solution
+
+No single tool is capable enough to handle all logging requirement in enterprise level with heterogeneous system. Reporting and logging requirement vary with client and each vertical layer. Hence, our solution should be extensible to cope with all kinds of requirements e.g. data compliance, audit, client or management.
+In above model, all logs from different sources will be collected to centralized location. Centralized location could be anything like S3 and data can be shipped using AWS Kinesis, beat utility or custom solution. Point here is, once have all log data at centralized location, can be viewed by multiple logging and analytical solution in RO mode to have customized visualization and reporting solution. Above, I have integration with Datadog log management solution and second, I have custom solution for specific client who doesn’t wants to use SaaS service (Datadog) due to regulatory requirement.
+What if there is a need to transform the log?
+This solution is valid for legacy application only. Doesn’t apply for immutable infra or containerized solution where host name doesn’t matter. I am referring AWS Kinesis to collect the data at S3. Problem is what if I am having 10 web server (IIS server where we don’t get server detail in logs) and two server is causing issue to end user. Its really difficult to know which two server causing issue and hence transforming the raw data in AWS Kinesis Firehose level. Keep one copy of raw data to meet regulatory requirement.
+
+Approach to use Datadog for log management in above scenario
+Most modern platforms like AWS and Kubernetes create dynamic environments by quickly spinning up instances or containers with significantly shorter lifespans than physical hosts. In these environments, where large-scale applications can be distributed across multiple ephemeral containers or instances, tagging is essential to monitoring services and underlying infrastructure.
+So, First step is to tag all logs data e.g. Product:ABC; Application:IIS; environment:prod; tier:web. Will use these tags to use in pipeline to identify the data to data parsing and massaging. For example, app:iis tag will be used in IIS pipeline to collect and parse IIS log. Once have all log data processed by their respective pipelines, it will be stored in index for log search and analytics purpose. DD index uses TAG to filter log data to store only selective logs. For example. Product:app filter at index level will store log that contains this tag.
+
+Data flow in Datadog

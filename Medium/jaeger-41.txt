@@ -1,0 +1,92 @@
+Kiali & Jaeger — deep linking in both directions
+Michal Wieczorek
+Michal Wieczorek
+
+Aug 2, 2019·5 min read
+
+
+
+
+
+Photo by Tim Johnson on Unsplash
+Some time ago I wrote about “Custom links in Jaeger UI” (check it first if you haven’t got chance yet). I explained there how deep linking makes life easier and can speed up troubleshooting session. This post extends it a little bit and provides a more detailed example for a particular use case: links between Jaeger and Kiali.
+Kiali is a tool which helps you manage and monitor your service mesh based on Istio. You can treat it as a console for Istio. It gives you features like:
+displaying topology graph of the mesh,
+providing health status and metrics for your services,
+changing configuration of the mesh (also validating it for you),
+embedding distributed tracing UI from Jeager
+Kiali provides you an embedded Jaeger UI with a possibility to jump to Jaeger page directly:
+
+Jaeger UI inside Kiali
+But what if we start in Jaeger and want to jump to Kiali and directly to a certain page (f.e. workload details, or service graph)?
+As I showed in the previous article it’s possible to configure Jaeger to create links based on span metadata. Unfortunately, if you install Istio with default configuration the spans will get tags with values not suitable for creating such links (I’ll show an example below).
+But Istio lets you modify telemetry configuration, also trace span metadata so we can tweak configuration to our needs.
+“Ok, show me the code”
+Below there’s a simple example of how to configure Istio and Jaeger to enable deep-linking to Kiali.
+NOTE:
+For the example, I used Istio v1.2.2, not sure if it will work with previous versions.
+F.e. in v1.1 there was a separate CRD for tracespan, for v1.2 we use instance type for defining span metadata.
+If you’d like to follow the example below, I assume that you :
+have a running Kubernetes cluster with helm’s tiller installed
+will download all Github gists displayed below to a working directory
+will also git clone Istio repository into working directory (or at least copy istio/install and istio/sample folders)
+First, let’s install:
+Istio (using helm chart directly from Istio repository),
+Kiali (can be installed as part of Istio helm chart),
+Jaeger (we’ll use jaeger-operator so we can customize UI configuration later)
+example app (bookinfo app) so we can generate some traces.
+First Istio:
+# Install istio
+helm install istio/install/kubernetes/helm/istio-init --name istio-init --namespace istio-system
+helm upgrade istio istio/install/kubernetes/helm/istio --install \
+--namespace istio-system \
+--set pilot.traceSampling=100.0 \
+--set kiali.enabled=true \
+--set kiali.createDemoSecret=true \
+--set kiali.dashboard.jaegerURL=http://localhost:16686 \
+--set global.tracer.zipkin.address=jaeger-collector.observability.svc.cluster.local:9411
+we set traceSampling to 100% so every request will be stored in Jaeger
+kiali.createDemoSecret set to true will create secret with default admin/admin username/password for Kiali console
+kiali.dashboard.jaegerURL is set to localhost because we will use kubectl port-forward for accessing all services in Kubernetes cluster
+global.tracer.zipkin.address is set to Jaeger collector service which we will create in a minute
+Next Jaeger:
+# Install jaeger-operator
+helm install stable/jaeger-operator --name jaeger-operator --namespace observability
+
+# Install Jaeger CR from above snippet
+kubectl apply -f jaeger1.yaml
+And finally BookInfo app:
+# Install Bookinfo example app
+kubectl label namespace default istio-injection=enabled
+kubectl apply -f ./istio/samples/bookinfo/platform/kube/bookinfo.yaml
+Ok, when everything is up and running let’s make port-forwards to Bookinfo app, Jaeger UI and Kaili console:
+kubectl port-forward svc/productpage 9080:9080
+kubectl port-forward svc/jaeger-query 16686:16686 -n observability
+kubectl port-forward svc/kiali 20001:20001 -n istio-system
+and refresh page http://localhost:9080/productpage several times.
+Next if we go to Jaeger UI (http://localhost:16686/search)and open one of traces/spans we’ll see tags similar to those:
+
+As we see on the above screenshot, span tags values don’t provide necessary data to create Kiali link — f.e. link for service details page contains a name of service and namespace like:
+http://localhost:20001/kiali/console/namespaces/<namespaceName>/services/<serviceName>
+Istio has a rich configuration model for telemetry data. Detailed description can be found here so I’ll skip this part.
+To change span tags we need to add an instance based on compiled template tracespan. And in the spanTags you can add arbitrary list of tags:
+
+Also you have to define handler which will point to Jaeger endpoint (compatible with zipkin) and a rule which will bind the instance and the handler.
+
+Let’s apply both configuration files:
+kubectl apply -f tracespan.yaml
+kubectl apply -f handler-rule.yaml
+For more details about Istio custom resources please visit the docs pages: tracespan, zipkin, rule.
+When we apply above configuration and produce once again some traces we can see that the tags in Jaeger UI were changed:
+
+The last part are the links to Kiali. As described in the previous post we need to modify Jaeger CR definition and add an array of linkPatterns. Here’s an example of how such links can be defined:
+
+kubectl apply -f jaeger2.yaml
+When you apply that file, Jaeger will create a new configmap and add that configmap to deployment spec (Jaeger pod will be recreated). Because we use in-memory datastore for Jaeger traces we need to refresh once again bookinfo app productpage to produce some traces.
+And that’s it. If you go to trace details view you will see new icons next to some of the tags and after clicking the icon you will see list of defined links pointing to Kiali:
+
+Just click and you will see f.e. service graph in Kiali with the destination workload (ratings-v1) marked:
+
+You can even open Kaili pages directly from embedded Jaeger UI:
+
+Hopefully it will be helpful in integrating those tools in your environments. If you have any questions/feedback please leave it here below or on Twitter.
