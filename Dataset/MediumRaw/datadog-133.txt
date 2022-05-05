@@ -1,0 +1,89 @@
+Autoscaling based on Datadog, SNS, and Lambda in AWS
+Santosh Sarangkar
+Santosh Sarangkar
+Follow
+May 26, 2017 · 4 min read
+
+
+
+
+
+The nature of sports media is cyclical, and we need to scale our infrastructure accordingly. Significant savings would come during periods of low activity, but we need to burst during big traffic events “like the NFL Draft, College Football Saturdays, NBA Free Agency, etc.” In order to achieve autoscaling nirvana, we needed to identify the tipping point of our apps.
+Out of the box, the AWS monitoring service, Amazon CloudWatch, only provides a cookie-cutter template of performance metrics such as CPU, network traffic, etc. This data was not granular enough to allow us to reliably scale our apps up or down. In order to scale, we have to utilize KPIs that give us reliable indicators.
+As we are a big Datadog customer, we were already shipping numerous custom metrics there. It seemed only natural for us to leverage that data and turn it into action. In this instance, we will take a look at scaling an Elastic Beanstalk application environment based on the number of requests per instance. The services utilized in this blog post are Datadog, AWS Elastic Beanstalk (EB), SNS and Lambda.
+Services we will be using in this post:
+AWS Elastic Beanstalk environment —
+Elastic Beanstalk is a service provided by AWS for deploying, scaling and monitoring web applications and services developed with many languages like Java, .NET, PHP, Node.js, Python, Ruby, Go, etc. It also supports Docker with single and multiple containers. Elastic Beanstalk handles the deployment, auto-scaling underline resources, load-balancing, and so on.
+More details here.
+2. Lambda function —
+AWS Lambda is an event-driven serverless computing platform. Users just need to provide the code and set up events to run it. AWS manages the provisioning of underlying servers and auto-scaling in response to the running code.
+More details here.
+3. SNS topic —
+SNS is a push notification service provided by AWS. Notification can be set to come through email, text message and/or various third-party integration like Slack. Recipients subscribe to SNS topics to get notifications.
+More details here.
+4. Monitor in Datadog —
+Monitor in Datadog sends SNS notifications based on a sequence of check statuses, metric threshold or other alerting conditions.
+More details here.
+Architecture:
+
+Steps -
+Step 1: Create an Elastic Beanstalk environment
+Instructions are here.
+Step 2: Note down the Auto Scaling Group (ASG) and scaling policies created by the Elastic Beanstalk environment.
+You will need this info for configuring the Datadog monitor:
+
+Step 3: Create an SNS topic
+
+Step 4: Create a Lambda function
+Type: sns-message
+
+Select the SNS topic and Enable trigger checkbox and hit the Next button.
+Paste the following code in Lambda function (name: autoscaling):
+from __future__ import print_function
+import json
+import boto3
+import re
+client = boto3.client(‘autoscaling’)
+def lambda_handler(event, context):
+    messages = event[‘Records’][0][‘Sns’][‘Message’]
+    message_lines = messages.split(‘\n’)
+    first_line = re.sub(‘ +’, ‘ ‘ , message_lines[ 0 ])
+    number_of_services = first_line.split(‘ ‘)
+    number = int( number_of_services[1] ) + int( 1 )
+    message_array = []
+    for i in range(1, number):
+        strtemp = re.sub(‘ +’, ‘ ‘ ,message_lines[i])
+        message_array = message_array + strtemp.split(‘ ‘)
+    number = number — 1
+    temp = 0
+    for j in range(0, number):
+        temp = int( temp ) + 1
+        asg = message_array[ j + temp ]
+        temp = int( temp ) + 1
+        scaling_policy = message_array[ j + temp ]
+        response = client.execute_policy(
+            AutoScalingGroupName=asg,
+            PolicyName=scaling_policy
+   )
+   return “ok”
+Provide the required information to the Lambda function like memory, VPC, subnets, security group and create the function.
+E.g. Memory
+
+E.g. VPC, subnets and security groups
+
+Step 4: Datadog integration with SNS
+Make sure your Amazon SNS integration works.
+You can follow the instructions here to create an SNS subscription for Datadog
+Step 5: Create a Datadog monitor
+If you are using Haproxy, use Haproxy.frontend.requests metrics for number of requests.
+Use a simple alert; in the message body, use the following format:
+Sample format for upscaling:
+@sns-topic 1
+<Appname> <ASG> <upscaling-policy>
+E.g:
+@sns-autoscaling 1
+myapp awseb-e-rtqbsvp3nu-stack-AWSEBAutoScalingGroup-1ML8W8H5O1JCC awseb-e-rtqbsvp3nu-stack-AWSEBAutoScalingScaleDownPolicy-1GI57G0UBJ0YN
+Note: 1 indicates that we are scaling up only one service. We use this for scaling the dependent services as well.
+Conclusion:
+There are some pros and cons of this approach. The pros are you can utilize a lot of metrics available in Datadog in order to scale your application. You are not dependent on just the CloudWatch metrics. Also, you can scale up downstream services as soon as an application receives high traffic. Using better metrics for autoscaling saves money on EC2 and EBS.
+The con of the current implementation is that it will constantly trigger scale-down due to breaching the lower threshold, but that is acceptable since it is no-op to an ASG that is at its minimum instance count.

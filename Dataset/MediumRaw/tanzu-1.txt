@@ -1,0 +1,29 @@
+VMware TKG 1.3.1 Key Points
+Dinesh Tripathi
+Dinesh Tripathi
+
+May 12·1 min read
+
+
+
+
+New Kubernetes versions:
+1.20.5
+1.19.9
+1.18.17
+Workload clusters no longer use the Tanzu Mission Control Extension Manager.
+OIDC authentication no longer uses dex .
+Running tanzu cluster create --dry-run generates a workload cluster template from a configuration file without requiring a management cluster.
+Bill of Materials (BoM) handling supports custom registry sources for individual images, overriding default registry.
+Users can upgrade add-ons independently of upgrading Tanzu Kubernetes Grid.
+(vSphere) Supports routable, no-NAT IP addresses for workload cluster pods, enabling traceability and auditing.
+(vSphere v6.7) Installer interface includes access and configuration options for NSX-T Advanced Load Balancer.
+(vSphere) Supports deploying multiple MachineDeployment and KubeadmControlPlane objects without changing overlay file.
+(Azure) New cluster configuration variables:
+AZURE_CUSTOM_TAGS applies Azure tags to cluster resources.
+AZURE_ENABLE_PRIVATE_CLUSTER and AZURE_FRONTEND_PRIVATE_IP run workload clusters as private clusters with internal load balancers.
+AZURE_ENABLE_NODE_DATA_DISK optionally provisions a data disk for worker nodes.
+AZURE_CONTROL_PLANE_ and AZURE_NODE_ variables for DATA_DISK_SIZE_GIB and OS_DISK_SIZE_GIB configure data and OS disk sizes for control plane and worker nodes.
+AZURE_CONTROL_PLANE_OS_DISK_STORAGE_ACCOUNT_TYPE and AZURE_NODE_OS_DISK_STORAGE_ACCOUNT_TYPE specify storage account for control plane and worker node disks.
+(Azure) Future-compatibility cluster configuration variable AZURE_ENABLE_ACCELERATED_NETWORKING enables Azure accelerated networking when TKRs support it. (Currently Azure TKRs do not support Azure accelerated networking.
+Source -> TKG documentation.

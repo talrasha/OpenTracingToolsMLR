@@ -1,0 +1,48 @@
+TMWL February 20' — fzf, Datadog & Teraform
+Programmers say what they’ve learned
+Maria Wachal
+Maria Wachal
+Follow
+Mar 23, 2020 · 3 min read
+
+
+
+
+
+
+This time Marcin and Michał have shared their discoveries from February:
+how to launch a preview window in fzf;
+how to automate with Datadog & Terraform.
+Marcin Baraniecki — Frontend Engineer
+fzf is a great tool to quickly find a file or autocomplete the command arguments — by name or pattern. It’s quick, it’s handy and it performs well when you don’t know the exact filename you’re looking for (by applying “fuzzy” search, match & completion).
+Besides terrific autocomplete feature, one of the greatest use cases I’ve discovered recently is the preview window. Say you want to quickly browse contents of all files that match your fuzzy search query. Normally, you do that by applying a cat <filename> command. However, you can join both functionalities:
+
+After issuing a command above (fzf — preview ‘cat {}’), a regular fzf search prompt shows up. This time, however, it additionally comes with a right-hand side preview window!
+
+Navigating through a list of files changes the output of the preview window. Additionally, that box can be scrolled independently (by hovering over it with your mouse)!
+Preview window is a great feature that can be used with other bash commands, too. Displaying contents of a file (cat command) is but a simplest one. What will YOU use it for?
+Michał Matłoka — Senior Software Engineer & Architect
+It is good to automate. There are things that are just quite obvious — deployments — CI & CD, environments set up etc. However there happen to be some small little things which people tend to omit. One of those things are Datadog dashboards. During this month, I’ve learned that it is pretty simple to bring dashboard definition to your codebase and “deploy” it automatically to Datadog.
+Terraform documentation includes a clean description how you can define your dashboards. The definition format is quite similar to the export you can download, from the Datadog website. The main difference is that export is in JSON and terraform uses yaml. How does a single-widget dashboard definition look like? It is pretty simple:
+provider “datadog” {
+  api_key = “${var.datadog_api_key}”
+  app_key = “${var.datadog_app_key}”
+}
+resource “datadog_dashboard” “ordered_dashboard” {
+  title = “Potato service”
+  layout_type = “ordered”
+  is_read_only = true
+  widget {
+    timeseries_definition {
+      title = “avg meal time (ms)”
+      show_legend = false
+      request {
+        q = “avg:patato_service.meals.avg{service:patato_service,$environment}”
+        display_type = line
+      }
+    }
+  }
+}
+Terrafrom Datadog integration does not offer only support for dashboards. You can define there logs indexes, monitors and a lot of other things. If you are using Datadog, then definitely you should take a look at the Datadog integration.
+And what have you learned in February? Let us know! :)
+BTW, we are always looking for outstanding professionals to join our team! Check out backend and frontend open positions!

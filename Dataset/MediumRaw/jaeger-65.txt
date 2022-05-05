@@ -1,0 +1,243 @@
+OpenCensus Tracing w/ Jaeger
+Daz Wilkin
+Daz Wilkin
+
+Mar 28, 2018·10 min read
+
+
+
+
+I continue to be very interested in the potential of OpenCensus and have been interested in evaluating Uber’s Jaeger project. Particularly now that Jaeger is a CNCF project.
+So, I’m going to take the Orijtech’s Cloud Spanner instrumented by OpenCensus post, tweaked to use Cloud Datastore (purely to show another storage service), tweaked to use Jaeger (rather than Stackdriver) and running locally under containers, then deployed to Kubernetes and, if I’m good, deployed to App Engine Flex too.
+Let’s get started!
+Setup
+We’ll need Google Cloud Platform Project with Billing enabled. In order to use Cloud Datastore, you must enable the Datastore service and create an App Engine app (this is a vestigial requirement):
+GOOGLE_PROJECT_ID=[[YOUR-GOOGLE-PROJECT]]
+BILLING=[[YOUR-BILLING-ID]]
+gcloud projects create ${GOOGLE_PROJECT_ID}
+gcloud beta billing projects link ${GOOGLE_PROJECT_ID} \
+--billing-account=${BILLING}
+gcloud services enable datastore.googleapis.com \
+--project=${GOOGLE_PROJECT_ID}
+gcloud app create \
+--region=us-central \
+--project=${GOOGLE_PROJECT_ID}
+When we use containers (locally and on Kubernetes Engine), we’ll want to authenticate using a Service Account. Please see my others posts for the steps to generate a GCP Service Account and key and for uploading the Service Account to Kubernetes.
+In this post, the Service Accounts needs only permissions to access Datastore. So, assuming you have a Service Account with an email address of ${ROBOT}, the command you’ll need to issue is:
+gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT_ID} \
+--member=serviceAccount:${ROBOT} \
+--role=roles/datastore.user
+Local
+Please review the Orijtech Cloud Spanner instrumented by OpenCensus post as — with all credit to them — the code I’m using below is derived almost entirely from their code. I’m using Go 1.10.
+main.go:
+
+NB: In lines 50–53, the OpenCensus Jaeger Exporter is configured. This code has 4 (3 explicit; 1 optional|implicit) environment variable requirements: GOOGLE_PROJECT_ID, JAEGER_HOST, JAEGER_PORT; the optional|implicit variable is GOOGLE_APPLICATION_CREDENTIALS and this configures Application Default Credentials.
+In order to run this code locally, we need access to a Jaeger deployment. Fortunately, this is trivial. Jaeger provides a Docker image to get us going:
+docker run \
+--detach \
+--env=COLLECTOR_ZIPKIN_HTTP_PORT=9411 \
+--publish=5775:5775/udp \
+--publish=6831:6831/udp \
+--publish=6832:6832/udp \
+--publish=5778:5778 \
+--publish=16686:16686 \
+--publish=14268:14268 \
+--publish=9411:9411 \
+jaegertracing/all-in-one:latest
+In our case, we won’t use the majority of the ports that Jaeger provides so, if you’d prefer, you could get away with (and to monitor interactively):
+docker run \
+--interactive \
+--tty \
+--publish=16686:16686 \
+--publish=14268:14268 \
+jaegertracing/all-in-one:latest
+NB: Jaeger documents the many service endpoints here. We’re using the jaeger.thrift directly from clients endpoint (14268) and the Web UI (16686).
+To generate some Traces to monitor in Jaeger, let’s run the Golang code provided above. You’ll need to configure the environment variables to do so:
+GOOGLE_PROJECT_ID=[[YOUR-GOOGLE-PROJECT]]
+GOOGLE_APPLICATION_CREDENTIALS=[[YOUR-CLIENT-JSON]]
+JAEGER_HOST=localhost
+JAEGER_PORT=14268
+and then:
+go run main.go
+should generate:
+2018/03/27 07:12:55 ProjectID: ${GOOGLE_PROJECT_ID}
+2018/03/27 07:12:55 Jaeger: http://localhost:14268
+To generate some traces, curl the endpoint of the Golang httpd server:
+curl http://localhost:8080
+This should return 3 object references:
+[0xc42023c1e0 0xc42023c240 0xc42023c2a0]
+If you wish, you may check that 3 Dogs have been created in Datastore:
+
+Cloud Console: Datastore “Query By Kind”
+Which is mostly just a side-effect for the main event of generating some OpenCensus Traces that are recorded in Jaeger. Return to your Jaeger UI and hit refresh:
+http://localhost:16686
+
+Jaeger UI
+You should see 2 traces. One will corresponds to the PutMultiDatastore call and one named <trace-without-root-span> that corresponds to the handle function and it’s call to addDogs.
+You may wish to terminate the Jaeger container and clear its trace history before the next step.
+Containerize
+In order to get onto Kubernetes Engine, we’ll need to containerize the Golang app. Because we’re now moving to containers, you’ll also need to ensure that you reference the Service Account (key) that was generated during “Setup”:
+GOOGLE_APPLICATION_CREDENTIALS=[[YOUR-CLIENT-JSON]]
+Here’s a template Dockerfile:
+
+NB: I’m committed to using dumb-init by Yelp (link) in my containers but you may remove lines 6, 9 if you would prefer not to use it. Don’t forget to copy ca-certificates.crt into your working directory.
+We’ll build a static binary of the Golang program, generate the Docker image and push this to our project’s Container Registry with:
+IMAGE="jaeger-datastore"
+CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
+docker build --tag=gcr.io/${GOOGLE_PROJECT_ID}/${IMAGE} .
+gcloud docker -- push gcr.io/${GOOGLE_PROJECT_ID}/${IMAGE}
+To run the image locally under Docker, we need to configure the environment variables and pass in the Service Account key:
+docker run \
+--interactive \
+--tty \
+--net=host \
+--volume=$PWD/${ROBOT}.key.json:/key.json \
+--env=GOOGLE_PROJECT_ID=${GOOGLE_PROJECT_ID} \
+--env=GOOGLE_APPLICATION_CREDENTIALS=/key.json \
+--env=JAEGER_HOST=localhost \
+--env=JAEGER_PORT=14268 \
+--publish=${SINK}:8080 \
+gcr.io/${GOOGLE_PROJECT_ID}/${IMAGE}
+All being well, the output should be the same as when running the code locally:
+2018/03/27 14:58:12 ProjectID: dazwilkin-180326-jaeger
+2018/03/27 14:58:12 Jaeger: http://localhost:14268
+And, you should be able to curl the endpoint as before:
+curl localhost:8080
+[0xc420600120 0xc4206001e0 0xc420600240]
+And, you should see Traces generated in Jaeger.
+OK! I recommend you terminate both containers before continuing to free up ports and to keep-it-simple.
+Kubernetes Engine
+Is it wrong that I am excited to create a Kubernetes cluster!? I’ll leave the cluster provisioning to you. As I’ve said before, if you are willing to do so, please create a Regional Cluster to get used to this model. I’m continuing to encourage myself to use the Cloud Console’s Workloads and Discovery displays but can’t quit wean myself from the Kubernetes Dashboard.
+I’ll assume you’re auth’d against a cluster such that you can kubectl cluster-info and receive is running responses from your cluster and its services.
+The Jaeger folks provide a quick-hit to deploy Jaeger to a Kubernetes cluster for non-production use. I’m going to use this all-in-one which will deploy Jaeger into the default namespace:
+kubectl create \
+--filename=https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
+All being well, I’ve edited the results (removing PORTS and AGE) to pretty-print it in Medium:
+kubectl get services \
+--selector=app=jaeger \
+--namespace=default
+NAME               TYPE           CLUSTER-IP      EXTERNAL-IP
+jaeger-agent       ClusterIP      None            <none>
+jaeger-collector   ClusterIP      10.43.254.117   <none>
+jaeger-query       LoadBalancer   10.43.243.76    35.203.181.245
+zipkin             ClusterIP      None            <none>
+NB: The jaeger-query service is exposed through a Network LB (see Console output below). You can see the external endpoint listed above (in my case 35.203.181.245) or you can obtain this directly using:
+JAEGER_QUERY=$(\
+  kubectl get services/jaeger-query \
+  --output=jsonpath="{.status.loadBalancer.ingress[0].ip}")
+echo ${JAEGER_QUERY)
+35.203.181.245
+
+Network LB
+Alternatively, using Cloud Console:
+
+Cloud Console: Deployment details “jaeger-deployment”
+Or:
+
+Kubernetes Dashboard: Deployment “jaeger-deployment”
+You may browse ${JAEGER_QUERY} to view the Jaeger UI from the Jaeger deployment on Kubernetes:
+
+Jaeger UI served by Kubernetes
+This deployment creates a jaeger-agent service. In truth, I’m continuing to learn how to best employ this. Meanwhile, in the deployment (see below) of the Cloud Datastore Golang code, the code is configured to send Trace data to the jaeger-collector service (jaeger-collector.default.svc on the service’s port 14268).
+jaeger-datastore-deployment-service.yaml:
+
+NB: You must replace [[GOOGLE_PROJECT_ID]] in lines 20 and 35 with the value of your GCP Project ID. The container talks to the Jaeger collector service on port 14268.
+You should then be able to:
+kubectl apply --filename=jaeger-datastore-deployment-service.yaml
+And:
+kubectl get services \
+--selector=app=jaeger-datastore \
+--namespace=default
+NAME               TYPE       CLUSTER-IP      PORT(S)
+jaeger-datastore   NodePort   10.43.244.252   8080:30254/TCP
+NB: In my case, the service created by the apply command has mapped the jaeger-datastore (our Golang code) port 8080 to a NodePort 30254. Your NodePort will probably be different but you may determine this with:
+NODE_PORT=$(\
+  kubectl get services/jaeger-datastore \
+  --output=jsonpath="{.spec.ports[0].nodePort}")
+echo ${NODE_PORT}
+30254
+We’re going to take advantage of a useful ‘hack’ (in its positive sense) to access the Golang httpd service without exposing it on a public IP address. We can access the service via a NodePort and the next step is to port-forward from our localhost to this NodePort via any of the GCE VMs powering the cluster. For simplicitly, let’s grab the 1st node:
+NODE_HOST=$(\
+  kubectl get nodes \
+  --output=jsonpath="{.items[0].metadata.name}")
+echo ${NODE_HOST}
+gke-cluster-01-default-pool-66a5f47e-b70s
+Lastly, we’ll use this Kubernetes Node name which matches the GCE VM ID and the Node Port with gcloud ssh to create the port-forward:
+gcloud compute ssh ${NODE_HOST} \
+--project=${GOOGLE_PROJECT_ID} \
+--ssh-flag="-L ${NODE_PORT}:localhost:${NODE_PORT}"
+And, if everything’s working correctly, you should now (from your localhost) be able to access the Golang httpd service as:
+curl http://localhost:${NODE_PORT}
+Let’s ensure that everything’s working as we expect. You may use either Cloud Console of the Kubernetes Dashboard to view the logs of each of the containers in the jaeger-datastore pod. But, here’s how you may do this via the command-line. Let’s first identify the pod:
+POD=$(\
+  kubectl get pods \
+  --selector=app=jaeger-datastore \
+  --namespace=default \
+  --output=jsonpath="{.items[0].metadata.name}")
+echo ${POD}
+jaeger-datastore-74cc944d56-jv66z
+The Pod contains 1 container: jaeger-datastore. Let’s check its logs:
+kubectl logs ${POD} jaeger-datastore
+2018/03/27 16:32:05 ProjectID: [[GOOGLE_PROJECT_ID]]
+2018/03/27 16:32:05 Jaeger: http://jaeger-collector.default.svc:14267
+Alternatively, it may be preferable to deploy the Jaeger Agent as a sidecar (alongside the Golang container) within a Pod. However, to do this, you will need to make a config change to the OpenCensus Jaeger Exporter in the Golang code.
+main.go
+
+NB: The only changes are to lines 47 and 50.
+Because we changed the source, you will need to rebuild the code, rebuild the Docker image and push it to GCR. For simplicity, I’m not renaming the image but, to ensure your Deployment uses this, latest version, grab the sha-256 hash from the push command. In my case, this begins 3e79:
+The push refers to a repository [gcr.io/my-project/jaeger-datastore]
+5a9e3a3eb5ed: Pushed 
+af42768a716b: Layer already exists 
+b766c6dab1e1: Layer already exists 
+latest: digest: sha256:3e7912f3d8e48aabb5ce5df357fd43ebbb4f353b175a24f5a7926d3df15cc1d7 size: 947
+Then, we will need to revise the Deployment (see below) but I’m retaining the same Deployment and Service names so that we may re-apply it:
+jaeger-datastore-deployment-service.yaml:
+
+NB: As before, replace [[GOOGLE_PROJECT_ID]] with the your Google Cloud Platform Project ID in lines 20 and 35. In line 20, replace [[YOUR-SHA256]] with the value generated when you pushed the image to GCR.
+Then:
+kubectl apply --filename=jaeger-datastore-deployment-service.yaml
+The Pod now contains 2 containers: jaeger-datastore and jaeger-agent. Let’s check each container’s logs:
+kubectl logs ${POD} jaeger-datastore
+2018/03/27 16:32:05 ProjectID: [[GOOGLE_PROJECT_ID]]
+2018/03/27 16:32:05 Jaeger: localhost:6831
+and:
+kubectl logs $POD jaeger-agent \
+| jq --raw-output ".msg"
+Enabling service discovery
+Registering active peer
+Starting agent
+Not enough connected peers
+Trying to connect to peer
+Connected to peer
+It’s nothing much more than eye-candy but, here’s the result in the Jaeger UI of using the sidecar Jaeger Agent:
+
+Jaeger UI: jaeger-datastore
+and drilling down into the PutMulti trace:
+
+Jaeger UI: PutMulti
+Aside: Prometheus
+Jaeger is instrumented for Prometheus. In fact each of the constituent services provides a metrics endpoint (link). Since we already have the Query service exposed (so that we can view the UI in the browser), let’s use that. Previously we used the following to determine the endpoint for the Jaeger (Query) UI:
+JAEGER_QUERY=$(\
+  kubectl get services/jaeger-query \
+  --output=jsonpath="{.status.loadBalancer.ingress[0].ip}")
+echo ${JAEGER_QUERY)
+35.203.181.245
+Instead of browsing http://${JAEGER_QUERY} to view the UI, browse http://${JAEGER_QUERY}/metrics and you should see something similar to:
+
+If you wish to consume this endpoint from a Prometheus service, you’ll need to add an endpoint (not this one!) to your prometheus.yml targets. Within the Cluster and assuming you deployed Jaeger to the default namespace (as we did here), the service’s URL will be http://jaeger-query.default.svc/metrics.
+Conclusion
+In other posts, I’ve focused on using Stackdriver Trace as the consuming service. In this post, we’ve explored — the rather delightful — Jaeger (which also serves a prometheus metrics endpoint; I guess I need another post on using Prometheus instead of Stackdriver Monitoring).
+We deployed Jaeger to Kubernetes and then deployed a service that consumed the Jaeger Collector service directly and then used the Jaeger Agent directly (indirectly to the Jaeger Collector service). The latter appears to be the more flexible model.
+Stackdriver Profiler
+Earlier this week (yesterday?), Google released Stackdriver Profiler. Since I had a Kubernetes cluster running and so Golang code at hand, I decided to revise the code, redeploy and see what happened:
+
+Stackdriver Profiler
+You must enable the Stackdriver Profiler service and grant the service account that your code is using (the one used to create the Kubernetes secret) a role for the agent:
+GOOGLE_PROJECT_ID=[[YOUR-GOOGLE-PROJECT]]
+ROBOT=[[YOUR-ROBOT-NAME]]
+gcloud services enable cloudprofiler.googleapis.com \
+--project=${GOOGLE_PROJECT_ID}
+gcloud projects add-iam-policy-binding ${GOOGLE_PROJECT_ID} \
+--member=serviceAccount:${ROBOT}@${GOOGLE_PROJECT_ID}.iam.gserviceaccount.com \
+--role=roles/cloudprofiler.agent
+Give it a few minutes to process the results on first use.

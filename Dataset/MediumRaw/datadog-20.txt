@@ -1,0 +1,101 @@
+Datadog vs. InfluxDB
+Al Sargent
+Al Sargent
+
+Nov 16, 2020·8 min read
+
+
+
+
+If you’re responsible for monitoring, chances are you’ve heard of Datadog. Like InfluxDB, Datadog is a monitoring platform for cloud applications, bringing together data from containers, servers, databases and third-party services.
+InfluxData and Datadog approach monitoring from different starting points. InfluxDB is an open-source time series data platform that can be used for a range of use cases, one of which is monitoring. Datadog started out as an application purpose-built for infrastructure monitoring, and from there created purpose-built offerings for monitoring application performance, logs, security, and more.
+Both companies focus on making things easier for engineering teams. For instance, today on review site G2, “easy to use” is in the headline of both companies’ lead reviews.
+
+Given this ease of use, a number of our customers use both — InfluxDB for infrastructure monitoring, and Datadog for other types of monitoring.
+But that led us to ask: why are these customers using InfluxDB in addition to Datadog? After all, Datadog aims to be a place where you can “see it all in one place.”
+So, we decided to investigate. Here’s what we found.
+How are InfluxDB and Datadog used?
+Among customers that use both, we heard that they prefer InfluxDB for infrastructure monitoring and storing performance metrics for things like servers, containers, virtual machines and databases, and that they prefer Datadog for application performance management (APM) metrics.
+We asked them why they used two different vendors. After all, Single Pane of Glass — seeing all your logs, metrics, and traces in one place in order to find and fix problems faster — is an essential goal for any team managing production systems. This is because these teams continually need to reduce mean time to resolution (MTTR) in order to meet their SLAs and SLOs.
+Overwhelmingly, we heard about two key areas where they run into problems with Datadog: price and flexibility. Let’s review each in turn.
+How much does DataDog cost?
+While Datadog’s per-server, per-month pricing for infrastructure monitoring is easy to understand, customers tell us that it becomes very expensive at scale.
+For example, suppose you’re an enterprise with 2,000 hosts to monitor. That’s actually a small number by today’s standards, given microservice architectures where many specialized backend components work together to power an application. (Note that, for billing purposes, Datadog counts virtual machines running on AWS, Google Cloud, Azure, or VMware vSphere as individual hosts.)
+At $23 per monitored host per month, Datadog Enterprise will have a list price of over $500,000. Even with a discount, that’s not a number to sneeze at.
+On top of that, Datadog charges extra for:
+Serverless tasks — $1 each
+Serverless function — $5 each per month
+Custom metrics (list pricing not available on website)
+Individual containers beyond specified limits
+Usage spikes (Datadog excludes the top 1% of usage — much different from billing on average use.)
+
+How much does InfluxDB cost?
+InfluxData doesn’t price by monitored host or metric, but by the size of the server or cluster that stores your monitoring data. This is a critical difference that means InfluxDB is only 30% the cost of Datadog for most real-world infrastructure monitoring use cases.
+For our pricing analysis, we looked at pricing for the fully managed InfluxDB Cloud product, since this is closest to Datadog’s offering. Like Datadog, InfluxDB Cloud is fully managed 24/7 by our in-house site reliability engineering (SRE) team. This is in contrast to InfluxDB Enterprise, which customers manage on their own infrastructure.
+After looking at prices paid by InfluxDB Cloud customers, we found that the median price is $6.75 per monitored host per month.
+Slash your infrastructure monitoring costs by 70%
+When you compare InfluxDB’s $6.75 price point to Datadog’s $23, you see savings of 70%.
+Your mileage might vary, but put us to the test! Talk to one of our specialists to see how much we can reduce your infrastructure monitoring bill.
+To be clear, we’re talking about pricing for infrastructure monitoring. Datadog charges extra for its APM, log, security, and other monitoring products, which wasn’t included in the above analysis.
+Why does InfluxDB cost less than Datadog?
+You might ask, why can’t Datadog simply match InfluxData’s price?
+We don’t believe it’s that simple.
+One reason InfluxDB is typically less expensive is our lower cost structure. InfluxDB Cloud is based on an open-source product — InfluxDB, along with some closed source functionality like clustering and role-based access control (RBAC). A global community of engineers freely contributes code to InfluxDB, Telegraf, and our Flux language, as shown below. This lets us deliver features at a lower cost — and we pass those savings on to our customers.
+
+In contrast, Datadog’s product is largely proprietary software it builds itself, leading to a higher cost structure that it passes on to its customers. You can see for yourself on Datadog’s GitHub repository; while some of its agents and libraries are open source, its core product is not.
+Now you might be thinking: InfluxDB is lower-cost — but is it as good? Read on…
+Datadog vs. InfluxDB flexibility
+The second difference our joint customers brought up was flexibility. Specifically, they mentioned the ability for developers to tailor infrastructure monitoring to their exact needs, and make it manageable using GitOps (storing operations configurations in repositories like GitHub). Let’s dive in.
+Broader observability
+On its website, Datadog states that they monitor 400 different technologies. While that’s not bad, it’s less than half of the 735 FluentD plugins plus 181 Telegraf input plugins that can send data to InfluxDB.
+Maybe Datadog’s 400 plugins will cover your needs today, and maybe they won’t. But if you want to ensure that your future needs are covered, it makes sense to go with a product that taps into both the Telegraf and FluentD communities. By doing so, you can ensure the broadest possible observability to detect problems sooner and fix them faster — now and going forward.
+
+One customer also told us that Datadog agents can get overwhelmed, crash, and send duplicates of data — none of which happens with Telegraf. Your mileage may vary, but at the very least, agent stress testing is something you might want to incorporate into your Datadog and Telegraf evaluations.
+Unleash your monitoring data
+Another challenge our customers told us about is getting data out of Datadog. Datadog’s documentation states that, by default, it rate-limits its output API to 100 requests per hour.
+
+InfluxData’s stance is the complete opposite; we don’t artificially rate-limit our output. We realize that no monitoring platform is an island. It needs to integrate with a broad set of vendors: visualization, alerting, ML/AI, and more. So we can’t be stingy around data export.
+Because of this, InfluxData provides first-class outbound integrations across your DevOps and monitoring toolchain:
+Grafana for visualization
+PagerDuty, Slack, and many other alerting tools
+AWS Kinesis, Google Cloud Pub/Sub, Azure Monitor — to send to those clouds’ AI/ML engines
+Jupyter and Zeppelin notebooks for machine learning and AI-powered analysis
+30+ Telegraf output plugins
+8 client libraries in popular languages
+Our philosophy is: this is your data. You paid to collect it. You should be free to use it to drive further efficiencies in your monitoring and better experiences for your customers.
+Efficiency through analytics
+Datadog query filters and query language let you do min, max, and average, and counts. But that’s a small fraction of the dozens of functions in InfluxDB’s Flux data scripting language. These InfluxDB functions streamline common tasks for teams running production systems, such as:
+Calculate percentiles to track SLA compliance, which are often measured at the 90th, 95th, or 98th percentile.
+Window and aggregate data to pick out trends from noisy data sets.
+Enrich monitoring data with data in SQL databases, like account data, to facilitate customer outreach during outages.
+Forecast with Holt-Winters to predict outages and capacity issues.
+Geographically track your monitoring metrics to better determine which regions are experiencing problems.
+
+We built all of this flexibility into InfluxDB to make it a complete time series data platform. This lets you give your developers the monitoring flexibility they crave, so they can quickly find and fix problems fast to keep critical systems running 24/7.
+Deployment flexibility
+Datadog is deployed only on AWS. In contrast, you can deploy InfluxDB on dozens of AWS, Microsoft Azure, and Google Cloud regions, as well as on your own servers. This is especially significant given customer privacy regulations such as GDPR and CCPA that might have business implications for where you host your data.
+Datadog vs. InfluxDB features
+Take a look at this detailed comparison of Datadog vs. InfluxDB. You’ll see that InfluxDB matches Datadog in many areas and surpasses it in others.
+
+How to migrate off Datadog?
+If you’d like to migrate off Datadog, we’ve made it easy and low-risk by allowing you to migrate gradually, and on your own timeline. Here’s an overview of what that looks like.
+
+Let’s walk through this diagram.
+Telegraf, our data integration agent, can ingest metrics from StatsD format used by the Datadog DogStatsD plugin. Just set the datadog_extensions flag to true in your telegraf.conf file, as shown below, and Telegraf will be able to ingest Datadog metrics:
+## Parses extensions to statsd in the datadog statsd format
+ ## currently supports metrics and datadog tags.
+ ## http://docs.datadoghq.com/guides/dogstatsd/
+ datadog_extensions = true
+And, Telegraf lets you dual-write monitoring metrics to both Datadog and InfluxDB. For Datadog, you simply put the following into your telegraf.conf file:
+[[outputs.datadog]]
+apikey = "<datadog api key>"
+This lets you verify that your monitoring metrics are coming into InfluxDB; explore our query capabilities and outbound integrations; and eventually, migrate with no monitoring outages.
+Dual-write also means that, if you can’t get monitoring data out of Datadog due to their 100 output API requests/hour limit, you can use both InfluxDB and Datadog for a period of time until you no longer need your Datadog monitoring data. At that point, you can fully switch over to InfluxDB.
+Summary
+So, if you’re looking for a Datadog alternative that lets you:
+Slash your infrastructure monitoring budget by up to 70%
+Increase observability for your developers, engineers, and SREs
+Unlock monitoring data so it can be used across your DevOps toolchain
+Increase DevOps and SRE team efficiency using a broad range of analytics
+Store data wherever business needs dictate
+… then speak with one of our monitoring specialists for a free consultation to learn how we can help you transition off of Datadog.

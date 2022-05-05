@@ -1,0 +1,23 @@
+Integrating Datadog APM with Next.js
+Patrick Shuff
+Patrick Shuff
+
+Mar 28, 2020·1 min read
+
+
+
+
+Datadog APM (Application Performance Monitoring) is a wonderful tool for tracing your applications for performance, errors, etc. Adding support to most javascript applications it is as simple as importing the tracing libraries and it it hooks into all supported libraries. Unfortunately due to the nature of the way Next.js compiles and pre-renders pages this standard setup does not work.
+Fortunately for us the datadog team wrote APM such that it supports the javascript opentracingspecification. And even better is there is an express middleware for called express-opentracing to make it easy to dynamically add opentracing to express and pass a custom tracing library.
+First, install express-opentracing
+npm install express-opentracing dd-trace
+Update server.js to import datadog and opentracing
+// Import the datadog apm tracing lib
+const datadogTracer = require("dd-trace").init({analytics: true});
+// Import the express-opentracing lib
+const OpenTracingMiddleware = require("express-opentracing").default;
+Finally, add the opentracing middleware w/ datadog tracer
+// Enable the express-opentracing with datadog apm
+const server = express();
+server.use(OpenTracingMiddleware({ tracer: datadogTracer }));
+That’s it!

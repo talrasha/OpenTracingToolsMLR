@@ -1,0 +1,68 @@
+Customizing Datadog to Handle Multi-Service Monitoring within the same host
+Brajesh Upadhyay
+Brajesh Upadhyay
+Follow
+Mar 26, 2020 · 6 min read
+
+
+
+
+
+The need for Right Monitoring
+What caused my API performance to degrade? Is code the issue or external dependencies? Are DB Queries taking too much time? Code is very light then why does it take time? Ever been through all these questions where you needed to analyze, monitor, instrument, benchmark your code to come up with answers.
+Thanks to APM(Application Performance Management) tools in the market which are designed to solve all this for you in a matter of few lines of code.
+Good then let's not waste time and start using APM tools !!!
+Few months later, the code grows, more developers writing modules. With dockerization, more applications/services are running in the same machine, saving cost. One hardware serving many applications. For our use case, there is flights, hotels, payments, inventory, booking and so many other modules. More and more code, services, applications.
+Now all the module owners are trying to improve the performance of their modules, but before improving they need to monitor their performance. Module owners go to APM tool, and guess what there is only one service in APM per host— named host-1, all APIs are somewhere intermingled with all the other module APIs and there is no commonplace to understand my X module performance(latency, request, errors, dependencies duration), all the alerts are on their on the host-1 level. Hey because of module Y issues, X does not want to be alerted. Now what just to get proper performance monitoring, I need to separate all my modules in a different service hosted in a different host, pay for extra cost both machine wise and APM tool installation per host wise. My module is not even that big now to be a service.
+Well, guess what, this is what we at TravelTriangle were going through until last year.
+The journey from Scout to Datadog
+We needed APM tools to Monitor, instrument, troubleshoot, and optimize our end-to-end application performance. We were using Scout earlier and now we have switched to Datadog. This article is the journey for the change of choice from Scout to Datadog.
+There are many APM(Application performance management) solutions in the market. While we were using Scout in our Rails application(s), Scout gave us a host-level APM solution. One of the major drawbacks of this for us was while using Scout in Sidekiq Machines where multiple processes were running and all process were logically separated as per module ownerships. Tech teams could not monitor their sidekiq process based on team ownerships and internally every team was confused about what caused sidekiq machine issues. Similar kind of need was there in our backend services where the code grew with time and a lot of logically different modules e.g flight, inventory etc were written as part of the same service.
+While we needed to solve team owned queue-based monitoring for sidekiq, Scout was unable to provide the same. In Scout we would have to separate our machines as per modules and then Scout would have given us that separation of monitoring. We started looking out and came across Datadog APM where the costing was still the same i.e per host but it provided flexibility to write customized code to have multiple services from the same host and monitoring/alerts in Datadog platform can be set at the service level. This enabled us to save cost while enabling us to separate monitoring at a service level from the same host.
+Below are the points of difference between Scout and Datadog from my experience and as per my knowledge.
+
+Scout Vs Datadog
+Setup Multi-Service Monitoring From Same Host using Datadog
+We followed up the official documentation to set up Datadog in our hosts. While the existing sidekiq integration does not provide process-level separation. We wrote our custom sidekiq server middleware where we used process name to identify module and create service accordingly.
+#process_name = $0
+def call(worker, job, queue)
+.....
+service = get_module_name_using_process_name
+Datadog.tracer.trace(SPAN_JOB, service: service, span_type: SPAN_TYPE_WORKER) do |span|
+  span.resource = resource
+  span.set_tag(TAG_JOB_ID, job['jid'])
+  span.set_tag(TAG_JOB_RETRY, job['retry'])
+  span.set_tag(TAG_JOB_ARGS, job['args'])
+  span.set_tag(TAG_JOB_CLASS, job['class'])
+  span.set_tag(TAG_JOB_QUEUE, job['queue'])
+  span.set_tag(TAG_JOB_WRAPPER, job['class']) if job['wrapped']
+  span.set_tag(TAG_JOB_DELAY, 1000.0 * (Time.now.utc.to_f - job['enqueued_at'].to_f))
+  yield
+end
+.....
+end
+This enabled us to have per process-based Performance Monitoring and also use Datadog features like Latency/Error Alerts which were configured to raise a alert to the specific team in case of abnormality. This made our teams responsible for their modules even in a monolithic service and monitor the live performance of their codebase.
+
+All the sidekiq processes from the same machine
+Handling backtrace of query and memory per transaction through custom code
+While the migration to Datadog had few disadvantages(listed in the difference image above), major disadvantages for us was no backtrace of DB calls and no memory bloat insights.
+We added custom code in span metadata at Database Layer(custom Mysql2Adapter < AbstractMysqlAdapter overriding execute method)to identify backtrace of DB query to get the exact code which triggered this SQL query. This enabled us to debug on a code level once few queries in a trace were taking more time.
+Datadog.tracer.trace(“msqylquery”, options) do |span| (span.set_tag(“backtraceofquery”, caller.select{ |c| c.starts_with?(root) }))
+
+Enabled memory monitoring per trace level by writing custom code which monitored passenger(process) memory at the start of the transaction and end of the transaction. This enabled us to see a graph of memory per transaction and we attached this data per Datadog trace also.
+Leveraging Datadog features to improve operational excellence
+When we used Datadog, we used other features of Datadog to improve operational efficiency.
+We used its dashboard feature to create a oncall dashboard which will help the oncall deep dive in identifying the issue. This enabled any new developer to quickly debug outage. In this, we put all the relevant dependencies which could cause outage like (Request bombardment, Database, ElasticSearch, Slow Transactions, Cache, Errors, Memory etc)
+
+We used Datadog live process based alerts to configure if the number of process working for the module was changed. This used to happen when some transactions were taking a lot of memory and OS will kill the specific sidekiq process silently. Without alerts, we used to get notified about this hours later when the corresponding business team used to report about the impact.
+We used Errors support in this to setup team specific alerts once the alerts ratio used to increase in service. (Faulty code entering into production)
+We used DB specific service layer in Datadog to identify the top queries in times of throughput, time and went on to optimized these calls.
+We used flame graph to debug large time difference between two DB calls, is it the code issue or RAM/IO issue(load average) that the next line of code is not getting executed.
+We used custom code to separate module based services deployed on the same host.
+We used Span Summary to understand which type of call is taking more time (AvgSpans/Trace * Avg Duration)
+
+This has good metrics around trends, outliers, relative time comparison graphs, we used these to debug month on month increase in latencies.
+We used the change graph to have a deep analysis with Month Vs Previous Month comparison.
+
+All these enabled us to have better insights into our services, quickly do RCA and proactive alerts around the relevant metrics.
+If you like the article or find it relevant, do clap/share so that others might stumble upon this article. If you need to know more, feel free to reach out to me at LinkedIn. Read more about engineering at TravelTriangle here.

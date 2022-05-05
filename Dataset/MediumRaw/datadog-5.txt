@@ -1,0 +1,26 @@
+A guide to integrate Datadog to your Hasura Cloud project
+Hasura
+Hasura
+
+Apr 8·2 min read
+
+
+
+
+
+We announced our integration with Datadog back in November. With this integration, you can observe all your GraphQL queries and mutations made against your Hasura Cloud project’s API, and well as query success, failure, errors, and any exceptions that may occur.
+ICYMI, we also recently announced our integration with New Relic.
+In this post, we have a quick video guide on adding Datadog to your Hasura Cloud project in a few simple steps.
+Why add Datadog to Hasura
+Monitoring and tracking is a critical component to building robust tech-stacks, and having a native integration for Datadog that can consume your logs and metrics simplifies your APM infrastructure and logging infrastructure in general.
+What data gets sent to Datadog
+At the time of writing, we send logging events across http and ws with the following 5 metrics:
+Average number of requests
+Average request execution time
+Success rate of requests
+Active subscriptions
+Number of websockets open.
+You can read more in our docs page.
+We will be adding additional metrics in the future. If you have a specific measurement need, let us know!
+How to get Started
+You can reference the documentation above, or view the following guide that shows how to quickly add Datadog to your Hasura projects and view the exported logs.

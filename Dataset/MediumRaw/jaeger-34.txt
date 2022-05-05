@@ -1,0 +1,120 @@
+Jaeger with Elasticsearch on Kubernetes using Operators
+Pavol Loffay
+Pavol Loffay
+Follow
+Dec 16, 2019 · 5 min read
+
+
+
+
+
+In this article, we are going to look at deploying Jaeger on Kubernetes and OpenShift with Elasticsearch storage using operators. We will go through the configuration (custom resources) and also see what benefits OpenShift offers over vanilla Kubernetes.
+To get started with Jaeger operator refer to our operator blog post or documentation.
+What is the operator?
+Kubernetes operator is a software component that simplifies deployment and operations of an application running in a Kubernetes cluster — in our case Jaeger and Elasticsearch. Think of it as software that knows how to deploy, monitor, upgrade and scale an application.
+Behind the scenes, the operator uses Kubernetes custom resource (CR) to expose application configuration. The operator watches the resource and accordingly it makes changes to the application configuration or deployment based on the options provided in the CR.
+To make life even easier with operators there is one additional component — Operator Lifecycle Manager (OLM). This component helps users install, update, and manage the lifecycle of all operators and their associated services running across their clusters.
+To learn more about operators refer to the Kubernetes documentation, OpenShift or coreos documentation.
+Elasticsearch operator on Kubernetes
+In this section, we are going to use elastic.co Elasticsearch operator as backend storage for Jaeger. Refer to the Elasticsearch documentation on how to deploy the Elasticsearch operator. Jaeger configuration in this section can also be used for any external Elasticsearch cluster.
+Create an Elasticsearch CR that will be used by the operator to deploy a single node Elasticsearch instance:
+cat <<EOF | kubectl apply -f -
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: quickstart
+spec:
+  version: 7.5.0
+  nodeSets:
+  - name: default
+    count: 1
+    config:
+      node.master: true
+      node.data: true
+      node.ingest: true
+      node.store.allow_mmap: false
+EOF
+Before deploying Jaeger we have to get the password from Elasticsearch secret and create a new secret for Jaeger with username and password. Alternatively, we could specify these two options directly in storage options in Jaeger CR.
+PASSWORD=$(kubectl get secret quickstart-es-elastic-user -o=jsonpath='{.data.elastic}' | base64 --decode)
+kubectl create secret generic jaeger-secret --from-literal=ES_PASSWORD=${PASSWORD} --from-literal=ES_USERNAME=elastic
+Now the secret jaeger-secretwith username and password for Elasticsearch has been created and we can specify it in spec.storage.secretName within the Jaeger CR. We have to also specify Elasticsearch URL and injected CA certificate as a volume from quickstart-es-http-certs-public secret.
+cat <<EOF | kubectl apply -f -
+apiVersion: jaegertracing.io/v1
+kind: Jaeger
+metadata:
+  name: simple-prod
+spec:
+  strategy: production
+  storage:
+    type: elasticsearch
+    options:
+      es:
+        server-urls: https://quickstart-es-http:9200
+        tls:
+          ca: /es/certificates/ca.crt
+        num-shards: 1
+        num-replicas: 0
+    secretName: jaeger-secret
+  volumeMounts:
+    - name: certificates
+      mountPath: /es/certificates/
+      readOnly: true
+  volumes:
+    - name: certificates
+      secret:
+        secretName: quickstart-es-http-certs-public
+EOF
+The above configuration works since Jaeger 1.16.0 (#PR1918). Older Jaeger versions should deploy, however the cron job to clean old data will fail on TLS related errors. Note that spark-dependencies also does not support TLS (#ISSUE83).
+The successful deployment can be verified by:
+
+kubectl get deployment                                                                                                                                                                                                                                                                               
+NAME                    READY     UP-TO-DATE   AVAILABLE   AGE
+simple-prod-collector   1/1       1            1           4m12s
+simple-prod-query       1/1       1            1           4m12s
+Now let’s have a look at deploying Jaeger on OpenShift using self-provisioning of Elasticsearch cluster.
+Openshift 4
+Within an OpenShift environment Jaeger can make use of cluster logging and automatically provision an Elasticsearch cluster based on the configuration in Jaeger CR. OpenShift 4 also comes by default with OLM and user interface, therefore Jaeger provisioning can be done directly in the user interface. We will show how to deploy via OLM’s user interface. The same could be accomplished by directly deploying operators without OLM, however we will use benefits of “click on a button” updates and other management features OLM provides.
+First we have to deploy Jaeger and Elasticsearch operator via OLM. Open OpenShift UI and navigate to Operators and OperatorHub menu and search for Elasticsearch and Jaeger.
+
+Deploy Elasticsaerch cluster logging operator.
+
+Deploy Jaeger operator.
+Then we can go to Installed Operators menu to verify operators were deployed. There we click on Jaeger and create an instance.
+
+Installed Operators menu.
+
+Jaeger Operator details.
+
+Create Jaeger instance with self-provisioned Elasticsearch.
+We can also create an instance in the command line:
+cat <<EOF | kubectl apply -f -
+apiVersion: jaegertracing.io/v1
+kind: Jaeger
+metadata:
+  name: simple-prod
+spec:
+  strategy: production
+  storage:
+    type: elasticsearch
+    elasticsearch:
+      nodeCount: 1
+      resources:
+        requests:
+          cpu: 200m
+          memory: 1Gi
+        limits:
+          memory: 1Gi
+EOF
+This CR is significantly simpler than the one for external Elasticsearch. First we only have to create a single CR for Jaeger and storage, additionally, we no longer have to inject certificates, user credentials or the number of primary and replica shards. All the configuration is done automatically by the operator. For instance, the operator autonomously chooses data replication factor based on the nodes in the cluster. Behind the scenes, Jaeger operator creates Elasticsearch CR (for cluster logging Elasticsearch) which triggers Elasticsearch deployment for the given configuration.
+Persistent storage can be specified in.elasticsearch.storage by providing storage class name and size. Based on this configuration operator provisions persistent volume claim (PVC) and persistent volume (PV). The persistent volume is bound to the Elasticsearch instance by its name and it should be reused if the instance with the same name is re-created.
+Created Jaeger instance will show up in Jaeger tab. Once we click on the instance we will see what Kubernetes objects belong to it, and we can also modify the configuration if needed.
+
+List of Jaeger instances.
+Let’s also have a look at created deployments by operators:
+kubectl get deployment                                                                   
+NAME                                                    READY deployment.apps/elasticsearch-cdm-defaultsimpleprod-1   1/1       
+deployment.apps/simple-prod-collector                   1/1     
+deployment.apps/simple-prod-query                       1/1    
+Deployment on OpenShift also provides simplified and secure access to Jaeger console. Console URL can be obtained from the networking menu in UI or via oc get routes. To login to Jaeger we use our OpenShift credentials.
+Conclusion
+We have deployed Jaeger with Elasticsearch in two different ways. First we have used vanilla Kubernetes and upstream Elasticsearch operator. This required more configuration work and the creation of multiple Kubernetes objects. In the second scenario we have used OpenShift 4 with Operator Lifecycle Manager (OLM) user interface to provision Jaeger instance with Elasticsearch storage. This didn’t require any storage and security configuration. Last but not least OLM provides automatic updates for operators and their instances.

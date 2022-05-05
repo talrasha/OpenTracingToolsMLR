@@ -1,0 +1,203 @@
+How to visualize Sanic Python micro services with Jaeger
+Victor Fleurant
+Victor Fleurant
+Follow
+Jul 30, 2020 · 6 min read
+
+
+
+
+
+
+Photo by Trevin Rudy on Unsplash
+This article will describe creation of two simple micro-services using Sanic with multiple workers, and Jaeger configuration that will help visualizing flows them.
+From Sanic official Documentation :
+“ Sanic is a Python 3.6+ web server and web framework that’s written to go fast. It allows the usage of the async/await syntax added in Python 3.5, which makes your code non-blocking and speedy.”
+In fact, writing an API with Sanic is as simple as :
+from sanic import Sanic
+from sanic import response
+import random
+app = Sanic(__name__)
+@app.route("/example-api")
+async def example(request):
+    random_value = random.randint(0, 100000)
+    return response.json(random_value)
+
+if __name__ == "__main__":
+    app.run(port=8000, host="0.0.0.0")
+With multiple micro-services, visualisation has many advantages such as a broad view of all micro services, an easy way to see failed requests, and a way to identify system bottlenecks.
+Jaeger is an open source solution that will offer instrumentation tools and also a web interface to visualize requests.
+Code is available here
+Tracing comes with domain specific vocabulary :
+Span : A time window of a specific code block execution
+Child and Parent Spans : Child spans are spans that are attached to a parent span. Parents spans could have multiple children spans
+Tags : Useful to attach global informations to spans. It could be anything : for instance the request or response, or a flag to specify that the request has an error
+Key/values : We can attach key/values pair to spans, jaeger will also keep track of the exact moment where we save these key/values
+Sampler : It is where we define the general strategy of traces ingestion. We could configure Jaeger to ingest all spans within batches, or trace a percentage of all request
+It is also important to keep in mind that the Jaeger Client sends spans via UDP. UDP unlike TCP, does not guarantees delivery of data and that packets will be delivered in the order they were sent.
+Jaeger also offers a web interface to visualize traces - available at http://localhost:16686.
+(Almost) Real world scenario
+Generating random integers is a simple example, but not very representative of a real world scenario. Consider the following example requirements :
+We need to handle a shop backend for that will expose catalog and inventory services, where we will be able to configure items, update stocks and see what items are in stocks
+These requirements can be implemented with 3 APIs :
+Add new items to the catalog
+Put items in stocks
+List catalog items that are in stock
+A database to store items and stocks will be needed, and MySQL is a good candidate for that.
+Catalog micro-service will be in charge of storing items that exists in the system, and Inventory micro-service will be responsible to store items’ stocks.
+Coding
+Let’s start with a Dockerfile template that will be used by our two micro services
+FROM python:3.7-slim
+WORKDIR /app
+COPY requirements.txt /app
+RUN pip install -r requirements.txt
+COPY . /app
+CMD ["bash", "start.sh"]
+⌛ Time saver trick ⌛: copying only requirements.txt file just before running pip install will decrease dramatically docker build time if your code change -but not your requirements- because docker layer built at line 3 won’t change, and will be taken from the cache, docker will only build new layers starting line 5 because that layer changed.
+Now, docker-compose file to link apps with Mysql and Jaeger
+inventory:
+  build: inventory
+  ports:
+    - "8001:8001"
+  depends_on:
+    - db-inventory
+  links:
+    - jaeger
+  environment:
+    - JAEGER_AGENT_HOST=jaeger
+
+db-inventory:
+  image: mysql:5.7
+  restart: always
+  environment:
+    MYSQL_ROOT_PASSWORD: somepwd
+    MYSQL_DATABASE: INVENTORY_DB
+    MYSQL_USER: inventory-user
+    MYSQL_PASSWORD: inventorypwd
+catalog:
+  build: catalog
+  ports:
+    - "8000:8000"
+  environment:
+    - JAEGER_AGENT_HOST=jaeger
+  depends_on:
+    - db-catalog
+
+db-catalog:
+  image: mysql:5.7
+  restart: always
+  environment:
+    MYSQL_ROOT_PASSWORD: somepwd
+    MYSQL_DATABASE: CATALOG_DB
+    MYSQL_USER: catalog-user
+    MYSQL_PASSWORD: catalogpwd
+jaeger:
+  image: "jaegertracing/all-in-one:latest"
+  expose:
+    - "16686"
+    - "6831/udp"
+  ports:
+    - "5775:5775/udp"
+    - "6831:6831/udp"
+    - "6832:6832/udp"
+    - "5778:5778"
+    - "16686:16686"
+    - "14268:14268"
+    - "9411:9411"
+Configure Sanic workers with Jaeger
+You may use multiple workers to get the most performance of Sanic, and if you do so, you will need to init tracer for each workers, and we can use after_server_start listener to do that. We will also need to use a scope manager called ContextVarsScopeManager which will automatically apply parent span propagation to children coroutines, tasks or scheduled callbacks. We will also configure sampler to sample all traces.
+@app.listener('after_server_start')
+async def notify_server_started(app, loop):
+    init_tracer("inventory")
+def init_tracer(service):
+    config = Config(
+      config={
+        'sampler': {
+            'type': 'const',
+            'param': 1,
+        },
+        'logging': True,
+      },
+      service_name=service,
+      validate=True,
+      scope_manager=ContextVarsScopeManager()
+    )
+    config.initialize_tracer()
+1. Inventory Micro Service
+This micro-service will handle stocks. Database schema will be simple : it will keep number of stock available for each items. Whenever stock equal zero, then it will mean that this particular item won’t be available anymore.
+"""CREATE TABLE IF NOT EXISTS STOCK (ITEM_ID int, STOCK int, PRIMARY KEY (ITEM_ID))"""
+Put item in stock API will look like :
+@app.route("/fill", methods={"POST"})
+async def put_in_stock(request):
+    with opentracing.tracer.start_span('/fill') as span:
+        product_id = int(request.json['product_id'])
+        stock = int(request.json['stock'])
+        try:
+            await _put_in_stocks(db, product_id, stock)
+            span.set_tag('response', "OK")
+            return response.json(status=200, body="OK")
+        except Exception as e:
+            span.set_tag('response', e)
+            span.set_tag(tags.ERROR, True)
+            db.rollback()
+            return response.json(status=500, body="KO")
+This piece of code will start a new span called “fill” and save, in case of error, exception message into that span. In that case these tags will show if request was successful or not.
+
+Example of an error trace
+Get stocks API will look like :
+@app.route("/stocks", methods={"GET"})
+async def get_stocks(request):
+    tracer = opentracing.global_tracer()
+    span_ctx = tracer.extract(format=Format.HTTP_HEADERS, carrier=request.headers)
+    with tracer.start_span("get_stocks", child_of=span_ctx) as span:
+        try:
+            items = await _get_all_stocks(db)
+            return response.json(status=200, body=items)
+        except Exception as e:
+            span.set_tag('response', e)
+            span.set_tag(tags.ERROR, True)
+            return response.json(status=500, body="KO")
+Notice here the tracer.extract, that line will extract from the request headers context about the parent Span. In fact this API will be called by Catalog micro-service, and will “attach” that span as a children span.
+2. Catalog Micro Service
+This micro-service will handle Items. Another simple schema containing : ID, name & price.
+"""CREATE TABLE IF NOT EXISTS ITEM (ID int NOT NULL AUTO_INCREMENT, NAME CHAR(20) NOT NULL, PRICE FLOAT, PRIMARY KEY (ID))"""
+Add item API :
+@app.route("/item", methods={"POST"})
+async def add_item(request):
+    tracer = opentracing.global_tracer()
+    with tracer.start_active_span('add_item') as scope:
+        name = request.json['name']
+        price = float(request.json['price'])
+        try:
+            _create_new_item(db, name, price)
+            return response.json(status=200, body="OK")
+        except Exception as e:
+            print(e)
+            return response.json(status=500, body=e)
+start_active_span will start a parent span, and all following spans started with start_span will be automatically attached like a children span.
+Finally get available items API. That API will fetch all configured items in database, and return only those who are in stock by calling Inventory micro-service :
+@app.route("/available")
+async def get_available_items(request):
+    tracer = opentracing.global_tracer()
+    with tracer.start_active_span('get_available_items') as scope:
+        try:
+            items = _fetch_all_items(db)
+            inventory = await _fetch_all_inventory()
+            available_items = _retain_only_items_in_stock(items, inventory)
+            return response.json(status=200, body=available_items)
+        except Exception as e:
+            print(e)
+            return response.json(status=500, body=e)
+async def _fetch_all_inventory():
+    headers = {}
+    tracer = opentracing.global_tracer()
+    with tracer.start_span("_fetch_all_inventory", child_of=tracer.active_span) as span:
+        span.set_tag(tags.HTTP_METHOD, "GET")
+        tracer.inject(span, Format.HTTP_HEADERS, carrier=headers)
+        response = requests.get("http://inventory:8001/stocks", headers=headers)
+        return response.json()
+Notice here the tracer.inject, this will send in request headers information about the current span.
+
+catalog micro-service trace that queries it’s own database and inventory micro-service API
+Conclusion
+That’s it. After seeing important concepts about Jaeger, we configured async Sanic apps to work with Jaeger, supporting multiple workers. We know how to trace our calls between micro-services by configuring parent spans using start_active_span or children spans with start_span, and propagate spans context between requests using tracer.inject & tracer.extract. We also know how to attach value to spans to visualize partial or final results of some code blocks.

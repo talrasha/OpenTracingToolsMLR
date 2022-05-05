@@ -1,0 +1,117 @@
+Monitoring Python Applications with Elastic APM
+A guide to monitoring Flask, FastAPI and Python Applications
+Jimit Dholakia
+Jimit Dholakia
+
+Mar 1·5 min read
+
+
+
+
+
+Photo by Luke Chesser on Unsplash
+What is Elastic APM?
+Elastic APM is an application performance monitoring system built on the Elastic Stack. It allows you to monitor software services and applications in real-time, by collecting detailed performance information on response time for incoming requests, database queries, calls to caches, external HTTP requests, and more. This makes it easy to pinpoint and fix performance problems quickly.
+Elastic APM also automatically collects unhandled errors and exceptions. Errors are grouped based primarily on the stacktrace, so you can identify new errors as they appear and keep an eye on how many times specific errors happen.
+-Elastic
+This article consists of three parts:
+Monitoring Flask / Flask-RESTPlus Applications
+Monitoring FastAPI Applications
+Monitoring Python Applications
+Monitoring Flask / Flask-RESTPlus Applications
+Installation
+Elastic APM has built-in support for Flask. Since Flask RESTPlus and Flask-RESTful are extensions for Flask, the same steps apply for Flask-RESTPlus as well as Flask-RESTful.
+Install Elastic APM agent using pip:
+pip install elastic-apm[flask]
+Implementation
+Let’s first import the required packages:
+from flask import Flask
+from elasticapm.contrib.flask import ElasticAPM
+import elasticapm
+Now, let's create an instance of Flask, which will be our WSGI application.
+app = Flask(__name__)
+We can initialize the APM agent by using either environment variables or in our application code itself. In this article, we will initialize the APM agent in our code itself.
+To create an instance of Elastic APM agent, we need the following parameters:
+server_url → The URL of the Elastic APM
+service_name → Name of the application
+environment → The environment in which the application is running e.g. dev, qa or prod
+server_url = 'http://localhost:8200'
+service_name = 'DemoFlask'
+environment = 'dev'
+Next, we will initialize the APM Agent.
+We need to pass the Flask instance app as the first argument for initializing the APM agent, along with the parameters that we defined above.
+apm = ElasticAPM(app, server_url=server_url, service_name=service_name, environment=environment)
+Our APM agent is now ready.
+Now, let’s open Kibana (e.g. http://localhost:5601/) to see the logged data.
+Open the Kibana dashboard and go to the APM tab. You can see our service DemoFlask listed there.
+
+Click on the service name and go to Metrics, where you can track the CPU and Memory Usage.
+
+
+In the transactions tab, you can see the visualization related to each request your application receives, such as Transaction duration and Requests per minute.
+
+
+You can also view the list of all the endpoints along with their average duration.
+
+Click on a transaction to see more details for the transaction.
+
+
+You can also add additional information about the transaction by using labels.
+elasticapm.label(platform='DemoPlatform')
+To add default labels to all transactions, we can use Flask’s app.before_request decorator.
+@app.before_request
+def apm_log():
+    elasticapm.label(platform = 'DemoPlatform',                     
+                     application = 'DemoApplication')
+The information of the labels will be visible in the metadata tab in the trace sample of the transaction.
+
+Note that, by default, the transaction and error data will be recorded only when the application is not in debug mode.
+Sample code can be found from the link mentioned in the Resources section.
+Monitoring FastAPI Applications
+To monitor FastAPI/Starlette Applications properly using Elastic APM, you need to use Python 3.7+
+Installation
+Install the Elastic APM agent using pip:
+pip install elastic-apm
+Implementation
+First, let’s import the required packages:
+import uvicorn
+from fastapi import FastAPI
+from elasticapm.contrib.starlette import make_apm_client, ElasticAPM
+Next, we will create an APM client using the SERVICE_NAME , SERVER_URL and ENVIRONMENT. Also, we will specify the global labels at the same time using GLOBAL_LABELS.
+apm_config = {
+ 'SERVICE_NAME': 'DemoFastAPI',
+ 'SERVER_URL': 'http://localhost:8200',
+ 'ENVIRONMENT': 'dev',
+ 'GLOBAL_LABELS': 'platform=DemoPlatform, application=DemoApplication'
+}
+apm = make_apm_client(apm_config)
+Now, let’s initialize the Elastic APM agent.
+app = FastAPI()
+app.add_middleware(ElasticAPM, client=apm)
+The FastAPI application is now ready to send the logs to Elastic Server.
+Sample code can be found from the link mentioned in the Resources section.
+Monitoring Python Applications
+We can create an Elastic APM Client to monitor Python applications that do not use a framework (e.g. Flask, Django or FastAPI). An example of these applications could be schedulable code.
+Installation
+Install Elastic APM agent using pip:
+pip install elastic-apm
+Implementation
+First, we will create an Elastic APM Client
+from elasticapm import Client
+import elasticapm
+client = Client(
+    {'SERVICE_NAME': 'DemoPython',
+     'SERVER_URL': 'http://localhost:8200',
+     'ENVIRONMENT': 'dev'}
+)
+For frameworks like Flask and FastAPI, Elastic APM automatically instruments the application and also begins and ends the transactions.
+However, for Python applications that do not use such frameworks, we need to manually instrument the application and also begin and end the transactions.
+To automatically instrument your application to capture HTTP requests, database queries, etc., add the following line
+elasticapm.instrumentation.control.instrument()
+To begin a transaction, use begin_transaction method with the appropriate transaction type as the parameter.
+For example,
+client.begin_transaction('schedule')
+To complete a transaction, use the end_transaction method which takes two arguments viz. transaction name and result.
+For example,
+client.end_transaction('demo-transaction', 'success')
+Sample code for monitoring Python application can be found from the link mentioned in the Resources section.

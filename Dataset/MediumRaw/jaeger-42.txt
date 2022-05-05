@@ -1,0 +1,68 @@
+Custom links in Jaeger UI
+Michal Wieczorek
+Michal Wieczorek
+Follow
+Jul 16, 2019 · 6 min read
+
+
+
+
+
+
+Photo by JJ Ying on Unsplash
+Jaeger is a great tool for distributed tracing developed originally by Uber and now governed by CNCF. In this article, I’d like to show a little feature of Jaeger UI which I think is not well known but can be really useful in day to day work with Jaeger and other tools — dynamic custom links based on span metadata (tags, process, logs).
+First of all: big thank you goes to Louis-Étienne Dorval who gave a great talk on Kubecon EU 2019 (video/slides), where “Links on tags” were mentioned on one of the slides. After the talk, I started to search for the details. I checked Jaeger docs but I didn’t find any reference on how to implement it. Also searching the internet didn’t help. So I dug through the GitHub repository (both code and issues/PRs) and luckily found answers there.
+“Custom links — why do I need them?”
+Regardless of whether you are a developer or an SRE you use many tools during investigating problems in production environments or just analyzing how your system is working. Traces, metrics, logs, repositories, wikis, etc. That requires a lot of switching between tabs, windows, searching or drilling down through the menus. Possibility to just click in one tool to get to the other with specific context saves you a lot of precious time and enhance overall UX.
+When working with Jaeger, on a traceview panel (let’s not go into the discussion if it’s the right place to work with traces… ;-) ) we get a lot of metadata from the span tags/logs. What if we can jump directly from that screen to another tool to a relevant page (not just the main screen)?
+Fortunately, Jaeger UI is fully capable to help us with it.
+“Ok, so let’s add some links”
+To define custom links we need to change file passed to --query.ui-config described here. In that json file we need to add linkPatterns array like below (example taken from this PR):
+
+For each link you have to add an element in a linkPatterns array with such parameters:
+type: you decide in which metadata section your link will be added: process, tags, logs:
+
+key — name of tag/process/log attribute which value will be displayed as a link, f.e. on the above example it can be hostname for process type
+url — the URL where the link should point to, it can be an external site or relative path in Jaeger UI
+text — text displayed in the tooltip for the link
+Both url and text can be defined as templates where Jaeger UI will dynamically substitute values based on tags/logs data.
+For those who’d like to give it a try, I added a step by step tutorial. I just assume that you have a Kubernetes cluster with Tiller installed. I used GKE (because of one of the examples below) but can be even minikube. I also assume you have basic knowledge about Jaeger. If not go to “Getting started” from docs where you will also find information about HotRod application.
+First, let’s install Jaeger and HotRod app. I prefer to use jaeger-operator to manage Jaeger instances. Let’s use the official helm chart:
+helm install stable/jaeger-operator --name jaeger-operator
+When the jaeger-operator pod is up and running add a Jaeger custom resource like on gist below:
+
+kubectl apply -f ./jaeger.yaml
+Jaeger-operator will pick up the Jaeger custom resource and install Jaeger components (with such simple definition all components will be deployed as one pod — all-in-one strategy — which is not suitable for production usage but perfect for such tutorials).
+And finally add HotRod app based on following gist (so we can use it to produce some traces):
+
+kubectl apply -f ./hotrod.yaml
+The nice thing about the jaeger-operator is that it can automatically ‘inject’ jaeger-agent as a sidecar to selected deployments. All you need to do is just add an annotation like to the deployment:
+"sidecar.jaegertracing.io/inject": "true"
+Check if everything is up and running. To access both Jaeger UI and HotRod app use kubectl port-forward:
+kubectl port-forward svc/simplest-query 16686:16686
+kubectl port-forward svc/hotrod 8080:8080
+Hint: if you will follow the steps the port-forwarding may be broken when the Jaeger pod is recreated (f.e. because of ui-config change). In such case just run the command once again.
+Go to http://localhost:8080/ and do some actions. Then go to http://localhost:16686/ and click “Find traces” — you should see a list of traces. Ok, great. So now let’s add some link examples!
+When you check one of trace and span (f.e. for frontend service like below) there’s always a tag with key hostname with a value of HotRod app pod’s name.
+
+What if we can jump from Jaeger UI directly to GCP console page with pod details? Ok, let’s do it.
+We can modify our Jaeger CR definition and add some configuration for ui ( example json presented at the beginning should be ‘translated’ to yaml). Here’s an example of a modified config:
+
+Let’s deploy it once again:
+kubectl apply -f ./jaeger2.yaml
+Of course, you should adjust a few details in the link (like GCP project name or GKE cluster name). Let’s go once again to hotrod app and ‘produce’ some traces. Then in Jaeger UI on the details of selected span we can see a new icon next to hostname value with a tooltip:
+
+And when clicked we’ll be moved to GCP console to “Pod details” page:
+
+We can also use it to navigate in Jaeger itself. Let’s imagine we’re investigating one trace and would like to see other traces for the same customer (in hotrod app we can find a customer_id key inside logs). Here’s a snippet of another link definition:
+
+Once again update the Jaeger CR:
+kubectl apply -f ./jaeger3.yaml
+Hint: you need to recreate the Jaeger pod (scale down/up or just delete the pod) so new version of config-ui will be picked up.
+Go to HotRod app to produce some traces and then to Jaeger UI. You should see something like below — link next to customer_id key.
+
+Click it and a new tab will be opened with filtered traces (field Tags in the left panel will be filled with a proper condition).
+
+There many other possible use cases: links to Grafana dashboard presenting metrics of particular service, links to Kibana logs filtering additional events f.e. based on request-id value from tags, links to GitHub repositories based on values of version.
+Hopefully, this post will be a starting point for your Jaeger UI extension which will make it more integrated with other tools in your stack.
+If you liked what you read (or not at all) — please leave me some feedback here or through Twitter. Thanks.

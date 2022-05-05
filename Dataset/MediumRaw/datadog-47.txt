@@ -1,0 +1,113 @@
+Collecting ECS Container Apache and PHP-FPM Metrics Using Datadog Autoconfiguration
+Regis Wilson
+Regis Wilson
+Follow
+May 19, 2020 · 9 min read
+
+
+
+
+
+A black-and-white photograph of a labrador shaking hands with a boy wearing a striped shirt
+Photo by Fabian Gieske on Unsplash
+Recently, I was tasked with integrating a new project into our infrastructure that was completely different from our usual platform integrations. I found it sufficiently difficult to implement “out of the box,” and I couldn’t find applicable examples on the Internet. I even needed to reach out to Datadog support to figure it out over several days. When I was finished, I decided to write this blog post to describe how to collect server application metrics for an Apache and PHP-FPM project running on an ECS cluster with the Datadog host agent. My hope is that it will help anyone else who is struggling with similar projects to complete them more quickly.
+Introduction to Datadog Autoconfiguration
+This journey begins in a promising way. Datadog has an autoconfiguration feature that I have been interested in for a long time. Inside of an ECS cluster, there could be dozens of applications running, and I love the concept of saying, “Monitor everything with the ‘Application Foo’ tag with the following (possibly custom) checks.” Typically, Application Foo tags are already present on the ECS services or in their names, and we have already spotted their AWS metrics, logs, and even AWS costs by the existing tags.
+When presented with this new project, I initially thought, “How hard can it be? Take one (or many) docker container task definition(s), deploy a new service in ECS, tag it with some information, and we’re live and monitoring a production-level application!” Little did I know the harrowing trek I was about to embark on.
+The link below will help get you started on the autodiscover journey and requires some familiarity with the Datadog Agent and configuration. The changes are not very difficult to get ready. Take some time to read the documentation and come back when you’re done.
+Autoconfiguration Datadog agent preparation and getting started documentation: https://docs.datadoghq.com/getting_started/agent/autodiscovery/?tab=docker
+Collecting Metrics with Datadog Autoconfiguration
+By now, I had read up on autoconfiguration details on starting the Datadog agent in our ECS clusters and had a pretty solid grasp of how to monitor our docker containers that would be running Apache and PHP-FPM. The examples and research seemed to indicate that autoconfiguration for Apache (at least) would be extremely simple and easy. For example, Apache is listed in the supported autoconfiguration checks out of the box. There is even a working version of the Apache-specific auto_conf.yaml file already deployed and active with our Datadog agent (v6.19.0 at the time of this writing). There is also an extremely useful blog post on how to configure Apache itself to collect metrics and logs.
+Of course, nothing is ever that easy, and no matter how I tried to restart the agent and look for the metrics, I couldn’t get anything to show up in Datadog’s dashboard or metrics explorer. Just for the sake of discussion, I could have enabled a configuration check on a static configuration that said, “Monitor these ECS tasks with this check,” but we know that isn’t scalable and would require future work to adapt to new applications or iterations for features I hadn’t considered yet. If we ever renamed the project or forked the project to adapt it to something else, I wanted the metrics and logs to magically appear.
+For the purposes of this blog post, I wanted to wade ahead a little bit so that the example is easier to follow and gives a more holistic view of the effort. In this project, Apache by itself is doing very little; the major purpose of Apache is to provide HTTP requests to the application, which is written in PHP. There are several ways to implement PHP applications using Apache (or Nginx), and the most portable way to do so is with the FastCGI Process Manager (or FPM). The main benefit of using FPM for our application is that the PHP interpreter runs in a separate set of processes running in a different container that can allow scaling horizontally (across instances) and manage scaling vertically (with multiple processes running in each instance). You can find many examples of this online. If you need time to go read up on that to configure your application, go ahead; I’ll wait here for you to get back.
+Configuring PHP-FPM for Datadog Autoconfiguration
+The first clue to my Apache configuration problems became a lot clearer as I moved onto monitoring the PHP-FPM container with autoconfiguration. Although PHP-FPM is a supported metric integration in Datadog, it does not have autoconfiguration enabled by default as Apache does. In order to apply autoconfiguration settings and templates to PHP-FPM, you must configure your own auto_conf.yaml file and place it in the php_fpm directory to be interpreted by the Datadog agent. Here is a good generic guide to creating an autoconfiguration file for an application check.
+The benefit of configuring a template in this way is the exact thing I’ve been discussing in this post: instead of configuring this application to run these checks, I want to configure an automatic method to monitor any application with these tags to run appropriate checks. For example, if application “A” is running on host “H1” with port “P1”, and another application “B” is running on host “H2” with port “P2”, then I do not want to configure something like:
+https://hostH1:portP1/ApplicationA
+https://hostH2:portP2/ApplicationB
+Instead, I want to configure a generic check that fills in details from a template that is generated every time an application is deployed with the correct tags, like the following example:
+https://%%host%%:%%port%%/%%env_APPLICATION%%
+What Not to Do with Autoconfiguration
+The first mistake I made with the docker LABELs was a simple self–foot shooting. Notice that all the keys I listed above are plural. It’s easy to type in a singular key like “check_name” rather than “check_names” or to mistype “configuration” instead of “config”. I suggest you copy-paste the keys to avoid making mistakes like these, which, if not caught early, can lurk silently for a long time and might be hard to spot without additional review from a colleague or a support person.
+The second mistake I made with the docker LABELs is much easier to make and is due to the typography used all over the documentation. For example, it’s not clear which parts of the following string are optional, which are meant to be replaced by a string or name, and which are literal parts of the configuration. I’ll quote a line from the official documentation linked above to illustrate this:
+LABEL "com.datadoghq.ad.check_names"='[<INTEGRATION_NAME>]'
+Should be filled out as follows:
+LABEL "com.datadoghq.ad.check_names"='["php-fpm"]'
+You can see how it is supposed to look in the documentation for the Redis example (which shows how it works but is very confusing because of the typography of the generic template).
+There are several important pieces that are very hard to figure out and will result in silent failure if you are not explicit about each one:
+The sections marked with angle brackets “<NAME>” need to be filled in with a string or NAME, and the NAME has to match the check name(s) in the autoconfiguration files.
+There must not be any spaces or tabs in the label except for exactly one space between LABEL and the following double quotation mark. In particular, you cannot put spaces around the equal sign in the LABEL. This is probably a limitation of or caused by the syntax of the Dockerfile.
+The use of double and single quotation marks is inconsistent and generally doesn’t matter, but you are probably going to use quotation marks inside the key or value because the values expect valid JSON. And if you are forced to use quotation marks of the same type as the outer closing quotation marks, you must escape those with a backslash.
+Notice the use of square brackets ‘[“name”]’ which indicates the JSON syntax for a list, rather than indicating that the parameter is optional. In particular the documentation specifying ‘[<INTEGRATION_NAME>]’ is misleading, because one doesn’t know if the quotation marks are literal, whether the square brackets indicate a literal or optional parameter, or if the angle brackets indicate a literal bracket or substituted variable name, and the surrounding quotes to generate valid JSON inside the list are missing completely.
+This is an example taken directly from the Datadog documentation. I do not want you to copy this configuration and I have not provided my attempts, for reasons you will see later.
+Screenshot from Datadog documentation
+Figure 1: A copy of documentation from Datadog for configuring Docker LABELs
+If you are ultimately successful in applying the LABELs to your docker image, you should go ahead and verify that everything looks correct as follows. This picture only shows the one LABEL that I needed for correctly matching templates from the agent files to the docker containers holding the application:
+# docker image inspect abcde
+…
+"Labels": {
+  "com.datadoghq.ad.check.check_names": "[\"php-fpm\"]"
+}
+…
+After all this detailed instruction, you must now take a deep breath, back up, and STOP. This section is entitled “What Not to Do,” and you should literally not do anything that I have just described, because it’s a dead end and will result in wailing and suffering and misery for many days. If you would like to troubleshoot this configuration, be my guest. There are some hints on the Internet and an official troubleshooting guide in the Datadog docs. I did find this document by seeing the errors presented there, but I could find precious little information on how to fix it. The support team at Datadog was eventually able to help me figure things out. I am documenting the results in this post so that you, dear reader, need not follow my painful footsteps.
+The problem is that although these docker labels seem to indicate that you can tag your docker images with configuration sections that appear to duplicate (or possibly override) the values specified in the configuration files for the agent, you will eventually discover that they actually do not do anything at all.
+What to Do to Enable Autoconfiguration for ECS Containers
+Now that you have enough information and context, I can rewind the tape to avoid all of the false starts and dead ends of a bad configuration. The first thing to note is that the automatic configuration files that the Datadog agent requires need several pieces of information to work properly. Here is an example of our PHP FPM auto_conf.yaml file that shows what is required.
+
+Code Sample 1: Configuring the PHP_FPM auto_conf.yaml file
+Notice the parameter for “ad_identifiers”. This allows the Datadog agent to match up this particular “instances” configuration with the docker label on your ECS tasks that run with those images. In particular, you only need to add a single LABEL to your docker build file(s):
+LABEL "com.datadoghq.ad.check.id"='php_fpm'
+Now the Datadog agent can read the autoconfig file and apply the templates to any docker images containing the label above, and everything should work smoothly.
+Indeed, by adding the ‘httpd’ label to the Apache Dockerfile configuration, we can also make the auto_config.yaml file shipped with the Datadog agent start to work seamlessly (or, we could alter the “ad identifiers” (note the plural) parameter appropriately and then restart the Datadog agent[s]).
+For verification, we can see that the configuration is applied and detected by the datadog agent:
+# sudo datadog-agent configcheck
+~
+Auto-discovery IDs:
+* httpd
+===
+=== apache check ===
+Configuration provider: file
+Configuration source: file:/etc/datadog-agent/conf.d/apache.d/auto_conf.yaml
+Instance ID: apache:abcde1234
+apache_status_url: http://xxx:yyy/apache-status?auto
+tags:
+- cluster_name:mycluster
+- docker_image:xxx.dkr.ecr.us-west-2.amazonaws.com/application:tag
+- task_version:xx
+- task_name:application
+- task_family:applicationgroup
+…
+~Auto-discovery IDs:
+*php-fpm
+===
+=== php_fpm check ===
+Configuration provider: file
+Configuration source: file:/etc/datadog-agent/conf.d/php_fpm.d/auto_conf.yaml
+Instance ID: php_fpm:abcdef1234
+ping_reply: pong
+ping_url: http://xxx:yyy/ping
+status_url: http://xxx:yyy/status
+tags:
+- cluster_name:mycluster
+- task_name:application
+- task_family:applicationgroup
+- docker_image:xxx.dkr.ecr.us-west-2.amazonaws.com/application:tag
+- task version:xx
+use_fastcgi: false
+And even better, we can now view metrics in the standard dashboards provided by the Datadog PHP integration, as you can see in the next screenshot (truncated for clarity):
+
+Figure 2: Part of the Datadog built-in PHP-FPM dashboard
+And you can also view the Apache dashboard metrics that come with the Datadog Apache integration:
+
+Figure 3: The Datadog built-in Apache dashboard
+A Brief Overview for Apache/PHP-FPM Logging Configuration
+Metrics are great, but let me very briefly go over the logging configuration as well. There are some good examples on the Internet for logging configuration, but I ended up having to piece various parts together before I had something I was happy with. Here is how I configured the metrics and logging for Apache and PHP FPM for ingestion into the Datadog logging agent:
+
+Code Sample 2: JSON logging configuration for Apache running in docker/ECS
+
+Code Sample 3: JSON logging configuration for PHP-FPM running in docker/ECS
+For completeness, this is what the logs look like in the Datadog Log Explorer:
+A screenshot of the Datadog Log Explorer with sample entries
+Figure 11: Sample JSON logs from the Datadog Log Explorer
+Conclusion
+Autoconfiguration is a powerful way to automatically collect metrics and logs for application containers running in ECS. By specifying a template for the Datadog agent and then configuring the correct tag on the docker image, we are able to move quickly in deploying applications with the correct monitoring metrics and log events at scale.

@@ -1,0 +1,30 @@
+A Two Year Journey of orderbird and Datadog — Part II
+Frank Schlesinger
+Frank Schlesinger
+Follow
+Dec 4, 2019 · 4 min read
+
+
+
+
+
+In my September 2019 post I summarized how we used the monitoring capabilities of Datadog to generate insights into our own backend infrastructure. With an environment that has grown over the years investing in the understanding of our own systems was very helpful for our further growth. It enabled us to make good decisions about where to invest more in improving the system for instance.
+I called this phase 1 of our Datadog journey in the September post and it ended with ous having a collection of dashboards at our hands showing us all kinds of telemetry on all our backend infrastructure systems and services. By then we knew what was going on.
+But this was not the end of our journey, so allow me to lead you through the next steps we took to set up automated alarming and put an incident response process into place. So our goal was to improve from "what is going on?" to "is it ok?"
+Phase 2 — Is it ok?
+So let's take a look into one of our dashboard metrics:
+
+This image shows just a small area of one of our operational dashboards, but its enough to discuss a couple of things. More specific you see the performance of our so-called TabSync endpoint (which we use to sync information between multiple devices within the same venue) over the course of the last hour. Row one shows the development of incoming requests as a rate (requests/s), row to shows average response times in ms and row three gives us the percentage of error responses (4xx and 5xx) on the total responses.
+Looking good, isn't it? Yes, it is! Though it might be we could more easily draw this conclusion, with some visual guidance on the dashboard. Looking at the time-series chart for the response times, we can add this guidance by adding some colored areas and we can do the same with the query-value widget on the left of the chart.
+
+There is now a green area on the chart indicating that all values in this area are good. And there is a red area indicating that values in this area are considered bad. We also find an orange area, which serves as a "warning buffer". It is pretty straightforward to add this kind of color-coding to Datadog dashboards. The harder part clearly is to decide about the thresholds. In our example, we consider all response times up to 200ms to be good and everything above 400ms to be an issue. It took us some weeks of collecting and digesting data and seeing it on the dashboard to understand how our metrics behave over a course of a day and week (seasonalities are big in our market). After that, we could define thresholds for each and every endpoint and metric without fearing to change them too often in the future.
+Let's take a look at one of our operating system level dashboards, where we find the color-coding all over the place:
+
+Even without knowing the details you can see that all looks good at the operating system level.
+Automated Alarming
+After we have decided on thresholds for all relevant metrics of our system, we moved on to set up automated alarming. It's a good thing to see something red on a dashboard in case of an issue, but since we are not starring at our dashboards all the time, it would be even better, if we get paged in case of an issue.
+With Dadatog this means creating so-called monitors, where every monitor checks for one metric and alarms in case this metric is out of bounds. We found it to be a good practice to use the exact same metrics, parameters, and thresholds on the dashboards as in the corresponding monitors. So in case, something is red on the dashboard a monitor is triggered and vice versa. The next screenshot shows you a subset of the monitors we have created.
+
+Whenever a monitor is triggered because of its monitored metric going out of bounds, a notification is sent. In our setup, we always send notifications into a Slack channel and we always forward notifications to PagerDuty, which we use for on-call duty scheduling and paging.
+Depending on the severity of the notification PagerDuty will call the on-call team during day and night or just in our usual office hours. We found it beneficial to have a clear understanding of the severity of alarms so that we are able to operate on different SLAs. The reason for also posting monitor notifications into a slack channel is mainly for documentation purposes. It is just very convenient to see a stream of monitor notifications in slack, especially as they are shown with a snapshot of the metric in question.
+And this concludes part II of this series on how we created operations monitoring at orderbird. Part III will tell you about our approach to automate dashboard and monitor creation using Terraform.

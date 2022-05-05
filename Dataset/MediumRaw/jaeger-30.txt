@@ -1,0 +1,33 @@
+Introduction to Monitoring Kubernetes
+Aymen Eon Amri
+Aymen Eon Amri
+Follow
+Mar 18, 2020 · 3 min read
+
+
+
+
+
+Table of contents
+Distributed monitoring pain point
+Limitations of standard Kubernetes dashboard and in-house tool
+cAdvisor
+Kube-state-metrics
+Prometheus
+Grafana
+Kubewatch
+Jaeger
+MetricFire
+Conclusion
+Distributed monitoring pain point
+The growing adoption of microservices architecture is also driving the adoption of containers to package, distribute and run the microservices. This requires orchestrators to handle availability, performance, and deployments of those containers on the server.
+However, the entire setup around microservices, containerization, and orchestrators complicates logging and monitoring since various distributed and diversified applications are interacting with each other. A single point of failure can sometimes discontinue the uninterrupted process, making us aware of the issue, but detecting other issues is another story.
+Although a container orchestration tool such as Kubernetes orchestrates containers in various distributed systems and subdues the intricacies introduced by distributed processing, Kubernetes is itself complicated and has too many components to monitor. Unlike a monolithic application where there are just two components to monitor — applications and the hosts, Kubernetes has four: Nodes(hosts), the Kubernetes platform itself, Docker containers, and the containerized microservices.
+Evidently, traditional monitoring tools that log parameters like CPU use, memory use, input-output (I/O) per second, latency, and network bandwidth are rendered inadequate in a cloud-native era of Microservices, Docker containers, and Kubernetes. The monitoring strategies in the cloud-native era need granular detail at the container or services level.
+Moreover, traditional monitoring methods were devised along with a long-running host model. A traditional data center is formed of a number of servers hosting monolithic applications, with static IPs and hostnames. The monitoring was associated with these constant parameters, rarely changing in opposition to microservices architecture.
+Microservices-based applications are characteristically deployed on containers that are dynamic and transient. Kubernetes requires a number of application models to be running. Kubernetes has this tendency to place the pods on whichever nodes it deems fit unless otherwise indicated. Actually, Kubernetes’ ability to schedule pods is the epitome of its self-adjusting system.
+Therefore, monitoring tools in containerized environments need to offer instant service-discovery and auto-detection of lifecycle events of containers. They should also require adjusting metrics as containers are created or restarted every second.
+In a nutshell, identifying problems in a microservices environment is a little more challenging than in a monolithic environment, as requests navigate between various stack layers under the multitudes of services. Modern monitoring tools are required to monitor these interconnected layers while also resourcefully classifying application and infrastructure behavior to simplify troubleshooting.
+Limitations of standard Kubernetes dashboard and in-house tools
+The standard Kubernetes dashboard offers a basic UI that displays resource utilization information. In addition, it can organize applications running in the cluster and the cluster itself. However, the Kubernetes dashboard lacks the sophistication of more advanced Kubernetes monitoring tools such as Prometheus and Grafana. On top of that, the Kubernetes dashboard relies on Heapster, a deprecated performance monitoring and metrics collection system for Kubernetes.
+Organizations invested in Kubernetes should look across the plethora of monitoring tools instead of developing their own tools internally. The following tools are not only efficient at monitoring Kubernetes, they are also undergoing constant improvement owing to an open-source community.

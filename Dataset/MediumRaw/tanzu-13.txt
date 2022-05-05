@@ -1,0 +1,52 @@
+VMworld 2020 in 5 Charts
+Torsten Volk
+Torsten Volk
+
+Oct 1, 2020·3 min read
+
+
+
+
+Here are my 5 charts that best summarize VMworld 2020. I would be easier to do this in 25 or 50 charts, but the appeal of this excercise is to make some choices. Here are mine:
+Chart 1 — Dominating Kubernetes (part 1)
+Based on a complete full text analysis of all 861 sessions listed in the official VMworld 2020 agenda, these are the trends that bubbled up.
+Bar chart showing the key topics at VMworld 2020: 1. Kubernetes, 2. Hybrid, 3. AI, 4. Edge, 5. 5G (data source: agenda)
+Chart shows the topic importance of all 871 sessions at VMworld 2020.
+Key Observations
+Kubernetes: dominating (yes, I chose this term very deliberately) Kubernetes is the first prerogerative for VMware in 2020 and beyond. VMware used to be built on dominating the hypervisor. The modern hypervisor equivalent is Kubernetes. Ergo, VMware needs to dominate the deployment and lifecycle management of Kubernetes.
+Hybrid: “Hybrid” refers to the consistent and unified foundation where VMware offers compute, network, storage, and operations management independently of whether the application runs on Tanzu Kubernetes Grid in the corporate data center or on EKS, GKE, or AKS in the cloud.
+Artificial intelligence (AI) — part 1: The launch of vRealize AI might not have been the largest topic of VMworld 2020, but it was a very important one. VMware is quietly putting the pieces together for realizing its vision of self-driving operations.
+Artificial intelligence (AI) — part 2: The NVIDIA partnership (project Monterey) and the SaltStack acquisition are important puzzle pieces for VMware’s overall AI-strategy: SaltStack can be used to take action, based on AI predictions and it can also become VMware’s key to unlocking the mass rollout of AI capabilities.
+Chart 2 — Complete overview of VMworld 2020
+This automatically generated topic map shows how the VMware portfolio fits together.
+
+Topic chart based on all 871 sessions of the official VMworld 2020 agenda.
+Key observations:
+Carbon Black and NSX address application-aware security.
+Tanzu ties together vSphere and Kubernetes management.
+vRealize, now including SaltStack brings automation, operations management, and visibility.
+Dell EMC provide a home for the VMware cloud within the data center.
+AWS is VMware’s closest hybrid cloud partner today.
+Hybrid cloud is the field VMware wants to dominate.
+Chart 3 — Dominating Kubernetes (part 2): Twitter Hashtag Popularity
+
+Twitter chart based on all tweets (blue), retweets (orange), and likes (green)
+Key Observations
+Kubernetes ‘wins Twitter’ within a VMworld 2020 context in terms of number Tweets, Retweets, and Likes.
+Data protection is the number 2 topic in terms of Retweets.
+VMware on AWS, Tanzu, and AI are the next trend topics following in terms of Twitter popularity within a VMworld context.
+Chart 4 — VMware’s Tweets that Received the Most Retweets
+
+Bold labels = Twitter names, Standard labels: Hashtags, Box size = total number of retweets, Data Source: all 5,818 tweets during VMworld 2020 until October 1, 2020, 9:21am.
+Key Observations
+The vmwarecloudaws account overall received the highest number of retweets.
+vmwarensx was number 2.
+HCP2590: This is the VMworld session code for: “VMware Cloud on AWS: Hybrid Cloud Operations for the vSphere Admin”
+Pat Gelsinger’s two big topics were AI and 5G.
+Tanzu, as expected, focused on DevOps, observability, and app modernization.
+Sanjay focused on security.
+Chart 5 — SaltStack vs. Terraform vs. Chef vs. Puppet vs. Ansible vs. Pulumi: GitHub Stars
+
+Data source: GitHub stars for Ansible, Chef, Pulumi, Puppet, SaltStack, and Terraform from October 1, 2020.
+Key Observations
+SaltStack is on a faster growth trajectory than Chef and Puppet. The project is the clear number 3 in automation, behind Ansible and Terraform, based on GitHub Stars.

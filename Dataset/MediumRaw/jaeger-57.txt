@@ -1,0 +1,59 @@
+A Cloud Native Mule
+Jose Montoya
+Jose Montoya
+
+Nov 28, 2018·7 min read
+
+
+
+
+
+Photo by Noah Holm on Unsplash
+Mule is an open source(ish) integration platform by Mulesoft, now owned by Salesforce. Cloud native is a particular approach of designing applications specifically for the cloud. In this post we explore how we could create Mule applications in a cloud native manner by taking advantage of open source tools and frameworks available outside of the Anypoint Platform.
+A quick look at Cloud Native
+There are a couple of good introductions to what cloud native represents, I particularly recommend Stackify’s summarization of a few different takes. For now we’ll go with Cloud Native Computing Foundation’s definition:
+Cloud native computing uses an open source software stack to deploy applications as microservices, packaging each part into its own container, and dynamically orchestrating those containers to optimize resource utilization. Cloud native technologies enable software developers to build great products faster.
+Some name-dropping coming up…
+The CNCF is basically a collaborative incubator for open source software aimed for cloud applications, and is backed by some of the bigger names in tech: Google, Red Hat, AWS, IBM, Oracle, Pivotal, Microsoft, Samsung, and the list goes on. Most notably the CNCF hosts the Kubernetes project, originally created by Google and probably the name that comes to mind when we talk about orchestrating containers at scale. Other worthy project mentions are Envoy by Lyft, GRPC by Google, and Jaeger by Uber (more of this in a bit).
+
+Effectively we want to maximize scalability and reusability by using a microservices architectural style exploiting Linux control groups and namespaces (read containers) and, perhaps most importantly, the growing list of open source software that help manage the many challenges the style presents.
+The status quo — Anypoint Platform
+Let’s consider an organization that can fulfill all of its software needs from out of the box applications, which is increasingly the case. All the software they’ll ever need to develop and manage will be integration.
+Buy versus build. The most radical possible solution for constructing software is not to construct it at all. — Frederick P. Brooks, Jr.
+“Buy versus build” is a powerful and proven proposition for increasing productivity. This is why Mulesoft’s products are as successful as they are. Salesforce thought so in their 6.5 billion dollar acquisition.
+Mule itself is great piece of software engineering, from its roots in Staged Event Driven Architecture and Enterprise Integration Patterns to its new implementation in Mule 4 using Reactive extensions and non-blocking IO with Pivotal’s Reactor. If you need enterprise integration, I recommend Mule.
+Do checkout Mule Made Easy.
+Anypoint Platform and its extended ecosystem is no different. API Designer, Runtime Manager for backed by CloudHub or Runtime Fabric, and Monitoring possibly offer all you could need for integration applications. Obviously no other platform will be as closely integrated with Mule applications as Mulesoft ‘s own. It was built for them. So why would we consider another platform?
+Because as Brooks notes in No Silver Bullet “The key issue, of course, is applicability. Can I use an available off-the-shelf package to perform my task?” As soon as an organization builds a cloud native non-integration application, for whatever reason, they now have to manage two platforms.
+While the argument could be made that Anypoint Platform is technically cloud native, we can’t use it for any other type of application. It would be great if instead we could make use of Mule in a platform where we can take advantage of those free and open source frameworks and tools to provide an uniform management experience for all cloud native applications.
+Visibility — OpenTracing and Jaeger
+One of the main challenges with microservices is visibility of component interactions because of the distributed nature of the system.
+OpenTracing is a free and open source framework that aims to help alleviate this problem. Basically every application can be instrumented to automatically create or augment existing traces, and propagate them when interacting with external components. OpenTracing has been adopted by JEE WildFly 14, and instrumentation has been created for various other frameworks such as Spring Boot, Spring Cloud, Apache Camel, and a few others.
+
+Jaeger offers a particular free and open source implementation of the OT framework, Datadog and LightStep being others. Here’s a good practical introduction to Jaeger by Yuri Shkuro from Uber.
+
+
+With some guidance from the excellent engineers behind OpenTracing we’ve built OpenTracing instrumentation for Mule 4 with Jaeger as the default Tracer implementation. Although far from mature the instrumentation supports HTTP calls which make the biggest part of microservices interactions.
+Container orchestration —A Docker-less Openshift
+Maybe the most important challenge with the microservices style is creating the significant number of container images, how and where to run the containers, and how to manage them through their lifecycle. This is the where container runtimes and orchestration platforms help.
+Replacing the Docker runtime — CRI-O
+Antonio Murdaca from Red Hat has a great article on the difference between Docker and CRI-O runtimes. Basically Kubernetes needed to provide users with a way to replace the default Docker runtime, and so the Container Runtime Interface was born with CRI-O being a Kubernetes incubated and community driven implementation. See Why CRI-O? and Using the CRI-O Container Engine docs for a bit more depth. In a nutshell CRI-O aims to be lightweight, more securable, and truly open source.
+Replacing the Docker tool-bench —Buildah and Podman
+We still need to build and test container images before we deploy them to a runtime. Luckily Docker images follow the Open Container Inititive’s image specification. Part of the decision to replace Docker came from learning about Red Hat’s simple and OCI compliant tools, Buildah and Podman. Here’s a quick intro from CNCF Ambassador Daniel Oh.
+It was definitely interesting to find out Mulesoft partnered with Docker after I had committed to replace Docker in my work bench.
+With the help of those tools and the community we’ve created small, secure, and up to date OCI images for application developers to use when deploying containerized Mule 4 applications.
+Openshift — Enterprise Kubernetes
+Kubernetes is unarguably the de facto standard for container orchestration. Openshift is sort of a Red Hat flavored enterprise grade kube distribution, with okd being its free and open source upstream project. Here’s a great article on the differences with kube.
+While the images described above in will work on any container platform, they are biased towards Openshift. Running an okd clusterwith CRI-O, plus integrated Jenkins capabilities, and other abstractions like Image Streams, all for the price of free is perhaps the main selling point. IBM believed in Red Hat’s product too, a 34 billion dollar belief.
+For Openshift we’ve built application templates that provide a way to deploy Mule applications with just a few clicks, no maven plug-in needed or special setup of a Jenkins instance.
+First there is the Source To Image Template, you just point to a git repository containing your Mule 4 application code and Openshift will take care of retrieving, building, and deploying your application to the platform. No Jenkinsfile necessary. Openshift will also track changes in the repository and keep the deployed image up to date with the latest code and optionally with the latest Mule runtime. A quick and simple form of continuous deployment.
+
+
+Continuous Integration and Deployment— Jenkins integrated Openshift
+With many independently developed applications comes the trade-off that it is now much more involved to ensure that any code change in one application does not break others, or worse — the system as a whole.
+Continuous integration and deployment is a technique to manage this problem. Many CI/CD tools exist, Jenkins being one of the most popular ones. And yes, it is open source. I briefly mentioned above the integration of Jenkins into Openshift, and while I won’t take a deep dive into Jenkins or the Openshift integration itself I’ll show how we’ve taken advantage of it.
+We’ve built a Pipeline Template, which does require a Jenkinsfile in your source code but allows you to define a CI/CD pipeline as complex as needed and which is integrated into the Openshift web console. I find this makes it easier for developers to own their applications from the Anypoint Studio canvas through to deployment given a single integrated interface.
+
+Most notably there are variants of both this template and the simpler source to image template that include our Jaeger instrumentation and configuration. This provides a cloud native Mule application that’s just a few clicks away while addressing the challenges of orchestration, integration and deployment, and visibility.
+TL;DR
+Mulesoft’s Mule is probably the best enterprise integration framework available, and the Anypoint Platform is its natural home. But if we needed to kick our mules together with other applications or just wanted to explore possibilities outside of Anypoint — open source projects like Jaeger, Openshift, and Jenkins can help create a uniform and competent platform. In addition, the images and templates we’ve created provide a starting point for you to build and deploy cloud native Mule 4 applications with minimal effort, and potentially for free (outside of infrastructure costs). Did I mention open source is great?

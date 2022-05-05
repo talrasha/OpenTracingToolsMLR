@@ -1,0 +1,29 @@
+Using OpenTracing protocol: Jaeger
+LAI TOCA
+LAI TOCA
+
+May 2, 2019·2 min read
+
+
+
+
+Tracking/maintaining micro services were became complex for new-comer. Opentracing protocol provide us a good choice to tracing diversity system that triggered from font-end to back-end (web api, service, sql…). Combined with Jaeger with powerful query syntax and interface with system flow graph would give us great help on it.
+The article just simply demonstrate how to introduce Jaeger into .Net Core application and if you are interested the advance features on Jaeger please refer to official website and do more research on its architecture. So you could understand why Uber reply on Jaeger for system tracing and monitoring.
+Installed Jaeger through below command (the all-in-one packaged jaeger-agent, jaeger-collector, jaeger-query/ui all together):
+docker run -d --name jaeger -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p 5775:5775/udp -p 6831:6831/udp -p 6832:6832/udp -p 5778:5778 -p 16686:16686 -p 14268:14268 -p 9411:9411 jaegertracing/all-in-one:1.11
+Note that Jaeger that running on docker only support Linux containers only
+And default storage was in memory
+
+Docker with Jaeger
+Let’s Open Jaeger UI on local: http://localhost:16686/search
+
+Jaeger-UI
+Next, installed jaeger-client inside the demo application.
+
+Nuget packages
+For the client side we need Jaeger and OpenTracing.Contrib.NetCore library
+
+Let’s fired the application to see how easily we could send our tracing information into Jaeger collector. Waiting for downloading completed, refresh Jaeger UI page, we could discovery new service appearance and trigger “Find Trace” for more detail.
+
+Search for target service
+As dig into the tracer, we have logged down every down event for more information: operating time, Tag…etc.

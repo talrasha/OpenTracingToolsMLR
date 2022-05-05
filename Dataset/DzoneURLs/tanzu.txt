@@ -1,0 +1,12 @@
+https://dzone.com/articles/getting-started-with-distributed-sql-on-vmware-tan
+https://dzone.com/articles/building-an-observable-enterprise-app
+https://dzone.com/articles/vmware-courts-developers
+https://dzone.com/articles/setup-velero-on-aks
+https://dzone.com/articles/kicking-spring-natives-tires
+https://dzone.com/articles/springone-platform-what-spring-devs-should-know
+https://dzone.com/articles/tech-talk-simplifying-the-future-with-adrian-cockc
+https://dzone.com/articles/introduction-big-data-and
+https://dzone.com/articles/vmworld-conversations
+https://dzone.com/articles/10-challenges-of-microservices-and-solutions-tips
+https://dzone.com/articles/a-definitive-guide-on-lazyinitializationexception
+https://dzone.com/articles/backpressure-in-reactive-systems

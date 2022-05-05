@@ -1,0 +1,20 @@
+Kubernetes Configuration Validation in Datadog Marketplace
+Fairwinds
+Fairwinds
+
+Aug 24, 2020·2 min read
+
+
+
+
+
+On August 11th, Datadog has announced its new Marketplace, a platform for third-party application development that provides customers with access to a wide range of tools, integrations, and services from Datadog’s Partner Network.
+We are excited to be part of the Datadog Marketplace launch! Fairwinds Insights is now available in the Marketplace allowing users to proactively monitor their Kubernetes and container configurations and get recommendations to improve security, efficiency and reliability. Fairwinds Insights findings and recommendations integrate within Datadog, enabling DevOps teams to manage Kubernetes and application containers more productively.
+We are big fans of Datadog at Fairwinds using it across many of our Kubernetes managed services to ensure observability and the ability to discover unknown unknowns. We also have an open source project, Astro , a Kubernetes operator that watches objects in your cluster for defined patterns and manages Datadog monitors based on this state. This integration allows more Datadog customers to benefit from improved security, reduced costs and saved time.
+About Fairwinds Insights
+Fairwinds Insights is 5+ open-source tools in one, single configuration validation platform, all integrated with the tools you use. It combines trusted open source tools, toolchain integrations, and SRE expertise based on hundreds of successful Kubernetes deployments.
+How it Helps
+Fairwinds Insights provides a unified, multi-cluster view into three categories of Kubernetes configuration issues and prioritizes remediation actions around security, efficiency, and reliability. Fairwinds Insights makes it easy to deploy multiple open-source tools through a single helm installation. This one-time install helps engineers avoid custom work for installing and configuring each tool.
+
+Datadog Marketplace
+The Datadog Marketplace is available now to all Datadog customers within the Datadog app for a free two-week trial for any application before committing to a purchase. You can try Fairwinds Insights in the Marketplace.

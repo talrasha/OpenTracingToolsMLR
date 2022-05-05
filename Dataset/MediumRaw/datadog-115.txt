@@ -1,0 +1,24 @@
+A place for everything, everything in its place
+Dave North
+Dave North
+Follow
+May 29, 2018 · 3 min read
+
+
+
+
+
+
+Over the years, I’ve looked many times at Datadog and asked myself if it could be helpful to us at Signiant. Several times we’ve taken a look and, at the stage we were at, it just wasn’t a “must have”. Until it was. We found that as we broke down our big monoliths into smaller microservices, it was harder to easily visualize and track down errors. Further, while we had most of the data we needed, we had to mine it from multiple places (Cloudwatch, Papertrail, Jenkins, Bitbucket, Pingdom, Slack, Nagios, Docker, etc.). Datadog really gives us that great visualization, alerting and a “single pane of glass” where we can see what’s going on with various components.
+After doing a thorough proof of concept, we purchased Datadog earlier this year and we’ve recently “finished” implementing Datadog across all our AWS infrastructure, (Elastic Beanstalks, ECS clusters, plain old instances). I say “finished” because there’s more we plan to pull in but we have enough there now to start with to get value. It’s already helped us solve some issues we were seeing just by having better visibility into our environments (the Docker instrumentation on ECS is fantastic)
+Secure Your DevOps (i.e. DevSecOps)
+
+While we were implementing Datadog, we started using custom events to mark when we had promoted (released) code to production. This led us to ask if there were other events we could be capturing via use of custom events in Datadog.
+We’re using Deep Security as a service from Trend Micro as our preferred cloud protection platform. It was straightforward to hook into our various AWS deployment models, captures a lot of IDS/IPS/log/filesystem events and pretty well works in the background to protect our environment and our SAAS applications. Deep Security works very well as an IDS/IPS system but it can generate rather a lot of events and is yet another console to login to. It turns out though that Deep Security can deliver an event stream to an AWS SNS topic and from there, we can do some processing on it. Like send it to Datadog. We came up with a solution that looks like this:
+
+DS->SNS->Lambda->DD
+Events come from Deep Security to the SNS topic where we have a Lambda function subscribed. This Lambda processes the event and sends it to Datadog while also allowing us to do some event filtering (ie. only send events with a rank greater than 50). In Datadog we then see something like:
+
+Like any other events in Datadog, these can be alerted on, placed on dashboards, etc. It’s incredibly helpful to be able to overlay events on time boards within Datadog when looking into what may be happening at a time period.
+The solution is all packaged up in a nice Cloudformation template and available in a Github repo Signiant/datadog-deepsecurity-event-forwarder
+How are you doing DevSecOps with smaller teams? What’s working (or not working!) for you?

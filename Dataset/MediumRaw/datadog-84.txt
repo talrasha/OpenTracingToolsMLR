@@ -1,0 +1,32 @@
+Datadog S-1 Analysis — A Loud Bark
+Astasia Myers
+Astasia Myers
+Follow
+Aug 26, 2019 · 5 min read
+
+
+
+
+
+Monitoring and analytics platform Datadog recently filed its S-1 with $100M as a placeholder for the offering. Datadog offers a hybrid cloud application observability solution that provides Dev, Ops, and other teams increased efficiency and end-to-end visibility across the application. Currently DataDog has 8.8K customers generating $266M in revenue over the last twelve months. Founded in June 2010, Datadog has ~1,212 employees and is headquartered in New York City, NY.
+
+Datadog’s S-1 emphasized that traditional IT Operations Management (ITOM) categories were split between different product lines causing confusion. Datadog brought these categories together by building one platform that integrates the three main components of ITOM: infrastructure monitoring, application monitoring, and logs. It also offers user experience monitoring and network performance monitoring (in beta).
+
+The SaaS platform is cloud-agnostic and empowered by out-of-the box functionality and self-service installation. The platform combines infrastructure monitoring, application performance monitoring, log management, user experience monitoring, and network performance monitoring in one integrated data platform. Datadog argues this approach increases efficiency by reducing the challenge of garnering insights across disparate systems. It has machine learning that can cross-correlate metrics, traces and logs to identify outliers and notify users of potential anomalies before they impact the business. It can support dynamic cloud infrastructure including microservices, containers and serverless computing. Functionality includes +350 out-of-the box integrations, customizable drag-and-drop dashboards, real-time visualization, and prioritized alerting. Finally, it brings together developers and operations with a common set of tools to develop a joint understanding.
+Datadog addresses the IT Operations Management market which represents a $37B opportunity in CY23, according to Gartner. Today, Datadog claims it can service a $35B market, which they calculated by multiplying the number of global companies that are between 200–999 employees and over 1K employees by the average ARR per customer for each product.
+There are numerous competitors across IT monitoring, APM, and log management providers. With respect to infrastructure monitoring, they compete with IBM, Microsoft, Micro Focus, BMC, CA, AWS, GCP, and Azure. Regarding APM, Datadog competes with Cisco, New Relic, and Dynatrace. In logging they fight for spend against Splunk and Elastic.
+Datadog is growing well. It achieved $198M in CY18 compared to $101M in CY17, 97% YoY growth. For the six months ended June 30, 2018 and 2019, Datadog’s revenue increased from $85M to $153M, expanding 79% YoY.
+
+Customers continue to increase at a healthy clip. As of June 30, 2019, Datadog had ~8.8K customers, growing from roughly 7.7K, 5.4K and 3.8K customers as of December 31, 2018, 2017 and 2016, respectively. Approximately 590 as of June 30, 2019 had annual run-rate revenue (ARR) of $100K or more, increasing from approximately 450, 240 and 130 customers as of December 31, 2018, 2017 and 2016, respectively, accounting for approximately 72%, 68%, 60% and 48% of ARR, respectively. Further, as of June 30, 2019, they had 42 customers with ARR of $1M+, up from 29, 12 and two customers as of December 31, 2018, 2017 and 2016, respectively. As of June 30, 2019, its 10 largest customers represented approximately 14% of its ARR and no single customer represented more than 5% of ARR.
+
+
+Revenue is derived from both U.S. and international customers. International customers represented 24% of revenue the past two years. Other than the United States, no other individual country accounted for 10% or more of total revenue for the years ended December 31, 2017 or 2018.
+The business’ dollar-based net retention rate is strong at 151% in CY18. The dollar-based net retention rate (NRR) is total current period ARR divided by the total prior period ARR for the customer cohort. Our recent research found that the SaaS businesses achieving 140% net dollar retention are in the top decile. As of June 30, 2019, approximately 40% of Datadog’s customers were using more than one product, up from ~10% a year earlier. Moreover the six-month period ended June 30, 2019, ~60% of new customers landed with more than one product, up from ~15% for the same period the previous year.
+
+Moving on to gross margin, which equals revenue minus the cost of goods sold that includes things like hosting costs and customer support. Datadog achieved an 77% gross margin in CY18, below New Relic’s 84% for the same period.
+
+Of each operating expense item, Datadog spends the most on S&M at 45% in CY18, below New Relic’s spend of 54% of revenue for the same period. Its GTM motion includes self-service tier, a high velocity inside sales team, and an enterprise sales force. The company has a strong magic number of 1.8. A magic number over 1 suggests there is S&M efficiency.
+In terms of net income margin, Datadog achieved -5% in CY18, worsening from -3% for the equivalent period a year earlier. Datadog’s negative net income margin last year was close to New Relic’s -7%.
+
+Datadog has raised $148M in total funding, with its last round (Series D) raising $95M in January 2016. Investors include Iconiq Capital (11% ownership), Index Ventures (20% ownership), and OpenView Venture Partners (16% ownership), among others.
+Datadog’s IPO registration touches on a few trends. First observability continues to be hot with the recent Dynatrace IPO and SignalFx acquisition. Second, when underlying infrastructure emerges (e.g. the cloud) there is an opportunity to capture customers as they replatform. Finally, using a single product, in this case infrastructure monitoring, as a Trojan horse for a larger platform play is compelling. After almost a decade of being private, it will be exciting to watch as Datadog goes public.

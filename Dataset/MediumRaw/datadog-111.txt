@@ -1,0 +1,46 @@
+Datadog APM Trace Search from Zero to One
+Anatoly Mikhaylov
+Anatoly Mikhaylov
+Follow
+Aug 1, 2018 · 4 min read
+
+
+
+
+
+
+Trace Search and Analytics by 
+Datadog HQ
+ is a fantastic tool for performance analysis and capacity planning. Trace Search has been in Beta over the past year and was announced for General Availability at Dashcon.io. Please see the keynote, related workshop and also its Github repo.
+In this blogpost we will cover how to set it up, enhance it with custom attributes and demonstrate some advanced syntax. This will help to illustrate the place Trace Search fits, as well as how to employ Analytics to better understand capacity and performance characteristics of a multi-tenant system.
+Datadog is a very well known product for observability and system metrics monitoring. It helps track instrumented elements as well as monitor key performance metrics. It can help us visualize this data in a beautiful and professional manner. The visual reporting function is where we feel Datadog excels. One graph is worth a thousand words.
+How does APM improve on Datadog’s already strong offering? Today’s applications are complex and multi-tenant. What appears to be performant and reliable for most accounts may not be sufficient for another set of accounts whose traffic pattern and/or dataset is very different. For example: The N+1 problem can be seen where we think N is large enough. The answer to that problem is APM, it stands for Application Performance Monitoring. This product is designed for infinite cardinality (as opposed to Datadog’s usual 1000 max distinct value limit). This allows us to look at large dataset with a high level of granularity. It gives us the capability to monitor throughput and response time (median, 90/95/99 percentile) per individual account. This has never been possible before APM.
+The key observability element that APM gives us is the time an individual account spends in the system. From a capacity planning perspective high throughput multiplied by a fast response time can be equal to a low throughput multiplied by slow response time, hence taking throughput or duration for an analysis individually may lead to incorrect decisions because it may not give enough information.
+Tracing Ruby Applications
+Official documentation is the starting point. We chose Ruby On Rails as platform to demonstrate the integration. These are some trace search keys that are available by default:
+@duration
+@http.method
+@http.status_code
+@http.url
+@request_ip
+Among different methods to instrument the code with custom metrics, the one we use is the following:
+class ApplicationController < ActionController::Base
+  before_action :datadog_trace_extend
+  private
+  def datadog_trace_extend
+    current_span = Datadog.tracer.active_span
+    if current_span
+      current_span.set_tag('account.id', 1)
+      current_span.set_tag('account.user_id', 100)
+      current_span.set_tag('http.source', 'api')
+    end
+  end
+end
+Trace Search Demo
+Let’s jump to our demonstrations followed by a detailed explanation of how to setup and adjust it to your multi-tenant environment. First demo covers traffic pattern represented by two accounts. The first account causes the system to generate HTTP 200 (OK) while the second account’s traffic solely results in HTTP 304 (Not Modified). Take a closer look at requests duration, it’s no different although high number of HTTP 304’s shows that we spend resources generating a response even though the client already has the most up to date data. A traffic pattern like this is usually a sign of inefficient API communication. With Trace Search we can identify that account in the multi-tenant environment. This demo was part of our presentation at Dashcon.io on 12th of July 2018. See the demo below:
+
+The second demonstration covers traffic from the same account that enters our system from different endpoints. This example illustrates a situation where an unexpected number requests may come from an API client. This type of analysis is useful when traffic growth needs to be factored into a capacity plan. We demonstrated that it is possible to free up a large portion of capacity by analysing traffic, determining what was excessive, and taking action on it. We have examples where an API client consumes more resources than expected by hitting the same endpoint, all due to a misconfiguration or not respecting HTTP Retry-After headers. See more details in the presentation but the demo is below:
+
+The third and final demo is an example of taking action on an unexpected traffic pattern; specifically public API endpoints which can be cached on the intermediate proxies. This prevents the backend from having to receive these requests and respond to them. The main intention is to visualise the throughput change before/after the changes are applied. Trace Search can help to determine if the changes you made to your system have the expected effect:
+
+APM Trace Search and Analytics fills the gap between both set of Dev and Ops monitoring and visualisation tools, what was difficult to visualise became easy. With its rich UI and powerful syntax, Trace Search can help to take an action on traffic reduction in order to filter signal out of noise, and efficiently plan capacity in a multi-tenant environment.

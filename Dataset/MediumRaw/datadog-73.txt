@@ -1,0 +1,84 @@
+Monitoring Kubernetes Control Plane using Datadog and Helm
+Krishna Sharma
+Krishna Sharma
+Follow
+Oct 3, 2019 · 5 min read
+
+
+
+
+
+
+Introduction:
+Datadog is one of the great monitoring tools out there. They provide amazing integrations with different cloud providers and open source tools. They are supporting kubernetes monitoring from quite some time but control plane monitoring was not yet supported. The various parts of the Kubernetes Control Plane, such as the Kubernetes Master and kubelet processes, govern how Kubernetes communicates with your cluster. The Control Plane maintains a record of all of the Kubernetes Objects in the system and runs continuous control loops to manage those objects’ state. Issues related to the control plane can lead to cluster-wide outage and hence it’s important to monitor the control plane. Below are the four components of Kubernetes control plane running on Kubernetes master nodes which datadog can monitor starting June 2019:
+kube-apiserver: Front end of kubernetes control plane which acts as a communication hub for all the components to communicate with the cluster.
+etcd: Consistent and highly-available key value store used as Kubernetes’ backing store for all cluster data e.g. cluster configuration, desired state of running components, etc.
+kube-scheduler: Watches newly created pods that have no node assigned, and selects a node for them to run on.
+kube-controller-manager: It is a daemon that embeds the core control loops shipped with Kubernetes. It watches the state of the cluster through API server watch feature and makes changes to move cluster towards the desired state.
+Datadog agents need to be setup for monitoring of your infrastructure. Datadog agents ship metrics and logs to your datadog account. You can send metrics and logs from multiple clusters to your Datadog organization for which you’ll require an app key and api key. Datadog provides multiple options to deploy datadog agents over your kubernetes cluster and the one I like the most is helm. You can know more about datadog helm chart from this link. You can pass your configurations and checks using helm which creates a Datadog Daemonset containing all your configs.
+Creating control plane configs for Datadog Agent :
+Let’s get started with basic configurations required to run datadog over Kubernetes master nodes.
+Refer to this link to get all the configurations for kubernetes api server. Below is configuration for api-server which we will use in our helm chart:
+
+For kubernetes scheduler check this link for all the configurations.
+
+For kubernetes controller manager check this link for all the configurations.
+
+etcd3 config and certificates creation:
+Starting Kubernetes version 12, etcd3 is being used. etcd3 has additional security features. We need to provide certificates to datadog config for authentication. I am using KOPS to manage kubernetes and for kops, these certificates are already available on kubernetes master nodes at /etc/kubernetes/pki/kube-apiserver directory. If you are a fan of having different certificates for different services then you can create your certificates and provide to datadog. KOPS is using etcd manager and it store the certificates at /etc/kubernetes/pki/etcd-manager-main. Use the following commands to create your own set of certificates:
+## Run the openssl commands on one of the KOPS master node.
+## You can run this commands from tmp directory
+openssl req -nodes -new -out datadog.csr -keyout datadog.key -subj "/CN=datadog"
+openssl x509 -req -in datadog.csr -CA /etc/kubernetes/pki/etcd-manager-main/etcd-clients-ca.crt -CAkey /etc/kubernetes/pki/etcd-manager-main/etcd-clients-ca.key -CAcreateserial -out datadog.crt -days 365 -sha256
+openssl x509 -in datadog.crt -outform PEM -out datadog.pem
+openssl x509 -in /etc/kubernetes/pki/etcd-manager-main/etcd-clients-ca.crt -outform PEM -out etcd-ca.pem
+## Test your certificates by running below command:
+curl --cacert etcd-ca.pem --cert datadog.pem --key datadog.key https://127.0.0.1:4001/metrics
+These certificates will have to be mounted on the datadog daemonset. We will get to that later, for now let’s assume we will mount them on /etc/datadog-agent/certs/ directory. Below is how your etcd config file will look like:
+
+Helm Chart for control plane monitoring
+We have all the pieces required to create values file for our helm chart. In addition to that, we will require api key and app key from your Datadog account. You can either create new app-api keys or use the existing ones. Below document describes how to get ones:
+API and Application Keys
+API keys are unique to your organization. An API key is required by the Datadog Agent to submit metrics and events to…
+docs.datadoghq.com
+
+Datadog helm chart comes with an option to enable datadog cluster agent. The Datadog Cluster Agent provides a streamlined, centralized approach to collecting cluster-level monitoring data. I am enabling cluster agent as it’s a good feature to have and easy to configure using helm. Cluster agent requires a token which can be either provided in plain text or via a secret to your helm chart. This article explains more about cluster agent token.
+Below is how your values.yaml file will look like for datadog helm chart:
+
+We are using tolerations to make sure that control plane configs are running on master nodes. Running this on workers will create lot of errors in worker node logs related to control plane services.
+We have to set this tolerations on Daemonset level. Below are the tolerations being used:
+tolerations:    
+- effect: NoSchedule      
+  key: node-role.kubernetes.io/master    
+- key: CriticalAddonsOnly      
+  operator: Exists
+We are enabling logs, apm, processagents and all the good features provided by datadog. To know about more features or disable some features check this link. This is a nice article from datadog about using their helm chart:
+Deploying Datadog in Kubernetes using Helm
+Helm is a package management tool for Kubernetes. For other platforms and methods of installing Helm, refer to the Helm…
+docs.datadoghq.com
+
+Last part is to run helm command and finish setup of datadog on control plane. We will name our values file as master-node-datadog-values.yaml:
+helm install --name control-plane-ddagent \
+    --set datadog.apiKey=<DATADOG_API_KEY> \
+    --set datadog.appKey=<DATADOG_APP_KEY \
+    --set clusterAgent.token= "<ThirtyX2XcharactersXlongXtoken>" \
+    -f master-node-datadog-values.yaml \
+    stable/datadog
+Helm Chart for worker nodes:
+All the above mentioned steps will only setup datadog for control plane. For running datadog on worker nodes is actually quite easy. By removing control plane specific configurations we can get values file for worker nodes.
+Below is a simple values file let’s call it worker-node-datadog-values.yaml:
+
+Helm command remains the same and we only change values file and release name:
+helm install --name workder-node-ddagent \
+    --set datadog.apiKey=<DATADOG_API_KEY> \
+    --set datadog.appKey=<DATADOG_APP_KEY \
+    --set clusterAgent.token= "<ThirtyX2XcharactersXlongXtoken>" \
+    -f worker-node-datadog-values.yaml \
+    stable/datadog
+Enabling Integrations:
+So far we have enabled metric and log collection. Datadog provides good integration for kubernetes services which can be enabled in a few clicks. Just go to the Integrations page: https://app.datadoghq.com/account/settings and search for Kubernetes integrations. Enabling integrations will help you get OOTB dashboards from datadog. E.g. Controller manager dashboard:
+
+Existing Issues:
+Control plane monitoring is a new feature and datadog is currently working on it. There are some issues which may concern you:
+There is an issue with etcd integration as it supports api version v2 and etcd3 is using api version v3. Due to this the dashboard provided by Datadog will have no data in it.
+If you are datadoghq.eu user then api-server integration will not be available for you. I am currently following with their engineers and they are working on it.

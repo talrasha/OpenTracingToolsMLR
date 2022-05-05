@@ -1,0 +1,134 @@
+Jaeger’s multitenancy with Elasticsearch
+Moraru Costel
+Moraru Costel
+Follow
+Aug 6, 2020 · 5 min read
+
+
+
+
+
+I am an Application Architect at IBM, working on building a platform to accelerate continuous delivery with quality, ensuring a modern flexible way to enable DevOps and support an agile culture.
+
+Complexity as scale
+For the past year, due to the need of distributed transaction monitoring and root cause analysis in a complex distributed micro-service environment, we introduced Jaeger framework to help us tackle the problem. Since our platform is being used by multiple tenants, we had to take a decision on how we would implement the multi-tenancy Jaeger with Elasticsearch as backend.
+This is a practical exercise on how to setup Jaeger with Elasticsearch to support multiple tenants. But first, you should read the following article Jaeger and multitenancy which talks about various multi-tenancy options with Jaeger.
+The context
+We are building and running a platform based on Kubernetes, which allows our customers to build and deploy their own applications using our platform, thus the specific requirements when it comes to tracing data:
+One Elasticsearch instance supporting all the tenants,
+Each tenant’s trace data has to be persisted separately — with various retention timeframes,
+Ability for every tenant to view and query its own tracing data,
+As minimal development activities as possible, thus reusing the existing Jaeger functionalities.
+The solution
+After going through enough material from different sources to have a clear picture, I decided on the following solution which consists of:
+An Elasticsearch instance installed in an independent namespace of the tenants ones — we want to manage our own ES cluster,
+Install a Jaeger collector for each tenant, configured to use the ES cluster with the specific tenant name/id,
+Install the Jaeger agents as sidecars to the services that are being traced,
+For each tenant configure it’s own Jaeger’s elastic search index cleaner settings,
+Everything set up with 0 development effort.
+Implementing the solution
+Right, now let’s jump to the “code” and see how we can configure the above story. For this exercise I have deployed all the components using Helm so look at the code snippet from this perspective.
+Installing the Elasticsearch has nothing special to it, thus you can follow the detailed online documentation using Helm on how to do it using various ES image flavours. For the sake of this exercise we will assume that we’ve installed ES with the following configuration in the jaeger namespace:
+clusterName: "elasticsearch" 
+nodeGroup: "master"
+masterService: ""
+roles:
+  master: "true"
+  ingest: "true"
+  data: "true"
+httpPort: 9200
+transportPort: 9300
+Moving on to the Jaeger’s part, first we need to tell it to work with the newly installed Elasticsearch cluster. Since we want to store the data in ES separatelly for each tenant we will have to provide an index prefix, the tenant’s name, specific for each tenant.
+storage:
+  type: elasticsearch
+  elasticsearch:
+    host: elasticsearch-master.jaeger.svc.cluster.local
+    indexPrefix: <TENANT_NAME>
+    extraEnv:
+      # We need this one for the index cleaner (later in our story)
+      - name: INDEX_PREFIX
+        value: <TENANT_NAME>
+We said earlier that we’ll have one collector for each tenant. So, we will just enable the collector deployment and disable the Jaeger agent component.
+agent:
+  enabled: false
+collector:
+  enabled: true
+  image: jaegertracing/jaeger-collector
+  pullPolicy: IfNotPresent
+We also want to expose for each tenant their own Jaeger UI in order to see the tracing data.
+query:
+  enabled: true
+  image: jaegertracing/jaeger-query
+  basePath: /ops/jaeger/<TENANT_NAME>
+Jaeger has a self-ES-index-cleaning component that can be configured per tenant in our setup. We just need to add the following configuration. Since this is part of the same configuration and installation for our tenant it will clean-up the elasticsearch indexes configured under the env variable INDEX_PREFIX (we did this step earlier when we setup the storage type).
+esIndexCleaner:
+  enabled: true
+  image: jaegertracing/jaeger-es-index-cleaner
+  schedule: "59 23 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  numberOfDays: 3
+If you are using Helm to deploy the Kubernetes resources you can just provide your tenant’s name at install time using --set key=value and reference it in your helm chart file.
+Let’s have a final look at the yaml configuration needed to install the Jaeger components for one tenant, using the Helm chart.
+storage:
+  type: elasticsearch
+  elasticsearch:
+    host: elasticsearch-master.jaeger.svc.cluster.local
+    indexPrefix: <TENANT_NAME>
+    extraEnv:
+      - name: INDEX_PREFIX
+        value: <TENANT_NAME>
+agent:
+  enabled: false
+collector:
+  enabled: true
+  image: jaegertracing/jaeger-collector
+  pullPolicy: IfNotPresent
+query:
+  enabled: true
+  image: jaegertracing/jaeger-query
+  basePath: /ops/jaeger/<TENANT_NAME>
+esIndexCleaner:
+  enabled: true
+  image: jaegertracing/jaeger-es-index-cleaner
+  schedule: "59 23 * * *"
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  numberOfDays: 3
+The only thing remaining is to deploy the Jaeger’s agent component as a sidecar to our services and make sure to link it to the proper collector for each tenant. This can be easily done by adding a new container into your deployment as described here.
+Assuming that your deployment has an application named my-app running a container from yourimagerepository/hello-my-image on port 8080, you’ll need to add the additional jaeger-agent container where the args needs to point to the correct collector for .
+Depending on your architectural needs, you can benefit from deploying a single agent per pod or a single agent per set of pods or even an agent per cluster’s node.
+apiVersion: apps/v1
+kind: Deployment
+...
+spec:
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: my-app
+    spec:
+      containers:
+      - image: yourimagerepository/hello-my-image
+        name: my-app-cntr
+        ports:
+        - containerPort: 8080
+      - image: jaegertracing/jaeger-agent:1.17.0
+        name: jaeger-agent
+        resources:
+          limits:
+            cpu: 20m
+            memory: 20Mi
+        args: ["--reporter.grpc.host-port=jaeger-<TENANT_NAME>-collector.jaeger.svc.cluster.local:14250"]
+And that’s about all there is to deploy Jaeger with Elasticsearch for multi-tenancy purposes. Repeating the above process for every tenant might be tedious and error prone so consider moving all these changes into a Helm chart and deploy them as add-ons for your tenants.
+“Do. Or do not. There is no try.”
+Additional aspects to consider when configuring for a production setup.
+Since Jaeger doesn’t come with any authentication/authorization mechanism for its UI you will need to protect it. However this is quite easy since the Jaeger’s helm chart has build-in support for the ingress resource and there are multiple documented ways to protect them.
+Review the Elasticsearch security to prevent unauthorized access to your Elasticsearch cluster.
+Verify that the Elasticsearch Index Cleaner job is being executed and it removes the old data. You can check for each tenant’s ES indexes being removed.
+kubectl logs jaeger-tenant1-es-index-cleaner-1596412740-29njp -n jaeger
+Removing tenant1-jaeger-service-2020-07-31
+Removing tenant1-jaeger-span-2020-07-31
+kubectl logs jaeger-tenant2-es-index-cleaner-1596412740-mdl8l -n jaeger
+Removing tenant2-jaeger-span-2020-07-31
+Removing tenant2-jaeger-service-2020-07-31
+Special thanks 🍺 goes to my colleague George Safta for his work on in bringing it to live.

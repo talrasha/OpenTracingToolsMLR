@@ -1,0 +1,53 @@
+How to get Fargate Container level CPU/RAM Metrics in Datadog
+Kiran Indukuri
+Kiran Indukuri
+
+Nov 20, 2020·1 min read
+
+
+
+
+Fargate is an amazing tool to develop container applications without having to manage the infrastructure underlying the containers.
+However, there are some limitations on the monitoring side in that — we can only monitor CPU/RAM utilizations at the Cluster, Service and TaskDefinition levels, but not at the container level.
+AWS confirmed that there is an existing feature request for this requirement, but gave no timelines on when this feature would be released.
+In order to bridge this gap, we can use Datadog to track CPU/IO utilizations at the container level. Datadog uses a side-car container approach which accesses the Docker container stats, and ships those stats to Datadog .
+Add the following code snippet to your Fargate task definition file.
+1) Add your DataDog API key in AWS secrets manager, and update the "valueFrom”: “arn:aws:secretsmanager:us-east” part of the following snippet accordingly, with the arn of the AWS secret.
+[
+  {
+    "name": "app",
+    "image": "${image_url}",
+    "essential": true,
+    "networkMode" : "awsvpc",
+    "portMappings": [{
+      "containerPort": 9000,
+      "hostPort": 9000
+    }],
+    "dockerLabels": {"container_type": "app"}
+  },
+  {
+    "name": "datadog-agent",
+    "image": "datadog/agent:latest",
+    "essential": true,
+    "cpu": 256,
+    "memory": 512,
+    "secrets": [
+      {
+        "name": "DD_API_KEY",
+        "valueFrom": "arn:aws:secretsmanager:us-east-****"
+      }
+    ],
+    "environment": [
+      {
+        "name": "ECS_FARGATE",
+        "value": "true"
+      },
+      {
+        "name": "DD_DOCKER_LABELS_AS_TAGS",
+        "value": "{\"container_type\":\"container_type\"}"
+      }
+    ],
+    "dockerLabels": {"container_type": "datadog-agent"}
+  }
+]
+Deploy the updated task-defintion in Fargate. That’s it, DataDog will start showing the CPU/RAM metrics.

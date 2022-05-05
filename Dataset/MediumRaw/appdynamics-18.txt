@@ -1,0 +1,35 @@
+Business Dynamics and Analytics through AppDynamics
+Mayank Gupta
+Mayank Gupta
+
+Jan 30, 2019·4 min read
+
+
+
+
+Mankzo solutions a leading e-platform for apparels have launched a promotional plan on 15th August . Customer on anticipated gifts ordered heavily, online hits reached all time high in few minutes since launch of this promotion. Un-expectedly subscribers calling customer care increased. Management & engineering teams are clueless on this recent glitch. After few hours of analysis, churning of logs & board room discussions finally verdict was out. Customers were calling as they didn’t received promised gifts on checkout. Some faced queue timeout.
+What could have been a fabulous day turned out to be a nightmare; slow responsiveness, analysis taking too much time all lead to this debacle.
+Impediments like the one mentioned above faced by leading web solution companies brought the need to utilize analytics. End customer experience is becoming critical in connected world where distributed platforms and technologies are prevalent. Analytics is the measurement, collection & analysis of web data for purpose of understanding and optimizing web usage. As rightly said “Necessity is the mother of Invention”, thanks for development in field of analytics this typical problem can now be resolved using tools like AppDynamics.
+Cisco’s AppDynamics provides business and application monitoring platform that empowers the worlds largest enterprises to build and run the application they need to thrive in todays competitive world.
+HOW AppDynamics works???
+Appdynamics agents based on your service technology are deployed on individual nodes to monitor individual transactions. These controllers monitors and automatically sends data and metrics to central AppDynamics controller.With machine learning baseline is created for all those metrics and in case any deviation is observed then transactions snapshots are captured to the individual level.This helps application developers to Identify potential root cause in pre-production environment. Just to give you an Insight AppDynamics is able to provide SQL query which is resulting in delayed record fetch from DB due to incorrect query design and formatting. This helps in designing early resolution to potential problems in record time.
+
+Fig :Work Flow Diagram of AppDynamics Functionality
+Supported Applications and Technologies
+
+
+Fig: Installation Steps of Monitoring Agent
+Once Agents are installed AppDynamics automatically start monitoring application,EUM,Database or servers. Agents captures transactions on all the ports deployed on the server where Agent process is running.To avoid many transactions getting monitored and too much information getting highlighted Specific Rules are created to Monitor Transactions related to ports where service is deployed.
+
+Once a load is triggered at application ,we can check performance metrics on Application with parameters like response time, calls,calls/min,errors %, errors.
+To get detailed view on errors one can view dashboard providing transactions marked in categories “Normal”, “Slow” and “Very Slow”. We can also view Top Business Transactions based on response time, load. Also slow and erroneous transactions are listed on same page.
+
+
+Transactions which are slow are monitored and there snapshots are captured on periodic basis.These snapshot captures the underlying issues which is resulting in sluggish behavior. Also other anomalies are identified and notified on dashboard.
+
+On clicking a particular transaction snaphot you can further drill down on potential issues. Just below some slow and error transactions are captured
+
+On clicking further we can see details and potential issues
+
+Similarly we can find potential issues which are making business transaction sluggish. Also we can identify specific parameters to capture and create customized Dashboard. In fact configurations can be done to receive periodic email to get customized report regarding executions.
+With powerful capabilities exhibited by AppDynamics surely it’s becoming increasing popular in capturing business transaction monitoring. Many organizations are already reaping benefits of creating customized promotions, business patterns & improving user experience. Many platforms are using its capabilities to increase revenues, launching builds regularly, launch promotions and new features without waiting for longer product cycle. Truly as its name suggest tool is “Dynamically” ENHANCING “App” for GOOD J J J J

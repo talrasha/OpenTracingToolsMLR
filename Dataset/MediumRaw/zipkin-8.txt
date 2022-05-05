@@ -1,0 +1,95 @@
+Microservices Observability With Zipkin and Spring Cloud-Sleuth
+Eresh Gorantla
+Eresh Gorantla
+Follow
+Aug 13, 2020 · 6 min read
+
+
+
+
+
+Ever since microservices are increasing in demand and every organization focuses on a microservices architecture.
+What is Microservice Observability?
+In general terms, it is the ability to observe all the behaviors be it a success, failure, or exception. If we have observed all the behaviors, then we can act accordingly to solve those issues and make the application more robust and fault-tolerant.
+For Ex: Security Cameras record all the activities of a day. When there is an unusual activity, security cameras are thoroughly observed and we will come to a conclusion on suspicious activity on a particular period of time.
+
+Key Concepts of Observability
+Metrics:- Stats around the microservices to understand what happened around it over a period of time.
+Logging:- They help in analyzing what is happing around the system whether the requests are successful, failure, or exception.
+Tracing:- In a microservice ecosystem, a workflow/request can talk to multiple services. So tracing helps us to track the workflow in a productive way.
+How to achieve all these in micro-service ecosystem?
+I am going to explain in spring boot how to achieve observability using Zipkin and spring cloud sleuth. For this, we go over a use case spread across different microservices.
+
+I have created a simple use case in aggregator mode. In the above diagram, we have a user registration use case spread across different service calls.
+This might be a simple use case but I have made it look complex so that we can trace the workflow/request.
+Aggregator Service:- This service will make multiple service calls and aggregate the response to the caller.
+Registration Service:- This service will register the user to the backend system and return the response to the caller here it is an aggregator service.
+Notification Service:- This service will trigger either an email or SMS after successful registration for the user.
+RapidAPI Service:- This service will call some additional information after successful registration like tips, a fortune of the day. I am using RapidAPI for the same.
+Use of Zipkin
+Zipkin was originally developed at Twitter, based on a concept of a Google paper that described Google’s internally-built distributed app debugger dapper. It manages both the collection and lookup of this data. To use Zipkin, applications are instrumented to report timing data to it.
+It helps in monitoring application latency by checking the traces of application logs. These traces backed by chronology order will help in analyzing the overall system performance and helps in identifying the piece which has latency.
+Zipkin has four components.
+
+How to install Zipkin?
+Zipkin can be installed in a standalone way or through a docker container. Please see the details here.
+For the demo purpose, I have chosen a standalone way to download the jar and start as a java process. The jar here is a spring boot application.
+java -jar <zipkin-jar-version>
+After executing the above command, the Zipkin should start.
+
+It started through the port 9411, Zipkin has web-UI available from 9411 port. Now open http://localhost:9411/zipkin/ to see UI.
+
+What is Sleuth?
+Sleuth is from the spring-cloud family, generates traceid, spanid when communicating to multiple microservices to their headers and MDC. This information is used by tools like Zipkin to store, index, and process them for metrics. As it is from the spring cloud family added once to the classpath, automatically integrates with common communication channels of spring boot applications to external systems via RestTemplate, Zuul proxy, Queues (RabbitMQ, Kafka), MVC controllers.
+Dependency:
+<dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-sleuth</artifactId>
+</dependency>
+Zipkin and spring cloud integration example:
+We will consider the above-said use case for demo.
+Dependencies to be added:
+Few dependencies have to add for the Zipkin and sleuth integration and few properties have to include.
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-sleuth</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-zipkin</artifactId>
+</dependency>
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>Greenwich.SR2</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+Properties to be added:
+In addition to port and other specific properties for spring boot, Zipkin has to be enabled.
+spring.zipkin.enabled=true
+Microservices:
+In order to serve the use-case, we have 4 microservices as we earlier discussed. Let's start all the microservices. I have posted one request.
+
+Let's see Zipkin dashboard
+
+
+
+The traceid, spanid are created from each microservice and Zipkin reads the data and shows us in UI.
+
+The line
+2020–08–13 11:57:26.453 INFO [rapidapi-service,64744084940f1721,779dcbd55b422fbb,true] 1334 — — [nio-8084-exec-1] c.s.r.controller.DailyTipsController: Daily Trips API Invoked…
+The highlighted one is the key to Zipkin [service-name, trace-id, span-id, enabled], this is how Zipkin keeps tracking of the log trace. It’s the sleuth’s responsibility to create these ids and any of the distributed tracing service providers can make use of these ids to visualize workflow/request.
+Now if one of the services is down, here RaipdAPI service is down
+
+
+One of the services takes more time than usual. In the notification-service, I made the thread idle for 500ms, I increased to 20 seconds. As the rest template has read time out of 10 seconds, the request should throw read time out.
+
+
+A business logic exception can also be tracked in a similar way.
+As I initially stated that Zipkin is non-persistent and has only an in-memory data store. If the Zipkin server is restarted all the data is lost. In order to make it persistent, it is providing few options out of the box for cassandra, Mysql and elasticsearch. I will try to make another post on cassandra and Mysql.

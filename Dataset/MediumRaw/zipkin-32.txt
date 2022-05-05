@@ -1,0 +1,29 @@
+Application tracing with Zipkin + Spring
+Mario Gray
+Mario Gray
+
+May 12, 2018·3 min read
+
+
+
+
+This demonstration takes a look at instrumenting a typical Spring application with the Zipkin tracing tool-chain. Application developers wanting to observe system behavior without writing specific code will want to use this method.
+Lets take a look at ways to inject the necessary mechanics that underpin our tracing concerns. Typically on the server-side, we can usually specify a filter or interceptor which is a pattern widely supported by HTTP/*RPC* frameworks.
+
+WebMvcTraceConfiguration.java: SpringMVC supports custom Interceptors
+The InterceptorRegistry lets us add additional logic around the execution of our HTTP requests. In this case, we used an implementation of Spring’s HandlerInterceptor — the Brave frameworks own TracingHandlerInterceptor which exhibits tracing during the service call. Observing client-side HTTP calls is similar:
+
+WebClientTraceConfiguration.java: RestTemplate supports an interceptor style.
+This interceptor pattern lets us compose our HTTP call with additional modification of behavior that for instance — lets us insert tracing waypoints before and after a call has been made.
+We can now compose services with predictable tracing dynamics as shown in our example system seen in this github post. It follows an application design like illustrated in the diagram below:
+
+Application Setup for Tracing Sample.
+Additionally, we may have to call services out of our control, but within the tracing scope. That is OK, as spans may complete against an opaque system — thus we may label our traces as such (e.g. call to www.my-social-network.com). The tracing system itself will take care of putting together all of the pieces in which case we know how operations exist and complete with each other.
+We can’t always control service interactions. Ideally, all service calls should complete successfully or at the very least exhibit graceful degradation. Though it may not always be the case. Therefore, tracing can help us see service limits, like bottlenecks— i.e. authorization system slowing down at high request rate for XYZ service call.
+Tracing ultimately serves an Operations concern — Known as Application Performance Management which takes into account the reliability of a system at any point in it’s lifetime. If you are concerned with system operability and inter-service dynamics, then packages like these can and will assist with your tracing needs:
+Spring Cloud Sleuth
+Zipkin
+AppDynamics
+Dynatrace
+Check out the source code for the sample project at my github.com page. For the curious, I have included some extra reading material on the topic.
+Happy Hacking!

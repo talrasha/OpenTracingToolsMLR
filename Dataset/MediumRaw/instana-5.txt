@@ -1,0 +1,33 @@
+Kloia partners with Instana for APM
+Derya (Dorian) Sezen
+Derya (Dorian) Sezen
+Follow
+Feb 14, 2020 · 2 min read
+
+
+
+
+
+
+Kloia partners with Instana for APM
+After Kloians discovered Instana in their early stage during 2017, they played with it, piloted it, challenged it and after decided to be a partner with. This was purely a kloian-driven process.
+Although we usually used to work with various APM alternatives, Instana has advantages especially if you have workload on Kubernetes and/or Microservices or if you have transition plans towards those… This is reflected in the tool by its features like:
+Automated Discovery
+Distributed Tracing
+Automated Monitoring powered by Machine Learning
+Kubernetes-native Monitoring
+Besides,
+It also works on-premises!
+No application restart required! (For some certain type of software stack)
+
+Instana is enriched with its sensors which can automatically detect and begin to collect metrics, including:
+Docker, Kubernetes, Rancher, OpenShift
+Websphere, Weblogic, Varnish, Zookeeper
+Spark, Solar, Hana, Redis, Neo4j, MongoDB, Cassandra, Kafta, ElasticSearch
+PostgreSQL, Microsoft SQL, Oracle, MariaDB
+AWS, GCP
+Go, .NET, Java, Python, Haskell, Node.js, PHP
+and many more…
+We are constantly looking for new practices, approaches and tools for our Application Modernization and Microservices Transition projects. Instana fits well in that perspective with its Kubernetes-native support and Microservices-friendly features.
+
+Here is a short introduction for Instana to get a fast initial feeling: https://www.kloia.com/instana

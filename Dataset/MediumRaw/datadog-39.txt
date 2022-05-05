@@ -1,0 +1,65 @@
+Observability at Campaign Monitor
+Pranavi Chandramohan
+Pranavi Chandramohan
+Follow
+Jul 16, 2020 · 6 min read
+
+
+
+
+
+These are exciting times for engineers at CM as many features from our core app (a monolith) are being refactored into microservices. A system which had a request path like below:
+
+now looks like this:
+
+When a system starts to scale in terms of the number of microservices, mapping a request’s end to end journey becomes harder. Unless you have strict documentation procedures, maintaining architecture diagrams in a wiki is hard as they can become outdated quickly and are then more misleading than useful.
+For the Site Reliability Engineering (SRE) team who are responsible for the reliability of the platform and emergency response, this means more complexity and chaos.
+I joined the SRE team at a time where engineers with the most knowledge about the monolith had moved on, so not only did we have to support the newly added microservices but also the giant monolith! We realised that we needed the system to answer a very important question: what is broken and why?
+For the last year, our main goal has been to make our system answer this question. In this post, we will look at the ways we went about accomplishing this.
+What is observability?
+Observability is a measure of how well internal states of a system can be inferred by knowledge of its external outputs. — wikipedia
+If we can answer questions about an application without having prior knowledge about it, then we can say that the application is observable. This is the key to helping us resolve production issues for our system. To make it observable, the app has to be instrumented to expose relevant data.
+Let’s go through all the different kind of data we expose from our application.
+
+Source: https://www.elastic.co/blog/observability-with-the-elastic-stack
+Logs
+Extensive logging has always been practised by developers at CM but, without structure, it is hard to find and analyze relevant logs. We live in an age of distributed microservices and unstructured logs just don’t cut it. Logs need structure, and by that I mean they need fields and values so that we can search and aggregate on those field values. There are libraries we use to provide structured logging for eg SLF4J for Java, Serilog for C# and Zerolog for GO.
+
+It is not possible to change all the applications at once but every time we touch a part of a system we ensure the right logging libraries and right formats are used. Organically our log data has become significantly more useful!
+Tools
+We send all our application logs to Graylog which stores the data in an Elasticsearch (ES) cluster. Graylog is quite a powerful tool with options to manage ES indexes, alerting, dashboards and many more cool features.
+Metrics
+Our engineers use metrics heavily throughout the application. Different metric types like counts, histograms and gauges are used to give information about a particular process or activity over time. However, these were not standardised.
+Every application has inputs and outputs like: Amazon Simple Queue Service (SQS), RabbitMQ, Kafka, HTTP/gRPC endpoints etc via which data is ingested, processed and passed on to another application or stored for persistence. For each of these inputs and outputs, it is important to measure all the key metrics. This will determine if the issues are with the application itself or its dependencies.
+What are the key metrics we look at?
+Traffic / Usage
+Latency
+Errors
+Saturation of resources (CPU / Memory/ IO)
+An application could use many services like gRPC, Kafka, Redis etc. In order to standardise the metrics we collected for each of these services, we created a list of key metrics. We verified that every application or feature which is ready to be released exposed these key metrics. This gave the team confidence in being able to find the right metrics to help troubleshoot the issue.
+Tools
+We use Datadog for our metrics and monitors and PagerDuty for event management. We integrated Datadog monitors with PagerDuty, to ensure any metric breaching threshold(s) alerts an engineer.
+Why not just be happy with logs and metrics?
+Logs and metrics are great tools for observability. However, they have gaps like:
+With logs, we often struggle with not knowing what log messages to search for (due to the sheer volume of log data).
+With metrics, the data is aggregated so it is helpful for a birds-eye view but not to drill down to specific parameters.
+With Datadog, adding custom metrics helps in performing deeper analyses but that comes with a huge price tag $$$$
+We add metrics and logs where we think something might go wrong but what about the unknown unknowns? What about understanding the end to end journey of a request?
+Traces
+Datadog’s APM has been a game-changer for us in terms of observability.
+We started with a basic set up following the guidelines here. With just the initial traces for HTTP requests, SQL queries and Redis operations we were able to derive more insights into our application. The visual appeal of tracing for me was a clear win over logs and metrics.
+
+Source: https://docs.datadoghq.com/tracing/visualization/
+APM made the dependencies between various services visible with services map. Watchdog is another cool feature that will automatically detect anomalies in traces and provide alerts on system performance. Datadog also provides Trace Metrics, which are the following aggregate statistics over all the traces instrumented:
+Total requests and requests per second
+Total errors and errors per second
+Latency
+Breakdown of time spent by service/type
+Apdex score (web services only)
+In order to customise some of the functionality, we created our own wrapper around Datadog’s library for each language we support: C#, Java and Go. This gave us more control over creating traces and how we wanted to serialise the span context. We trace distributed calls by adding the span context (traceId and spanId) as a header value from the client. In the server, we could then use that span context as the parent giving visibility into the journey of a request across microservices.
+Datadog samples the traces that are stored in the system. It is important to understand the sampling rules and storage of traces in APM to help set the right sampling priority, especially when dealing with distributed tracing.
+Baking in APM
+Tracing does involve adding more code to the application, this could be a blocker for widespread adoption. In order to make it easier for our engineers, we created libraries that are easy to plug into existing services and in some cases, we added tracing in existing libraries. As of now, services like MSSQL, SQS, Couchbase, Cassandra, Kafka, Redis, gRPC are traced. This has significantly increased our visibility into the performance of our entire system.
+Conclusion
+Datadog has been key to our observability journey. We did consider Newrelic, Honeycomb and a few other options but Datadog has achieved a happy medium in terms of features and cost.
+Knowing that if we get paged in the middle of the night, we have the right information to deal with the issue has helped us sleep better ;)

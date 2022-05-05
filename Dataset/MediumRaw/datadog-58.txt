@@ -1,0 +1,54 @@
+Putting customers first with SLIs and SLOs (Part 2)
+Lucian Craciun
+Lucian Craciun
+Follow
+Mar 4, 2020 · 6 min read
+
+
+
+
+
+
+The Telegraph Datadog SLO Dashboard
+This is the concluding part to our first blog on implementing SLIs and SLOs and the benefits they can bring. Now, we’ll discuss three real examples of SLIs in operation today. Note that the numbers below are sample data for purposes of illustration; they do not represent the actual availability of Telegraph services.
+Example 1: Customer Subscription Journey (Availability SLI)
+We’ve recently deployed a new React-based application that powers our customer subscription journey. When a user clicks “subscribe” anywhere on the site, the React application launches this journey. This subscription flow is critical to the revenue of our business, as it allows users to purchase a range of products. Therefore, we knew we wanted to implement an SLI/SLO to measure the availability of this key service.
+Service Type: Request-driven
+SLI Type: Availability
+SLI Specification: The proportion of subscription journey requests that return an HTTP status code of 200 (success)
+SLI Implementation:
+Backend API availability: The proportion of subscription journey requests that return an HTTP status code of 200 as measured from the “availability” column of metrics from an Apigee ELB.
+Frontend synthetic user test: The proportion of valid subscription requests that return a status code of 200, as measured from a synthetic test executing every minute. By completing the journey, the synthetic test verifies our customers can successfully purchase a subscription via the website.
+We calculate the SLI as a rollup of these two metrics: the total number of 200 responses for both metrics divided by the total number of valid responses for both metrics.
+SLO: 99.5% of subscription journey requests in the past 28 days served successfully (HTTP status code of 200).
+After discussions with the Product team, latency was not considered critical to this customer journey. Purchasing a subscription requires the customer to fill out a web form with personal information. Manually inputting this data takes significantly more time than loading the web page. Our reasoning was that if the form took a few hundred milliseconds — or even a couple of seconds — to load, it would not significantly impact the customer’s experience. However, if a customer hits a server error at any point during this journey — particularly after inputting all that data — they would be unlikely to come back and try again. The SLI/SLO therefore focuses on the successful completion of the customer journey, rather than its latency.
+Example 2: Content API (Freshness SLI)
+In the digital publishing business, readers expect to see the latest news and, in turn, journalists race to get breaking stories to readers. So, it’s important for us to be able to deliver the content as quickly as possible to readers after our staff have committed the content to our CMS (Content Management System). This means we need to minimise the time between an article being published in the CMS and being available in our Content API.
+Service Type: Pipeline
+SLI Type: Freshness
+SLI Specification: Articles published in the CMS should be available in the Content API within 1 minute.
+SLI Implementation:
+Run a query every minute on the CMS to get all articles published in the last 1 minute
+Run a query every minute on the Content API and get all articles published in the last 1 minute
+Compare the two lists and make sure they contain the same articles and the published_date field is the same on both systems
+One challenge with measuring this SLI is that the pace of publication varies over the course of the day. During some periods, nothing gets published, while we might see 100 articles get published in another period. Another challenge is accounting for live articles (articles that get updated after they first publish — for example, live football match updates). For live articles, we are also comparing the last_updated field of the CMS and Content API.
+SLO: 99.9% of the articles published are available in the Content API within 1 minute.
+For us, content freshness is a very difficult SLO to negotiate because there’s not much room for negotiation. When journalists publish an article to the CMS, they routinely check their apps and Telegraph web properties to see if the article has shown up. If the article isn’t available immediately they will often raise a ticket or call us. When we get that kind of call we have to fix the problem — the error budget is practically nonexistent.
+Some content is more important to deliver more quickly than other content. Over time, it may make sense to prioritise different content types by creating tiers. For example, big breaking news would be placed in Tier 1 (requiring the most stringent SLO), while an article on gardening the latest summer blooms would be assigned to a lower tier. That type of scheme might be necessary in the future, but it obviously adds significant complexity.
+Example 3: Log in using Facebook (Latency SLI)
+The Telegraph website allows customers to log in to their accounts using a number of social providers, including Facebook. This journey allows us to verify that our customers can log in using Facebook, but also that they complete the login process in an acceptable amount of time.
+Service Type: Request-driven
+SLI Type: Latency
+SLI Specification: Of successful login journeys, 90% are served in less than 3s and 99% are served in less than 5s.
+SLI Implementation:
+Synthetic measurement: The proportion of successful Facebook login journeys served in less than 3s and in less than 5s, as measured by probers (synthetic tests). The tests execute JavaScript in a browser in a virtual machine running every minute.
+Real user measurement: The proportion of login page requests served in less than 3s and less than 5s of successful Facebook login journeys measured by Client Instrumentation (RUM tags).
+SLO: 90% of successful Facebook login page journeys are completed in under 3 seconds and 99% in under 5 seconds.
+This SLI/SLO validates successful Facebook logins, and also helps us ensure that our customers have an acceptable login experience. In this case, since we depend on Facebook as an authentication provider, we can now use this SLI/SLO to directly measure the impact on our customers, should the external provider experience issues. We also implemented the same SLI/SLO for our other login methods (Amazon and Telegraph accounts) so we can directly compare services against each other!
+Conclusion
+Site Reliability Engineering (SRE) practices are more specific and prescriptive than DevOps practices, and the SRE book authors acknowledge that not every SRE practice will apply in all environments. For example, the SRE books recommend that site reliability engineers develop business features at least 50% of the time and spend the other half of their time working on systems and infrastructure. But, for now, SREs of that sort are difficult to find, and so we still have a distinction between developers and systems engineers. Systems engineers will do some scripting but they won’t write Java and Java developers will work on some of the infrastructure but they won’t do everything. However, one key fact is consistent across all of our teams: If you built it, you run it and you own it.
+We’re by no means finished on our quest to master the art of SLOs. We still have a lot of work to do — particularly around managing our error budgets — but we feel strongly that this is the right approach for us. We’ve had some quick and early success, and it has already helped us create a collaborative, focused team dynamic across our organisation.
+Acknowledgments
+We’d like to thank The Telegraph’s CTO, Toby Wright, for sponsoring the SLI initiative. We would also like to thank the SREs at Google for sharing their knowledge and assisting us with our journey.
+Dave Sanders is Head of Technology — Newsroom at The Telegraph.
+Lucian Craciun is Head of Technology — Platforms at The Telegraph.

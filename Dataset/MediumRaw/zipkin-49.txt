@@ -1,0 +1,28 @@
+Tracing Microservices with Zipkin
+Naoki Takezoe
+Naoki Takezoe
+
+Jan 29, 2017·2 min read
+
+
+
+
+Shibuya Java is a Java meetup in Tokyo, Japan. I talked about Zipkin and Brave in 18th of this meetup at 28 January 2017.
+
+Zipkin is a distributed tracing system created by Twitter, Inc and open-sourced in 2012. In particular, it helps to extract performance bottleneck. Brave is a Java library to send tracing data to the Zipkin server. Currently, Zipkin has been rewrote with Spring Boot, and a Adrian Cole who is a Pivotal engineer seems to be working as a full-time committer.
+openzipkin/zipkin
+zipkin - Zipkin is a distributed tracing system
+github.com
+
+openzipkin/brave
+brave - Java distributed tracing implementation compatible with Zipkin backend services.
+github.com
+
+As a important point, Brave puts tracing data received from previous service into ThreadLocal in ServletFilter, and retrieve it and add to the HTTP header in the interceptor of the HTTP client library (Brave provides interceptor for Apache HTTP Components and OkHttp). So if the next service call is run on the another thread, tracing data can’t be related with a parent.
+In addition, we can send tracing data to Stackdriver Trace which is a monitoring service provided by Google Cloud Platform by using stackdriver-zipkin instead of the default Zipkin server. We don’t need to setup and maintain our Zipkin server (and storage!), it might be big help for us.
+GoogleCloudPlatform/stackdriver-zipkin
+stackdriver-zipkin - Adapters for using Zipkin instrumentation with Stackdriver Trace
+github.com
+
+Zipkin has client libraries for many languages and also external services support a Zipkin protocol like this Stackdriver. Zipkin has possibility to became a defacto tracing protocol not even as a individual tool in the future.
+There is a tiny example project of sending tracing data to Zipkin from servlet using Brave. If you have interested in Zipkin, clone this repository and try to run it according to README.

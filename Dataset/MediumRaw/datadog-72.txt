@@ -1,0 +1,83 @@
+Securing plaintext Mikrotik RSyslog communications to Datadog or Logz.io using TLS
+Maxime Leblanc
+Maxime Leblanc
+Follow
+Oct 28, 2019 · 4 min read
+
+
+
+
+
+Hello everyone! It has been a little while since I have written here but I thought I would get back to business with a nice little tip for forwarding all kinds of logs to your favorite Log Management software and upgrading the security posture of older appliances that do not necessarily support TLS transport.
+This is particularly useful in order to forward log data to third parties that might require encryption, which is a best-practice in any case if you want to send data over the Internet. I will show you how you can achieve this using a homemade rsyslog TLS proxy, that I personally deploy using Docker and Fargate but the choice of hosting technology really depends on the context of your organization. The setup I demonstrate has been tested with a Mikrotik RouterOS 6.45.1 sending plaintext logs to the proxy, which in turn sends them encrypted to a Log Managements SaaS software: Datadog. The presented setup has also been tested with Logz.io and the same principle works almost as-is. I also don’t think there would be any problem applying it to providers such as Loggly, Graylog or even Splunk for that matter.
+The problem
+With modern Log Management systems, the best practice is to send your logs using a secure transport such as TLS. But lots of appliances have not been built thinking that in a SaaS world, their logs would be sent over the public Internet: The more traditional model is to just send them via the local network to an aggregator/SIEM and they get analyzed and stored locally without ever leaving the enterprise perimeter. In order to use a log management solution with public endpoints, we need to add a little something to the mix.
+Proposed solution
+In order to send your logs to a SaaS provider in a secure way, the proposed solution is to first send the log stream to a small Docker container that will wrap it in a TLS secure transport layer (with additional metadata if you want) and then forward it to its destination.
+
+The proposed solution for securing RSyslog streams
+Building the container
+I assume here that the base container is a vanilla Ubuntu 18.04. First, we need to install relevant RSyslog packages and its TLS utilities. We will also expose the RSyslog service on the port 514:
+FROM ubuntu:18.04
+EXPOSE 514/udp
+RUN apt-get update
+RUN apt-get install -y rsyslog rsyslog-gnutls
+Configuring TLS
+The next step involves downloading the TLS public certificate from the SaaS provider. In this example, the certificate has been named rsyslog_cert.crt and contains the certificate’s full chain.
+RUN mkdir -p /etc/ssl/rsyslog
+COPY ./rsyslog_cert.crt /etc/ssl/rsyslog/rsyslog_cert.crt
+The configuration file
+Then, let’s create an RSyslog configuration template file in which we will inject the provided API key; This template works with Datadog, but the same principle should apply for most providers. We call it rsyslog.conf.template , and we will use it to generate the final configuration file, rsyslog.conf . Note that the template line has been splitted, but it should be only one line in the resulting file.
+# start a UDP listener for the remote router
+$ModLoad imudp    # load UDP server plugin
+$UDPServerRun 514 # listen on default syslog UDP port 514
+# make gtls driver the default
+$DefaultNetstreamDriver gtls
+$DefaultNetstreamDriverCAFile /etc/ssl/rsyslog/rsyslog_cert.crt
+$ActionSendStreamDriver gtls
+$ActionSendStreamDriverAuthMode x509/name
+$ActionSendStreamDriverPermittedPeer *.logs.datadoghq.com
+$ActionSendStreamDriverMode 1 # run driver in TLS-only mode
+$template DatadogFormat,"%DATADOG_API_KEY% <%pri%> \
+    %protocol-version% %timestamp:::date-rfc3339% %HOSTNAME% \
+    %app-name% - - [type=mikrotik] %msg%\n"
+# forward everything to remote server
+*.* @@intake.logs.datadoghq.com:10516;DatadogFormat
+The entrypoint
+Notice the %DATADOG_API_KEY% ; We will replace this with the actual value at the start of the container using the entrypoint.sh using the sed command.
+#!/usr/bin/env bash
+set -e
+# This resolves the $DATADOG_API_KEY env variable
+sed -e "s/%DATADOG_API_KEY%/$DATADOG_API_KEY/g" /etc/rsyslog.d \
+    /firewall-syslog.conf.template > \
+    /etc/rsyslog.d/firewall-syslog.conf
+# We can get rid of the template
+rm /etc/rsyslog.d/firewall-syslog.conf.template
+# Run as-is what's passed.
+exec "$@"
+This implies that you should start the container with the environment variable DATADOG_API_KEY set to the proper value.
+In the Dockerfile, just copy the template file, the entrypoint.sh and set it as the Docker’s entrypoint.
+COPY ./rsyslog.conf.template \
+    /etc/rsyslog.d/firewall-syslog.conf.template
+COPY ./entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+Putting it all together
+The only thing that is left to be done is tell Docker to use rsyslogd with our new config file; It should be something similar to this:
+FROM ubuntu:18.04
+EXPOSE 514/udp
+RUN apt-get update
+RUN apt-get install -y rsyslog rsyslog-gnutls
+RUN mkdir /etc/ssl
+RUN mkdir /etc/ssl/rsyslog
+COPY ./rsyslog_cert.crt /etc/ssl/rsyslog/rsyslog_cert.crt
+COPY ./rsyslog.conf.template /etc/rsyslog.d/firewall-syslog.conf.template
+COPY ./entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/usr/sbin/rsyslogd", "-n", "-f", "/etc/rsyslog.d/firewall-syslog.conf"]
+Now, the last step is to configure your Mikrotik firewall to send its logs to the Docker container:
+
+In this example, the docker RSyslog proxy is listening at the address 10.0.0.2
+If everything went well, you should start to see some logs appear in Datadog:
+
+Yay! Now we have the Mikrotik plaintext logs sent to Datadog using TLS encryption :-)
+Happy hacking!

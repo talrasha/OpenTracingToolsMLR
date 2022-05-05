@@ -1,0 +1,81 @@
+Datadog Log Management from Zero to One
+Anatoly Mikhaylov
+Anatoly Mikhaylov
+Follow
+Mar 7, 2019 · 8 min read
+
+
+
+
+
+
+Datadog APM Trace Search from Zero to One is the first part of advanced techniques we use at Zendesk to plan capacity and keep performance characteristics of the multi-tenant system at expected levels.
+Response times vary between different API endpoints and customers, as the data set grows rapidly, and new products are being launched. If we can scale today, what is the long-term sustainability?
+In terms of SLIs:
+how much traffic can our system handle before falling/failing over?
+when the rate of incoming requests increases by an order of magnitude, how would it affect SLOs?
+This article covers practical examples of benchmarking a test system in isolated, controlled environments: changing only a limited number of parameters. I also tried to eliminate most of the influencing response time factors such downstream dependencies and network saturation. I demonstrate what happens to overall response time when incoming requests throughput exceeds available resources and requests start to queue. Visualisations and animated GIFs assist understanding low-level interactions.
+A Practical Look at Performance Theory by Kavya Joshi covers the theoretical aspect of the Performance Modelling problem very well. I highly recommend watching this video or reading the slide deck before reading further.
+Little’s Law (wikipedia)
+The average number of customers in a system (over some interval) is equal to their average arrival rate, multiplied by their average time in the system… The average time in the system is equal to the average time in queue plus the average time it takes to receive service.
+The average time it takes to receive service is what we call Service Time, and the average time in the queue is represented by Queueing Delay. From the user’s perspective, it doesn’t matter if the bottleneck is either Service Time or Queueing Delay: the impact is the same. For us, it is very important to understand why a response time SLO is not being met.
+Let’s begin with this animated GIF to demonstrate the visualisation tools we use for analysis. Datadog Agent is required to collect logs from the Nginx container:
+
+The test setup is a set of Docker containers running in a VM: two backend, one proxy, and one Datadog agent:
+A single-threaded Ruby application server (Unicorn) runs in two separate containers, one process per container.
+Nginx load balancing method is round robin.
+Two sets of benchmark runs (100ms and 300ms). Each set contains 3 runs with concurrency 1, 4. and 8 respectively.
+Benchmark is run via the tool siege -b -c 1 -t 15min. I use the Datadog APM and Logs tools. It’s configured in a way to connect the two together via the HTTP header proxy_set_header X-Request-ID $request_id. With a request_id, you can drill into the APM tooling, as well as inspect the proxy server logs for this specific request. In the case of having downstream dependencies, you can propagate the request_id across entire stack and be able to filter for a specific request.
+Key finding: Service Time increase is predictable and expected (100ms -> 300ms) even under higher arrival rate, while Queueing Delay increase is outstanding:
+
+Latency Distribution is the most important part of the benchmark results:
+
+High Utilisation (Concurrency: 8). Response time (Service Time + Queueing Delay): 100ms
+
+High Utilisation (Concurrency: 8). Response time (Service Time + Queueing Delay): 300ms
+Test configuration
+Let’s inspect the test setup to make sure there’s no influencing response time factors other than arrival rate exceeding the available resources. The Ruby application is a barebones Rails application rake stats => Code LOC: 53 running Rails 5.2.1, Ruby 2.5.1, Unicorn 5.4.1. The application is running in development mode with config.cache_classes = true and logging disabled to reduce the I/O impact on the benchmark results. Service Time is controlled by Kernel.sleep(), with no downstream source of saturation like a database or network.
+Nginx is set at proxy_read_timeout 60, Unicorn at timeout 60. Backlog queue for a socket in LISTEN state (Accept Queue) for Unicorn backlog: 64. Nginx runs single worker worker 1 (epoll), worker_connections 4096. The Unicorn server doesn’t support TCP keepalive, which would help eliminate one of the accept queues, but is unlikely to affect the benchmark results.
+Nginx keeps track of the time when a request is passed to Unicorn (the time when Queueing Delay timer kicks off) with a header proxy_set_header X-Request-Start "t=${msec}" . It is important to note that Nginx accepts an incoming request and hands it over to Unicorn immediately unless the backlog is full (which didn’t happen according to Raindrops). Nginx upstream_connect_time is unchanged over the low and high arrival rate:
+
+Analysis with Datadog Logging
+Attributes Naming Convention
+But as Datadog integrations are not covering your custom formats and sources, we decided to make this Attribute Naming Convention (or Taxonomy) public to help you decide how to name your attributes in your own parsers.
+We need to extend the log format with several key elements, including Service Time and Queueing Delay. We receive these variables from the backend via HTTP headers
+Nginx upstream module variables
+$upstream_http_name — keep server response header fields. For example, the “Server” response header field is available through the $upstream_http_server variable.
+We will configure the Nginx log_format to output JSON
+The Advantage of Collecting JSON-formatted logs
+Datadog automatically parses JSON-formatted logs. For this reason, if you have control over the log format you send to Datadog, it is recommended to format these logs as JSON to avoid the need for custom parsing rules.
+How the log_format looks like:
+The JSON format helps the Datadog agent digest logs without an extra Pipeline. Searching collected logs and APM data is quite powerful:
+@http.method:GET
+-@http.status_code:200
+_exists_:@http.request_id
+_missing_:@network.nginx.request_time
+@network.unicorn.queueing_delay:>300ms
+@network.unicorn.service_time:[100ms TO 250ms]
+@network.docker.container_ip:("172.18.0.4" OR "172.18.0.5")
+Drilling down
+Now that we know how Queueing Delay influences the overall Response Time in every scenario under low and high arrival rate. The next step is to review these requests under a microscope, read: tcpdump.
+Every incoming HTTP request passes through two queues: SYN and Accept on both Proxy and Backend sides, totalling four queues before Unicorn can accept() it:
+SYN packet handling in the wild
+The Accept Queue contains fully established connections: ready to be picked up by the application. When a process calls accept(), the sockets are de-queued and passed to the application… The maximum allowed length of both the Accept and SYN Queues is taken from the backlog parameter passed to the listen(2) syscall by the application.
+This time, I have one single-threaded process running. I’m going to make 2 requests sequentially with a Service Time of 45 seconds each. One scheduled 5 seconds after the other, which makes the Queuing Delay 40 seconds. The application server worker’s timeout remains the same at 60 seconds (that matches the proxy_read_timeout set on the proxy).
+
+According to the documentation, Nginx’s backlog on Linux is capped at 511, but in our Docker environment it is net.core.somaxconn=128. Unicorn has its backlog set to a lower value of 64, however, this is more than we need because Raindrops reports no more than 1 queued and 1 active request during the test. The first HTTP request succeeded while the second one timed out. The backend would try to send data back through (not shown here), but further transitions (red coloured areas) would be PSH,ACK (Backend -> Proxy) and RST (Proxy -> Backend) in the response because this TCP connection was closed by the client’s FIN,ACK prior. Let’s now suppress the low level details and demo the HTTP request/response cycle:
+It may be obvious for the second HTTP request to time out, but this is exactly how high Queueing Delay affects overall capacity in most of the systems according to Fail at Scale (Ben Maurer):
+Most services process queues in FIFO (first-in first-out) order. During periods of high queuing, however, the first-in request has often been sitting around for so long that the user may have aborted the action that generated the request. Processing the first-in request first expends resources on a request that is less likely to benefit a user than a request that has just arrived.
+For the last example of how Queuing Delay may affect Response Time for a series of HTTP requests, I will initiate 6 requests with Service Time of 45s, 16s, 8s, 4s, 2s and 1s respectively. Keep in mind, now we have one slow request in front of a queue followed by five quicker ones. A delay of 1s is being made between each of these requests. Let’s see how many time out now:
+
+You may notice that only the first request succeeded. It demonstrates the disadvantage of processing requests in a FIFO order together with lack of adaptive timeout. It’s rare to see a production system handled by a single-process application but it’s also rare to see such a low arrival rate approaching that system.
+Conclusion
+In this blogpost, I demonstrated how Queueing Delay influences Response Time under a high arrival rate on a single-threaded application server. Tracking both Service Time and Queueing Delay is necessary for capacity planning and performance modelling. The benchmark took 1.5 hours, achieving consistent results. When the Service Time (purple) of an individual request increases from 100ms to 300ms, the overall Queuing Delay (red) increases from 740ms to 1960ms:
+
+High arrival rate of 8 concurrent requests while capacity is limited by 2 workers
+At a result, the total Response Time increases from 800ms to 2200ms. When the arrival rate is higher than the number of workers available to process them, then the Queueing Delay has a non-linear impact on Response Time. You can’t always know whether a request is going to be slow, but just one slow request in front of a queue influences the Queueing Delay for every other request that follows. FIFO disadvantages described here:
+When the system is not overloaded, the queue will be empty (or almost empty). Thus there’s no real difference between popping requests from the front of the queue or the back of the queue. Where LIFO processing reduces overhead is when the system is overloaded.
+Next time
+I will cover adaptive timeout, as well as the difference observed when switching the order from Queue to Stack (FIFO -> LIFO). Again, practical examples with animated GIFs using Datadog solutions will be featured. Stay tuned!
+Interested in doing this type of work? Join the Zendesk SRE team!
+* Special thanks to colleagues from Zendesk SRE team (Blake Scrivner, Dan Rieder, Jimmy Dhami), Zendesk Operations teams (Lennard Seah, Edward Savage, Jakob Dalsgaard) and Alexey Ivanov from Dropbox for review and comments!

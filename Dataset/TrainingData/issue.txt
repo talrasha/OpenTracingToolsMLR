@@ -1,0 +1,500 @@
+You can look at graphs or reports, but it's hard to centralize that data and extract the value in real-time.
+Unfortunately, patterns are not currently supported, you have to list the headers individually.
+I checked my server and it has a very low load, cpu runs on 10% and there is less than 20% of ram used.
+I'm monitoring a production system with  AppDynamics  and we just had the system slow to a crawl and almost freeze up.
+We have serious application issue at peak time application get very very slow and when i check on AppDynamics matrix, my heap memory is full and GC kicked in every minute and that make it very very slow.
+I am having issues with concurrency when writing JSON out from my Spring Boot WAR app deployed to Tomcat 8.
+I suspect it is memory leak and the GC is kicking into over drive.
+In case of URL path not being a valid one, FileNotFoundException is getting logged as an error in AppyDynamics.
+An HTTP error response, such as a status code 404 or 500 response  get recorded as a transaction snapshot error.
+Till last week it was working fine and suddenly from past week it's performance is degraded.
+Is there a chance of memory leak with this?
+Here is a excerpt of the error I get on the catalina.out log file:
+I still suspected a memory leak.
+I installed a trial version of AppDynamics to monitor the application, its memory, and run leak detection.
+Jaeger has a request sampler and I think we should not sample every request in Prod as it may have adverse impact.
+There does not seem to be a way to replace no data by zeros when using formulas in datadog.
+From all documentation I've read so far, it doesn't seem to support it.
+No metrics were sent to datadog at all.....
+I'm trying to integrate a Datadog monitor check on sshd process in my terraform codebase, but I'm getting  datadog_monitor.host_is_up2: error updating monitor: API error 400 Bad Request: {"errors":["The value provided for parameter 'query' is invalid"]}
+and this config does not allow datadog agent to parse logs failing with below error
+My problem is that I cannot get logs ingested correctly on the DataDog side.
+I get a Failed to establish a new connection: [Errno 111] Connection refused error:
+Still same error in the DD container.
+No clue on why DD cannot connect to /metrics.
+Now, I have an obstacle on how to read the log files in the container.
+but it returns "NO DATA" when there are no any events.
+However, I'm having some trouble finding a way to consistently pull out this count for use in the alert.
+I can't use the count_nonzero function, as some of my files are empty and have a load time of 0.
+My problem is that the remote machines are reassigned periodically, so I have no way of knowing the name of the host at any given time.
+This threw errors in the mixer logs, likely because request.code is an integer and startsWith is probably a function that expects a string - we lost all metrics as a consequence.
+But tags, especially env:stg is missing in datadog UI and because of this weired error, some metrics is missing.
+I have it all configured, but at runtime the datadog image attempts to start utilizing JMX, but fails saying it can't find Java on its image...
+So, I have been attempting to take the datadog image and build a new image with it as the base with Java... but I have been completely unsuccessful, every attempt to install java during docker build fails..
+I am having a hard time to collect logs from an python app deployed in ECS using DataDog Agent.
+I have two AWS account , I was able to set AWS integration for the first account using Terraform, but when I try to create AWS integration for my second account I am having an error.
+I am trying to integrate datadog to elasticsearch but the datadog collector shows an error .
+When I released new code to the box and re-installed the service I stopped getting updated stats to DataDog.
+The timing is suspect to when I released code but I don't see what I would have changed that would cause this.
+The script could total up the number of agents it sees each run and emit that as a GAUGE, but then I lose the ability to break down the count in the Datadog UI by agent-specific tags (queue, etc).
+DataDog is so useless in its querying and its intuitiveness ...
+I'd like to include more words in the query, but even reducing down a single word fails to find anything.
+Currently, I see error status for all the authentication errors and it feels like a lot of extra noise in the total errors chart.
+I'm having trouble setting up monitor that will alert me when an event hasn't happened since some period of time following another event.
+I've tried using the delay evaluation (delaying by 2 hrs), however, at the time when it starts evaluating, it will only take into account the first metric.
+The error i get when i run a config check is the following :
+We found that When we try to curl   curl localhost:19999\metrics  to test the JMX it returns empty which indicate we miss something to collect the JMX report
+I'm trying to test out creating a monitor for google pub sub and am getting an &quot;Invalid Query&quot; error.
+This is the query text when i view source of another working monitor, so i'm confused as to why this isn't working.
+In my understand, usual case is using Datadog agent to send error to Datadog.
+we are facing a problem using NUnit, Serilog, and Datadog.
+but  no logs arrive at Datadog .
+I tried  -@facet ,  @facet:""  and  NOT @facet   but doesn't work and google doesn't help
+But i could not find anything useful on datadog website nor maven central repository.
+The problem I'm having now is that I am not able to filter logs by cluster name.
+If I leave it as is I get a lot of error messages in the DataDog container logs and the redisdb integration shows up in yellow in the DataDog dashboard.
+but there is no direct example on how to exclude the those metrics
+But when i restart my agent it's still send the unwanted logs to my datadoghq.
+The " query-volume " section is always empty, even if I go the mysql shell and do a couple of selects.
+Now we are trying to upgrade to the latest version of DataDog Agent 6 using this, which is failing to install and register the instance as an available host in DataDogs dashboard -
+i have some problem to settings my dashboard metrics in datadog, the case is about current connection of my apps, for example when there is user connected my app the value goes add by 1, but when its disconnected it will reduced the value by 1. 
+the problem when im using datadog, they will evaluate based on timestamp, so for example if i want to check per 5 minutes, when first 5 minutes there is 10 users connected it will add by 10 the monitoring show 10, it should not be a problem, but the problem when the next 5 minutes when there is 5 disconnected users, it will reduce the value by 5, and it should be  5  not  -5 .
+I am having trouble figuring out how the datadog forward encodes/encrypts its messages from the datadog forwarder.
+The definitions from their website don't help me much:
+The  count  type seems to be somewhat related to the  rate  type, but for me it is unclear why or when I should use  count  instead of  gauge .
+It's unclear from the documentation.
+The problem is that some of these increments are not posted to DataDog.
+I am able to see logs &quot;metric sent successfully&quot; with no error but this custom metric is not showing up in Datadog UI under metrics summary.
+The problem is that the monitor goes off when there are ~117-119 events present, and then it resolves immediately after that - when the remaining events come through in a few minutes.
+I'm trying to send events to dataDog from c# (unity specifically) but it returns an error 400 every time and I'm at a loss at what else to attempt..
+If I comment that line out, the error goes away but I never receive the events on dataDog, which is understandable considering it's saying it's rejecting my post
+Which gives us an exact number of how many times an error occurred - independent from a specific entity: If an entity can't be processed like 100 times, then the metric value will be  100 .
+When I then again run docker-compose up, I get the following error
+I am trying to test Datadog and see if it works for my needs... the problem is that I cannot make it works...
+But instead of resulting in the  average time , DataDog seems to calculate the  sum of the average request time per event type  and shows an always increasing average request time in seconds (which is wrong because I logged in java code the request times and they are all under 100 milliseconds; so an average must be in a range of milliseconds).
+But some colleagues argued that it is not a proper way to calculate the average and that it should be able to calculate the average out-of-the-box using DataDog.
+I do not want to use a custom image to package the JDBC-driver, I want to use a standard image such as tag:7-jmx.
+But for requests other than these two games the tags is empty as  tags=[]
+Then I convert this requests to Python Requests, and the  curl  method works but Python returns a 500 error without any details.
+I was installed the "datadog-php-tracer_0.14.1-beta_amd64.deb" on my server and after installed my application return 500 error.
+When I am checking my php-fpm log file, it shows the PDO error about "Slim\PDO\Statement\StatementContainer- execute()".
+In short when I am enable ddtrace my app not working and return 500 error.
+It might be providing some data to Datadog while it's up, so a "no data" alert won't do because the lack of data never hits the duration threshold as the process restarts.
+I have tried specifying the folder location in multiple ways with single and double quotes, forward and back slashes and double slashes but the same error is thrown.
+Would anyone know if this is a Yaml syntax error or some sort of issue with Datadog or the Python?
+But when Chef is running, I receive an error message like:
+after starting Datadog-agent I get one error as shown below
+Another issue is that if you go to Datadog's  Integrations  page, Flink integration is missing.
+I'm trying to set up a dashboard right now that displays this template for each of my 20 or so hosts, but it's a painful process of cloning the chart and editing the host name in all 5 places.
+Whenever I make a change to the template, I have to painfully paste the changes into each host chart and change the hostname in applicable places.
+Unfortunately there is not an official Go Datadog API.
+I’m getting a connection refused from my datadog-agent that is trying to collect JMX (via RMI) metrics from an in-house application that exists in its own docker container.
+rmiregistry has been started as per  Failed to retrieve RMIServer stub
+Rather new to DATADOG and everything seems to be done in an iFrame, which I do not want.
+I've had difficulty finding anything about this in the datadog documentation.
+When SNAT port resources are exhausted, outbound flows fail.
+Seeing the failed connections was a clue we were having an issue but there is no way to confirm SNAT exhaustion w/o a ticket to Microsoft it turns out.
+Working theory is that datadogRUM is blocking other application requests on IE11.
+The official doc is useless just presents the same metric in plain English without an possible explanation
+So I use  StatsD  to receive all my metrics from my service, but unfortunately Datadog can't seem to pick up those, how can I debug it?
+Every time my application is re-deployed in Kubernetes, each instance starts every record all over again (in other words, it has no idea where it left off or which records have previously been processed).
+I am trying to connect to a MySQL database using python but I am getting a strange error.
+It is basically just a CRUD app, so I'm honestly not sure why there's a memory leak.
+I use DataDog for monitoring, and I am having a memory leak until the system crashes (it takes a few days to use up all memory, but it does occur eventually):
+After doing this, the  intercept  function doesn't fail, but the  visit()  function behaves strangely:
+When the project is deployed, it runs fine for several days before this error starts showing up in our datadog logs:
+When this error occurs, the site/project is not publicly accessible but the apache is still running.
+3 days ago, project was hit with 145 request simultaneously and since then the app is no longer accessible.
+It can be seen that the producer ack lag is more than 10 secs.
+I have been struggling to find more detailed documentation on this.
+I trying to run 3 containers and get the error for all of them.
+But what is happening is that this counter doesn't behave like I thought it would.
+This costs us money and makes the logs very difficult to read.
+I realise there is no metrics/tags related to a failed query.
+However, when launching the ansible playbook, the error remains:
+I can see XNIO on JConsole for the application(Spring-boot app), but no metrics appear when I try to see them anywhere else.
+However I'm getting the error below regardless of any attempt at altering the syntax of the  prometheus_url  value (putting the url in quotes, escaping the quotes, etc):
+Even though I am following all the mentioned steps I keep getting the following error on AWS ELB.
+Even after replacing the  initctl  with  systemctl  in the start &amp; stop scripts, I am still getting the same error.
+I’m looking to enable JMX to allow datadog to monitor our java JBoss wildfly systems but keep hitting runtime errors
+It definitely makes me a little worried that we could lose something as critical as the scheduler and we have to call to ask Azure to fix it.
+I started getting  the following build error only after I installed the datadog agent.
+After removing my Gemfile.lock and reinstalling to make sure bundler version was   2.0, I then started getting another build error.
+Before this error I was getting an error about the my lockfile is unreadable.
+That is very useful for tracing / ad-hoc monitoring, but not very good for a serious infrastructure monitoring.
+Inside the docker-machine I set up a proxy container(datadog/squid) for minikube to access, but I'm not sure exactly how to allow my minikube/pods to use this proxy.
+For me it is very strange that jmeter does not bring response time for restcall.
+I monitor the cassandra nodes activity using DataDog and I found that only node #2 that keeps getting timeouts (the seed node is node #1, though what I understand is seed doesn't really matter except during bootstrapping step).
+We know how to attach and monitor the performance counters, but the problem we face i sthat IIS worker processes are recycled, and thus, the instance names for those performance counters, invariably change.
+I am using Ansible  Datadog role  and trying to install and configure datadog agents in target servers however, i am stuck at a point where i need to use host variables and update a section of the playbook using these variables.
+In Datadog APM, I see dozens of failed fs.stat() calls for various paths under /dist
+The problem is, I can't seem to find it in the librdkafka stats object.
+Unfortunately most of my searches come back with advice on how to use Azure DevOps to provision monitoring of external applications with App Insights and Log Analytic rather than the other way around.
+I can imagine using a scheduled task calling the Azure DevOps API and pushing it into Log Analytics API, but that seems like the least elegant and most error prone solution.
+I'm trying to figure out if my configuration of celery is not doing what I anticipate or if I am going about trying to find the queue and worker that processed the job in the wrong way.
+I have been struggling to keep it running ever since (it is actually our dev environment, so not production, but our devs are impacted, and we are worried the same thing can happen in production).
+At some point the client loses communication with the master:
+Eventually the client suffers an Out Of Memory failure and the JVM crashes.
+I am assuming that the memory issues, the GC and the crashing are all related, but I am having a problem figuring out what the cause is, and why so sudden.
+However, the problem is that when I reduce the number of tags passed in, there is extra latency of server response, which isn't intuitive because I'm passing in fewer tags and the implementation hasn't changed.
+If the objects being logged in the structured logging included userid then much of this complexity could be avoided, but that would require a lot of work rewriting for structured logging.
+But I'm having a real hard time combining them together to one query that will show me when those analysis only for those 20 tables.
+This makes my code un-necessary long and error prone to work with ( If I add/substract environment variables for my service, I have to do that in both the use-case.
+I can't believe this is so difficult compared with SUMO.
+With all of this, it's difficult to debug where the performance is being slowed down.
+But datadog's documentation is not clear about native attributes and their names so I don't know what would be the target attribute name.
+I've tried to tweak the publisher settings for each topic but that did not help.
+"/test" or "//ping") but it is very inconvenient and tedious to create a ingress rule for each path.
+I added the datadog buildpack and then started getting the following build error:
+I'm not sure how to move forward debugging this error.
+We assume it has to be something on our network but we haven't figured it out, we don't experience any of these errors when we use our app locally on development mode, only happens if we have the electron app running and we turn off our server instance, as the connection cannot be established.
+I saw an example from datadog docs where they're able to extract a url path attribute, but there's no example config.
+So my problem is very simple and all I want some metric from DD or elastic which can easily tell me which indices are consuming the most resources on a elastic-search cluster.
+Very frequently the app will hang and won't accept any other connection.
+Documentation doesn't help in identifying what could be the root cause.
+After adding elastic-apm-node on our backend server we receive the below error hundreds of times a day.
+My problem is apm agent does not record database query spans and I can't see  database query spans  in kibana ui.
+I have a problem when I want to start the app, when i type  npm run server .
+I am using a TypeScript setup with webpack and babel and get the following error when trying to include  elastic-apm-node .
+Despite reviewing the documentation, I am not clear how I can use the  Elastic APM Public API  to connect transactions to one another which occur outside of HTTP (HttpClient is automatically instrumented for trace by Elastic APM).
+Getting error while integrating Elastic APM in the Node Express application.
+I'm having trouble getting the APM "button" and dashboard to appear on the Kibana page.
+However, if I move it to just before I set up the routes, then I get a no transaction found error.
+But still getting the error in the screenshot  [Elastic APM] Failed sending events!
+I'm having troubles to 'user-override' the settings to my likings.
+Problem is one of Elastic APM server is not able to push data on ES cluster due to index.
+I found a package for elastic called anik/elastic-apm-php but when I install with composer I see below error
+I am reading the doc about elastic APM to see how to ingest AWS xray to elasticsearch but I can't find any solution.
+I am getting the following error for APM-Agent when I trace the log.
+the problem is that the service1 receives the response back (according to the logs and network traces) but it seems that the connection was dropped somewhere between the services and I got a timeout ( ESOCKETTIMEDOUT ).
+Unfortunately, our corporate proxy is swatting down the request before it can complete.
+It's not my code that making the requests but code within a NuGet package, so I can't easily change how it's making the connection.
+The problem is I have to manually download the apm-agent.jar, is there a way that I can configure the apm agent in my Gradle dependencies?
+Unfortunately what it doesn't do is consistently attach the same labels to all spans within a transaction e.g.
+I've tried using ByteBuddy for my own classes and it all works without issue, but I'm getting very confused around which classloader has loaded what and how to point ByteBuddy at them.
+The clear problem with this is that if  Agent.Instance  is accessed before  Agent.Setup  is called, the  Foo  object in  Agent.Lazy  is instantiated with null ( _bar ) passed to its constructor.
+However, different configuration can cause a method to return different results although no visible dependencies have changed, i.e.
+This can become an even bigger problem if the singleton state can change at runtime, either by rereading the configuration file or by programmatic manipulation.
+I am using Elastic Search in my MVC Application and getting en error when adding migration.
+I tried with previous agent versions 1.16.0 &amp; 1.15.0 but I still get the same error.
+And do some  manual  manipulations with the  ERROR  tag for exception processing in filters e.g.
+Tracing JDBC connection info is working fine using  opentracing-contrib/java-spring-cloud  but additional information is missing.
+Then I followed  the link  to deploy the bookinfo sample into another namespace  istio-play , which has label  istio-injection=enabled , but no matter how I flush the  productpage  page, there's no tracing data be filled into jaeger.
+The problem now is how to send the tracking information to the next inner service in the platform to have every service correlated.
+I have a problem using the jaeger open tracing project within our microservice system.
+I found now another dependency and read different tutorials which made me somehow unsure on what is the right way to use Jaeger with spring boot.
+I am confused about this extra space because there aren't any codes between these spans and I expected to see spans starting after each other.
+According to the documentation, the addition of  opentracing-spring-cloud-feign-starter  dependency should to the trick, but so far, none of the feign clients worked.
+However the result is the same, I can see the trace for  gateway-&gt;A  but no any further tracing
+I'm trying to instrument a Spring Cloud RxJava sample app with Jaeger, and for some reason I'm failing!
+When I leave the App without a  Tracer @Bean , I don't get anything in Jaeger and I get this message:
+I have problem plotting Kafka spans on graph, them appear as gaps.
+I'm trying to run  istioctl install istio-config.yaml  command within CodeBuild on AWS but I get this error:
+How can we do that, I see no option to download traces from Jaeger Ui.
+Unfortunately, that is not the case for me as some applications that I am tracing are not run within the cluster so I need my Jaeger Collector to be accessible from outside.
+Unfortunately, my Jaeger Agent can't seem to speak to it still...
+No trace data seems to be making it from my Agent to the Collector and I get errors when hitting the Jaeger Agent Sampling Service.
+I checked the logs for the traefik controller and I didn't see anything helpful there either.
+However, while digging through the Jaeger documentation, I found the  CLI Flags reference for the jaeger-all-in-one distribution  that seems to contradict itself.
+However, when I run the web app in another docker container no traces are registered in the Jaeger UI.
+I saw that for WebClient, you have autoconfiguration but found little or no instructions on how to do it besides  Tracking-Zipkin  page which I don't really know how to procced from that.
+Currently, I'm very stuck on compiling the proto files.
+Every time I try, I get dependency issues ( Import "fileNameHere" was not found or has errors.
+The direct documentation through Jaeger is limited for this.
+I know that I can send some logs with  span.LogKV()  or  span.LogFields()  but it makes code look bad while there are same logs with both application logger and span logger.
+I've a simple Java application that I wanted to test tracing with Jaeger but encountered error.
+Basically I want my jaeger to show my mongo application errors.
+I am having problems pointing a jaeger agent to a collector running in openshift.
+When i attempt the agent to the collector running on openshift, i get the error below
+I'm struggling with setting up OpenTracing/Jaeger for a Spring Boot 2.0.2 application.
+But the dependencies used there were ridiculously old (like 0.0.4 for opentracing-spring-web-autoconfigure, which is now available in 0.3.2).
+So I migrated the application to the latest dependencies which resulted in no traces appearing anymore in Jaeger.
+I tried out with JAEGER_ENDPOINT, JAEGER_AGENT_HOST and JAEGER_AGENT_PORT, but it failed.
+But I only found the Resource class, arguments, and Process name , but the &quot;Logs&quot; is not shown on trace detail expand.
+I just need to deploy jeager operator for with 1 elasticsearch, but this guide is quite confusing.
+I tried to delete all indices older than 2 days, but no indice was deleted:
+My problem is that jaeger keeps logging at the INFO level, tons of entries like this :
+I've tried a bunch of configuration to try to remove these entries, but so far without luck.
+However, now I am trying to set up Prometheus metrics scraping (using the  Prometheus Operator ) but I am not seeing a  Service  in my cluster that exposes the metrics ports for the Jaeger Collector (port 14269) or Query services (port 16687) ( port number reference from the Jeager Monitoring documentation ).
+I have the problem that I cannot seem to get Grafana Tempo working with a Jaeger client.
+There are no minimal examples in the jaeger-client-csharp documentation, but from what I read, I think this should work.
+I have jaeger-all-in-one.exe running but when I run this code there's no sign of any new traces.
+However, Agents are on each nodes, and I have hard time specifying the host.
+I have manually instrumented the code, but no traces show up in the jaeger UI.
+I am required to run a jaeger-agent on a bare-metal server that doesn't have support for docker.
+But with  spring-cloud-bus , the logs are missing.
+As I have no idea if the traces themselves can be replayed in this fashion to the Collector.
+The problem is that when there are multiple methods invoked and if the logging is not explicitly referring method name, it is difficult (a lil bit) to trace it.
+We have tried setting up &quot;remoteTelemetryAddress&quot; flag as well on remote clusters but still no result.
+The problem is that every approach and example I found to this topic is given with HTTP requests, which I don't use.
+I'm trying to play around with Jaeger and open-tracing in my local k8s node (Docker for Mac) and having some trouble see traces in the UI.
+Was trying to connect to jaeger using HTTP request using nodejs but the spans are not reaching the jaeger endpoint.
+Everything is ok but I haven't found a way to handle  Jaeger  errors.
+I want to catch, for example, connection error to  Jaeger  backend while sending trace and write it to  loggly .
+I am getting the tracing of REST communication on Istio's Jaeger but the JMS based communication is missing in Jaeger.
+Unfortunately, I'm not able to use PyInstaller with  jaeger .
+But it appears that those headers are going missing along the way, as the receiving application is unable to resume the tracing context.
+Instead, the two applications log their traces separately and no link can be discerned between them in the Jaeger UI.
+But I am a bit stuck when it comes to catching and logging exceptions.
+We can curl the container to get nginx page just fine but see absolutely no traces in Jaeger for https calls.
+The problem is with the logback logs.
+But the problem is that Jaeger stopped registering traces to Jaeger server.
+But when I use Serilog, there are no any custom logs.
+When it is set up to use  StackdriverExporter , the web page will not respond load, the health check starts to fail, and ultimately the web page comes back with a 502 error, stating I should try again in 30 seconds (I believe the Identity-Aware Proxy is generating this error, once it detects the failed health check), but the server generates no errors, and there are no logs in access or errors for Apache2.
+Is was hoping that this Chromium-based webview would be friendlier with basic HTML5 playback, but instead, I just get the exact same error as before:  MediaPlayer(30579): Error (1,-2147483648) .
+Problem is  x-b3-sampled  is always set to 0 and no spans/traces are getting pushed to Jaeger
+The odd thing that after restart GCP shows almost maximum memory usage instead of slowly growing if it was memory leak.
+The problem is that I can copy it to any other header, but cannot modify  x-b3-*  headers.
+Istio keeps generating new set of  x-b3-*  headers no matter what I do in envoy filter.
+Grafana is also having some strange behavior, most of the graphs do not show data.
+I get the pod description detail and I get this warning
+But when I can detail my pod on KGE, I see that my pod have some warnings and is not healthy ...
+In previous opentelemetry versions (0.7b1), I could use directly  ctx_parent  without using  set_span_in_context  and it was working fine (I visualized nested spans on Jaeger), but unfortunately they removed the packages from pypi so I can not build anymore my project...
+When I implement jaegertracer in the function that is responsibe for writing file to ceph via RGW, I am unable to upload my file Im getting this error
+However, if I rerun the test case to reach the service in the cluster, it fails with a 502 (Bad Gateway).
+This resulted in the SpringBoot service failing to start, referring to a Jaeger client that couldn't connect to a server.
+I have enabled tracing in Mixer's configuration, and I can now see Mixer's activity in Jaeger UI (but no traces of calls to my application still).
+When  master  calls  slave , I can see the traces in Jaeger, but when the web application calls  master  I see that only the web application is called and no traces are corelated with the webservice and I can see separatly the traces from the 2 webservies correlated:
+In the output of  rails sever  I'm getting this error every 30 seconds or so:
+I have tried to write an imaginary URL, for test purpose, and when I clicked on 'Save &amp; Test' I've got no error feedback, but when I tried to pick Jaeger datasource in explore page I've got 'Failed to load services from Jaeger.
+There are only traces with name &quot;async&quot;, and there are no tags with the key &quot;sample-key&quot;.
+Then recently we had to reboot the jaeger tracing service due to a system crash.
+Now things have stopped working and from the logs there's a &quot;504 Gateway Timeout&quot; and the agent can no longer communicate with the collector.
+When I run this sample, collector logs have lots of errors
+Also tried to use the jaeger backend to post the traces from collector, but I still see the same errors.
+But using Jaeger I can not see the traffic to the external service, and thus be able to detect problems in the network.
+The problem is, I haven't found any consistent solution to do this, all the examples that I have found so far are outdated, deprecated or lacks documentation.
+The problem I am facing is, that something's wrong with the  tracing  config in Traefik.
+I’m struggling with the last step of a configuration using MetalLB, Kubernetes, Istio on a bare-metal instance, and that is to have a web page returned from a service to the outside world via an Istio VirtualService route.
+I say most because since the upgrade to Istio 1.0.3 I've lost the telemetry from istio-ingressgateway in the Jaeger dashboard and I'm not sure how to bring it back.
+there is a request mapping which was configured to leak some memory .. trouble is InspectIT does not dig deep into the method calls .
+The issue I have is when I try to follow Instana's guide for  Angular 2+ Integration  regarding error tracking, where they call one of the methods that I can access from window.
+I have given Instana the permission to download source map from my application in production, but the errors reported are still compressed and uglified.
+I'm having some trouble monitoring my GitLab installation with Instana.
+I tried installing instana agent using docker command and it works but I need it be installed using one liner command and when tried it gives error as below:
+The problem is I can't seem to get the open telemetry collector to receive the jaeger traces and send it to my proxy container.
+I guess the configuration has no effect.
+I am having trouble finding any information about this in documentation.
+somehow I have failed to connect to my  skywalking  backend, problem was with name and namespace but still getting error but now  skywalking  backend getting data but ui no updates.
+but now the skywalking UI has no data, am I missing something to be configurated?
+But I cannot get a clear documentation to implement and setup this.
+However, after  grails run-app  and navigating to  http://localhost:8080/main/index , I get my index page as expected, but no stagemonitor icon to click and it appears no stagemonitor assets are included.
+My problem now is that instana is not picking up the information exposed via /nginx_status stating that nginx needs configuration.
+I have a  Tracer  bean defined and spring boot seems to acknowledge that, but no traces are being emitted.
+2) Stagemonitor - Could not follow the installation instructions - it requires installation of docker which I could not because of OS limitation.
+Now I need to update the  values.yaml  file, but I am stuck at the credentials section.
+However, when the rest api exposed in the client application is invoked, the zipkin trace is logged but they are not collected at the hawkular apm server.
+I've executed below function but there is no trace data show in my zipkin server.
+Once i start the server and load the UI page i am getting error in UI as,
+We have a socket based web app we currently developing using feathersJS, and we are currently leaning on using zipkin for performance tracking, but it seems that there's no instrumentation yet for socket based app, anyone have implemented Zipkin on socket based webapps?
+Has anyone else encountered the following problem with using Zipkin &amp; Spring Cloud Sleuth?
+Seems to be a problem posting out data to my localhost Zipkin server.
+Traces that should have been sent by dapr runtime to zipkin server somehow fails to reach it.
+Unfortunately , after configuring the agent by specifying zipkin exporter details , I could see an exception in the console.
+We have  slueth  in other microservices and we wants to send data to zipkin server for consolidated logging.I am trying to start my zipkin server.I am getting the following error:
+We are not able to see Zipkin UI.
+I'm having trouble converting the instructions for manually configuration found here.
+I could not find any brave instrumentation library which supports reactive-Kafka.
+I even walked through all the issues raised in github and couldn't find a solution.
+But I have one vert.x application and I have found it difficult to implement the Zipkin there.
+Checking the traces in Zipkin, the span is correctly found, but the message used in the  LOG.info()  line is nowhere to be seen -- which suggests me that I'm doing something wrong here, or maybe it's just not supposed to work this way.
+So I am assuming that Zipkin include some service container process time in the tracing, which is not what I desire to have.
+but it does not try to resolve zipkin from discovery-server, instead it tries to connect directly using spring.zipkin.baseUrl, and i get below exception.
+If I set the Zipkin property  zipkin.service.name  then Consul throws errors saying it cannot find the service.
+I'd like the service to use it's base application name because otherwise Zipkin is hard to use, as it lists every new container as a completely new service, making it very difficult to see over time how code changes have changed timing.
+This is the error I get in my logs if I set the zipkin.service.name
+After I upgraded, this doesn't seem to work and spring cloud sleuth's default error reporting was also not happening.
+My problem is that I'm able to get the traces fine when I use the web connection, but I get an unable to connect error when I try to communicate using RabbitMQ.
+I am getting refused connection exception
+I am getting this error when I try to run the unitTest in my spring boot application.
+I'm trying to integrate sleuth into a Spring Boot application so that it will talk to a zipkin server for tracing, but I'm not having much luck.
+Error is shown after adding the zipkin dependencies to a project and running with
+https://hub.docker.com/r/openzipkin/zipkin  states mysql is deprecated,  elasticsearch  link is broken, in-memory is not for prod, where can I find a doc for production configuration?
+I tried in Windows 10 machine to coonect RabbitMQ (3.6.11 version installed with Erlang 20) to ZipKin, but I got the following error:
+I am following the tutorial for creating tracing application  zipkin  and  sleuth  but I am having some trouble.
+I found the parameter  provider: jaeger  in the  Configmap   istio-sidecar-injector , and made the change, then killed the control plane so it would be re-deployed with zipkin, but didn't work.
+The error disappear between zipkin and es but still occurs between es and zipkin-dependencies.
+I am wondering why starting other service on port 8081/8081 is causing zipkin server to stop responding.
+I'm testing zipkin to spring boot integration but im facing error like below.
+However, when I want to inspect the traces in Stackdriver Trace, something seems to be going wrong:
+However, I am thinking maybe it is not a good idea for the client to send the x-request-id to avoid issues of constraints/duplication.
+I know there is the library, osprofiler, for tracing OpenStack, while the example of API seems unclear to me.
+But when I put it back, the performance is very poor.
+By themselves there is no performance issue, it is only when i add the spring-cloud-starter-zipkin that the performance degrades.
+I have zipkin server running and when i hit the zipkin client rest api end point i am getting the error below
+Running the zipkin server it starts up ok but nothing is shown in the trace logs excpet for an error
+I am facing an issue where in the ZipKin UI is failing to load in the traces from MySQL.
+But when I try to load the Zipkin UI, it give me above error on UI.
+just connecting to the cassandra instance, can see there's no entry in the dependencies 'table'.
+and gives out an error on the query terminal.
+But there are no tracing informations at all:
+I expect the Zipkin trace to be highlighted in Red color as it is a bad request but the actual color is Blue.
+i could imagine, i need to somehow intercept incoming and outcoming http-calls with the application-type x-thrift but simply have no idea how to do this and properly integrate with zipkin libraries.
+but if u r using api-gateway for accessing zipkin (in case of deplyment in cloud ) or inside proxy u may face the issue of broken ui elements when accessing thru gateway in this case im  using zuul with propertis as:
+Zipkin is also present on the Azure server as a distributed tracing system and I guess this  x-request-id  is related to Zipkin which is creating the problem.
+The error seems to happen when it tries to send message to zipkin server
+I use 1.4.1 and CAMDEN.SR4 because fabric8 kubeflix doesn't support newer versions.
+My code runs through with no errors but I can't see any info appearing in the GCP console under traces or in the monitoring dashboard.
+The problem is that your Jaeger collector is not accessible from outside docker network host as you specified in your docker command.
+From my current knowledge: no, AppDynamics doesn't support OpenTracing yet.
+This is happening because Jaeger agent is not receiving any UDP packets from my application.
+That's because the Jaeger client will, by default, send the spans via UDP to an agent at  localhost .
+If you stop and start the container, the storage is reset, so, you'll effectively lose your data.
+node-jaeger-client currently doesn't run in the browser.
+If you use the @EnableZipkinServer annotation and the Zipkin server is unavailable,the trace data that would have been sent by the service(s) to Zipkin will be lost.
+This often confuses people who are new to the Spring Cloud Sleuth and Zipkin, because the Spring Cloud team did write the @EnableZipkinStreamServer annotation as part of Spring Cloud Sleuth.
+By default, OpenTracing doesn't log automatically into span logs, only important messages that Jaeger feels it needs to be logged and is needed for tracing would be there :).
+The problem was, that the Report instance used a NoopSender -- thus ignoring the connection settings.
+Maybe you should check whether the application services which you set up in a hurry are both in the same azure resource group as the VM running the Jaeger all-in-one instance, otherwise the second application might not be able to communicate with the Jaeger instance at all.
+If you are getting data in Jaeger, but it's not connected, that will be because Traefik can only only work with trace context that is already in inbound requests, but it can't add trace context to outbound requests.
+I have never worked with AppDynamics, and my concern is that it may actually slow down my application.
+I see that Appdynamics 4.2 claims to  support  Java 8 lambda instrumenting, but this support was  removed  in 4.3.
+When I call controller of resource server with jwt token, I can see in zipkin traces from resource server and authorization server as well, but there is no traceId propagation from resource server to authorization server.
+However, distributed tracing requires access to the header of the request, but https does not allow access because the header is encrypted.
+I'm trying to create a custom Sleuth instrumenting service that can also work when no tracing is available.
+The idea is really to have a kind of Noop version of the service when no Tracer is available.
+So I doubt the application itself is running out of cpu time.
+Zipkin is failing to connect to mysql database.
+When the span information is sent to Zipkin, I notice that the timestamp and duration of the child span are missing.
+So my problem is I am not getting any traces to zipkin / kiali when i am accessing my application through AWS LBs.
+Documentation is not clear for using it with Spring Cloud Stream
+I want to send RabbitMQ messages tracking event to Zipkin with using spring cloud sleuth, After many research I found some configuration added recently to spring in order to manage it you can find in  here , But unfortunately there is not any  documentation that explains how can we configure it, I tried many ways but I couldn't send tracking events to Zipkin.
+Any ideas on what I'm missing or have configured incorrectly to capture Sleuth traces and send them to the Zipkin server using Kafka?
+By the way, when using spring-cloud-sleuth-zipkin, the following error occurred.
+However, the UI does not show any traces at all, no matter what I do.
+I added an additional network NetA to my Zipkin container but it didn't solved my problem - there are no traces in my Zipkin UI.
+I found zipkin, a project that could do this, but the base of my application is WSO2, I don't want to get other projects from scratch.
+FastAPI gets rejected when it attempts to send a POST request to the Zipkin container, even though they are both connected to the same network with explicit links and port mapping defined in the YAML file.
+The problem is more complicated when I deployed all microservices on the server  -Zipkin Web UI is empty - no traces.
+I am trying to run  docker zipkin  in my local system, and got failure when ran the following command in Toolbox GuickStart Terminal.
+Individual APMs offer a decent portrait of one aspect of a company’s operation, but using 10 or more which don’t integrate with one another is similar to staring at fractured pieces of a jigsaw puzzle.
+I cannot supply actual code because this is my problem, I can't actually find what I want to do.
+but when i check the logs of my pods, i see  connection refused exception
+I am facing some errors in a spring boot project where I am using spring integration to connect to RabbitMQ.
+The only downside I have found is: when there are several instances of every microservice I haven't found a way to determine which instance Zipkin information is referring to, since it identifies them all by its service name (which is the same for all).
+I have attempted to use the  dcat  function in OpenBUGS which what I hope is an uniformative prior (beta(1,1)), but OpenBUGS fails with error:
+Generally, monitoring tools cannot record method-level data continuously, because they have to operate at a much lower level of overhead compared to profiling tools.
+It does do transaction tracing, it has very limited code and runtime diagnostics, and it doesn’t go very deep into analyzing the browser performance.
+From what I understand from their documentation, AppD do not have a way to capture heap dumps.
+Note that another Java language feature introduced in Java 8, lambda method interfaces, are not supported by the AppDynamics Java Agent.
+Apparently, there is some conflict in having multiple machine agents installed on the same server.
+With the Analyze -  Metric browser in AppDynamics, you can go in and look at all the various metrics in the tree, but there's no right-click "edit" option.
+When having the AppDynamics performance monitor installed, the servicestack API fails to load with the following exception:
+My problem is that SLA for each application is different and if i change the slow transaction threshold for a single application.
+I found that Zipkin custom Server are not any more supported and deprecated for this reason it is not possible to use @EnableZipkinServer in Spring Cloud code and you have the ui but not the server side configured, api endpoint and so on.
+I've faced something like this before when Zipkin dropped spans I was (mistakenly) assigning wrong timestamps to.
+I faced this problem using java 11, springboot 2.3.0.RELEASE, and spring-cloud version Greenwich.RELEASE.
+Because the architecture of Zipkin have multiple levels of indirection: you have to send your spans into collector service and even if collector is running on your own machine there is a huge overhead.
+I figured it out... the Jaeger Operator doesn't create a  Service  exposing the metrics endpoints.
+I thought that I have to access the backend storage to get the trace data, which actually make the problem much more complex.
+However it is not showing the current page name in logs correctly.
+Now, these anomalies aren’t enough for Instana to recognize it as an issue or incident which is why we’ve alluded to a term some of you may not be familiar with: yak shaving.
+Now the issue we came to know was that we were getting the false count in Datadog dashboard.
+The issue was that for the dogstreamer if there are many values per second for a metric, Datadog takes the median without considering the tags attached.
+When trying to install the AppDynamics package for monitoring a Node.js/Express application, our Webpack build process is not able to import a handful of dependencies.
+This can be easily monitored if using a purpose-built APM (Application Performance Monitoring) tool such as New Relic or Appdynamics but a lot of the time you will probably need to do this manually.
+The second issue is that you're running the Docker image without exposing the required UDP port.
+This issue looks more to have to do with Java it self then either Opentracing and Jaeger.
+Please note that jaeger itself doesn't support authentication methods  github  and workaround using Apache httpd server  here .
+This might not be much of an issue with a single transaction but multiply this over 1,000 concurrent users and it can severely impact your system's responsiveness.
+This product was by far the most complex to set up.
+Based on that I would say it's not possible to use zipkin to track https.
+The same AppDynamics document tries to give a solution to address this issue but the instructions it provides is not very clear to me.
+When I add AppDynamics pod to my project and try to build, I get "1222 duplicate symbols for architecture arm64" error.
+We eventually stopped seeing the time reported as being spent in SNIReadSyncOverAsync and it shifted to the queries themselves timing out.
+More importantly, they kill the server usability, because they last 60 seconds each:
+The real problem is related to the very high writing latency of the db, which is always above 100ms.
+But after dropping in the latest version (3.2.2) we had horrible performance.
+Now when we upgrade to Hazelcast 3.2.2 we instantly see problems with  java.io , for example look at the following snippet from AppDynamics:
+So I need to know how to set a primary configuration for RabbitMQ and in addition I think that could be an issue because this error only comes if I use this version  Edgware.RELEASE
+Seem Spring boot  2.1.2.RELEASE  not work with Zipkin.
+It looks like all the documentation out there is wrong, at least for the version of Spring Cloud Sleuth we are using.
+I can't explain the error that you got with Dalston.BUILD-SNAPSHOT, but the error with Camden.SR4 is because it's not compatible with Spring Boot 1.5.
+Lately I have been trying the same and couldn't find that option in initializer.
+By default zero percentage of the samples are sent and that is why the sleuth was not sending anything to zipkin.
+Also new span there doesn't make sense cause you already have a new span created by the framework.
+The error-code implies an error on the other end - 400-errors are not located on your end.
+And there was no error message in  the log.
+But why it's not working with Spring Boot Starter 2.3.x?
+With this configuration the service was not starting correctly.
+The External flag says that the containers are not accessible from outside.
+Based on  envoy documentation  it doesn't support https tracing.
+The problem might be related to the fact that you're creating the Feign builder manually via  Feign.builder()  factory method.
+Their stack has some serious deficiencies when you try to deploy it in massive-scale architectures.
+If you create a RestTemplate instance with a new keyword then the instrumentation WILL NOT work.
+And on  kubernetes version prior to v1.16  it was more complicated.
+I have the same question and as far as I understood from  App Container Lifecycle  it’s up to your app to gracefully shutdown but that might not be possible in given 10 seconds as some processes might take longer.
+The problem(s) (as noted in  GEODE-788 ,  GEODE-7665 ,  GEODE-7666 ,  GEODE-7670 ,  GEODE-7672  and  GEODE-7676 ) is, is that GemFire/Geode does not support  Region.clear()  for  PARTITION   Regions  (yet).
+This will cost extra RAM, so it may not be worth it.
+Or maybe there's something wrong in my logstash appender?
+Whenever I introduce the Spring Cloud dependencies into the pom.xml I get the following error at startup:
+What I'm wondering is perhaps the PermGen error is a symptom of that case where the program has no leak and needs more PermGen memory allotted.
+When I attempt to use that command during the build and push process I get the following error stack.
+The markers the error traces says it is ignoring appear in the pipfile.lock.
+I tried to back to use the stable version(1.3.3) of spring cloud sleuth, but when i use the bom for the project its make conflict in the spring boot version that i am using(2.0).
+In my virtual machine, I type  telnet localhost 31080 , rejected.
+Project build error: 'dependencies.dependency.version' for io.zipkin.java:zipkin-autoconfigure-ui:jar is missing.
+But when I try to do the same in a project interacting between the different dependencies I can not create the same behavior.
+I suspect that this call with the  .publishOn  leads to hundreds and thousands of  async  spans in Zipkin (see attached screenshot).
+So, diagnose failures (or performance issues) is hard task - it's very hard to find which part of the chain was the problem.
+There is no such option in exptorters.
+Can someone point me in the right direction why my app is missing from UI and how I configure Jaeger properly?
+resultant LOG is no showing the newly added property :
+This means, when isSampled() checks the Span, it has no tags yet.
+When an interceptor runs on a delayed request, it cannot see its calling span which breaks tracing.
+After setting breakpoints in the debugger, I found that the problem is the same as described in
+This causes a problem for some non-Spring consumers of the message who would have to deal with this custom decoding.
+It report a error show the container is not in that pod.
+But for some reason the  OPTIONS  call to  /something  gets trapped in the same path.
+But, I have no way to change it other than build another image myself.
+My problem is that when I enable Sleuth, then any simple request takes at least 600ms.
+I have a Kubernetes's and spring boot's env variables conflict error.
+Back at square one, I have no idea why the message takes longer and longer to deliver the more concurrent requests I make.
+We have problem with propagation of  traceId  in requests which are called by spring oauth2 module.
+I had to include this becuase I got a META-INF/spring binders error.
+With these dependencies I do get a connect error because of the rabbit mq dependency.
+You can't use the plugins in this configuration, which means you will have to manually instrument your application.
+First of all the main feature of Spring Integration is  MessageChannel , but it still isn't clear to me why people are missing  .channel()  operator in between endpoint definitions.
+2 - I do not know why, but the connection from sleuth/zipkin to RabbitMQ is not retrying (I will investigate further).
+That's because unlike a lot of messaging systems, there are no headers in a Kafka message.
+OpenTracing does not define the concrete data model, how the data should be collected, nor how it should be transported.
+Modern application delivery has shifted to CI/CD, containerization, microservices, and polyglot environments creating a new problem for APM vendors and for observability in general.
+by using mysql it is working fine, so the problem is at the level of elastic search.
+I am using zipkin tracing in node.js application and I am getting  this  error.
+I guess that Feign has some problems with headers when Sleuth add traces informations.
+But now, when i try same in my app with Feign i get error 500  "original request is required" .
+Unable to establish connection to RabbitMQ server" error.
+Now we need to specify the spring rabbitMQ connection information in the Spring Integration application properties - currently it's using the default localhost@5762, which is no longer valid.
+It works fine with synchronous methods but fails when it comes to reporting asynchronous ones.
+Sadly, this doesn't work because the host/connection limit is enforced (via the mentioned queue) at the application level, so I'm stumped.
+The problem is  In step3 of the following scenario, how can I get span1 before sending message?
+Project build error: Non-resolvable import POM: Could not find artifact io.zipkin.brave:brave-bom:pom:4.16.3-SNAPSHOT
+I explicitly threw a custom Exception for bad requests and saw the zipkin trace highlighted in Red color in Zipkin UI.
+Is there a way to highlight the trace in Red color for a bad request with ResponseEntity object?
+I have the following problem: i need to send traces to Zipkin via Kafka using Sleuth.
+I have the following problem: i have added numerous services in Zipkin but now i want to remove some of them.
+so , i just want to skip the zipkin logging for ERROR level log and  send only INFO level logs to zipkin
+I succeeded in Ubuntu, but the cmd in Windows has never been successful.
+I suspect the zipkin connection drivers are not compatible with elk 6.4.2.
+My problem is for example: a request comes into the controller, I extract the Span from the request and now I want to use the async-http-client to make another request which would be a child of the one coming in.
+Caused by: com.mysql.jdbc.exceptions.jdbc4.CommunicationsException: Communications link failure
+The Query-Interceptor works properly, but my problem now is that the spans are not added to the existing trace but each are added to a new one.
+I failed to find a library to purely trace database running time for each request in like mongodb or mysql, so I used tcpdump to check the HTTP request roundtime at the port of service container.
+Strange thing start to appear in the logs from  nodeapp-dapr_1  service:  error while reading spiffe id from client cert
+and my big problem is, when i tried to use zipkin  for disturbed tracing, i added the required dependency but whenever i start the applications, it through an exception in start.
+The problem is each service is capturing trace without issue but I can't see service to service communication and architectural design.
+I've also tried to extend the readinessInitialDelaySeconds to 10s but still get the error.
+I have  libyaml-cppd.so.0.6  in  yaml-cpp/build  directory and tried this path to compile but still it is failing.
+When I change it to some custom, there is no connection (I mean span connection) between services.
+The problem is some sort of a thrift error between PyInstaller and  jaeger .
+As part of stream topology, in transformation, while getting processorContext.headers(), i am getting error.
+I get the following error using the second uncommented CMD flag.
+I get the following error when i attempt to curl the endpoint this way:
+Unfortunately this approach needs the trace in form of a span to create the new span as a child of that trace.
+Also, I find it a little strange that there is no IP Address listed in the  kubectl get ing  output but perhaps that is a red herring.
+Also, after investigating tracing more it appeared to be that normally  logging  and  tracing  are handled separately and adding all the application logs to the tracer is not a good idea (tracer should mainly include sample data and tags for request identification)
+I am expecting that the  browser  and  os  labels show under the  Labels  tab in the error report, but instead I'm seeing this.
+The problem of course is that this is an antipattern as described  here , because this singleton is encapsulating global state.
+According to the documentation, I should be able to serialize the  CurrentTransaction.OutgoingDistributedTracingData  on the caller and then deserialize it to resume the transaction on the callee, but despite implementing this pattern in memory, my traces in Kibana are missing spans from all but the final transaction.
+it's odd as I stated our users haven't reported any connection issues and are able to use the app, we have ports 80, 443 open and redirect any calls from Http to Https, so not really sure what would be causing the error.
+When I run this lambda with below test event, I don’t see the log messages being converted to error

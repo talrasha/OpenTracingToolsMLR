@@ -1,0 +1,112 @@
+Automated Tanzu Monitoring With Prometheus And Grafana
+Burak Kurt
+Burak Kurt
+Follow
+Jan 21 · 8 min read
+
+
+
+
+
+VMware Tanzu Portfolio is basically a software collection to build, run and manage modern container applications. Tanzu Application Service (formerly PCF) and Tanzu Kubernetes Grid Integrated (formerly PKS) are main solutions in Tanzu portfolio. In this article, we will discuss how we monitor these two platforms and applications on them and how it is automated.
+
+Introduction
+Why should we monitor something? That is the key question. Monitoring is important because we want to be ensure that our applications and underlying infrastructures are up and running in a healthy state.
+What should we monitor? That is the another key question. Answer of this question is not as easy like previous question. There are so many metrics can be monitor. In most cases, monitoring all available metrics is not a good approach. Because of monitoring too much many metrics can be confusing and it also requires more resource that increases cost.
+Monitoring Tool Selection
+Monitoring process basically has phase that are collecting, storing and visualization. When we started to make some research on monitoring for TAS and TKGi, we realized that there are builtin solutions provided by VMware or its partners and also there are open source tools like Prometheus and Grafana. Builtin solutions are easy to to use but they are limited. As we want to build a central monitoring system for any platform not only for TAS and TKGi, we want to be more flexible. This requirement bring us to Prometheus and Grafana. These tools have huge community support. There are many Prometheus exporter tools available. Coding a custom exporter is very easy. Grafana is very simple to learn and it is very flexible. So that we decided to use Prometheus Exporters to collect metrics, Prometheus Server to store metrics and Grafana for visualization. In addition, Alertmanager is used for alerting.
+There are so many documents available for these tools. I believe giving additional details about these tools unnecessary. But if you are seeking more information you can follow links for official documentation;
+Prometheus, Exporters, Alertmanager and Grafana.
+Metric and Exporter Selection
+First of all we have to think about what is most important for us. For example in our case, applications are the most important thing. We host banking applications. Availability and fast response is top priority for us. So that we focused metrics related with these parameters and exporters that can be used for pulling them.
+Mainly there two types of metrics available for us. Application metrics and platforms metrics that vary by platform.
+Tanzu Application Service: TAS has builtin metrics and logging mechanism called Loggregator. Logs and metrics from applications and TAS components are collected and transported destination system. It can be seen in the figure below. For more details please continue to Cloud Foundry documentation.
+
+Figure 1: Loggregator Firehose Architecture
+In purpose of collecting app metrics we used Firehose Exporter. It is an opensource tool used to collect metrics from Loggregator Firehose system. We preferred to run firehose exporter on TAS but it can be also located in anywhere.
+Architecture
+As it can be seen in the figure below, there are two main part that are Tanzu Application Service and Tanzu Kubernetes Grid Integrated. Both of them has multiple foundations and clusters.
+Several Prometheus exporters used to collect metrics of platforms and applications. In addition, Federated Prometheus architecture used for TKGi environment.
+
+Figure 2: Monitoring Architecture
+Central monitoring components Grafana, Prometheus and Alertmanager are installed using BOSH Prometheus release. BOSH Prometheus release is a an opensource project and it is located the repository below.
+bosh-prometheus/prometheus-boshrelease
+This is a BOSH release for Prometheus, Alertmanager, and Grafana. It includes the following grafana panels: clock…
+github.com
+
+Cloud Foundry BOSH is a project that unifies release engineering, deployment and lifecycle management of applications. BOSH can create and delete VMS, upgrade or patch operating system, install update and upgrade applications. BOSH also monitor applications and perform failure recovery. Because of these useful features, we decided to use Bosh releases of Prometheus.
+As you can see in Figure 2, there is two main sub part of monitoring architecture. One of them is TAS part and other one is TKGi (Kubernetes) part. We have several foundations that some of them has both TAS and TKGi tiles and some of them has only TKGi tiles. All monitoring related softwares like exporters and federated Prometheus instances are deployed automatically via Concourse Pipelines. We will discuss Concourse automation details in next section.
+For TAS environments, a space called monitoring is created. All exporters runs on that space. Each exporter is added to central Prometheus as a target. So that central Prometheus pulls metrics directly from exporter endpoints.
+For TKGi environments, monitoring namespace is created in each Kubernetes cluster. Federated Prometheus instances and some exporters are installed on monitoring namespace. There are also system exporters on kube-system and pks-system namespaces for system and kubernetes metrics. In addition, most of the applications has its own metric publish endpoints. Federated Prometheus instance is configured to discover available pod metrics endpoints and scrape automatically. It can be done creating a scrape config job on Prometheus and assigning required annotations to pods.
+You can create or modify Prometheus config with configuration below.
+apiVersion: v1
+data:
+  prometheus.yml: |-
+    global:
+      scrape_interval: 5s
+      evaluation_interval: 5s
+  scrape_configs:
+    - job_name: 'kubernetes-pods'
+        kubernetes_sd_configs:
+        - role: pod
+        relabel_configs:
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+          action: keep
+          regex: true
+        - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+          action: replace
+          target_label: __metrics_path__
+          regex: (.+)
+        - source_labels: [__address__, __meta_kubernetes_pod_annotation_prometheus_io_port]
+          action: replace
+          regex: ([^:]+)(?::\d+)?;(\d+)
+          replacement: $1:$2
+          target_label: __address__
+        - action: labelmap
+          regex: __meta_kubernetes_pod_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: kubernetes_namespace
+        - source_labels: [__meta_kubernetes_pod_name]
+          action: replace
+          target_label: kubernetes_pod_name
+You can also set required annotations to your pods.
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    prometheus.io/port: "19000"
+    prometheus.io/scrape: "true"
+After configuring both federated Prometheus and Pod annotations, federated Prometheus instance is added as target on central Prometheus.
+Finally we have all metrics for all platforms and applications in central Prometheus. Bosh Prometheus release also provides us Alertmanager and Grafana. We used these components for alerting and visualization.
+Alertmanager
+Alertmanager is responsible to handle alerts sent by other applications such as Prometheus. It basically deduplicates, groups and routes alerts to receivers. BOSH Prometheus release has predefined alert operators for Bosh, Cloud Foundry and Kubernetes. They are located in ‘manifests/operators’ folder in the repository. We preferred to use both predefined alerts operator and custom alert rules created by us in our bosh Prometheus deployment. Sample Bosh Prometheus deployment can be found below
+bosh --non-interactive -d prometheus deploy \
+manifests/prometheus.yml \
+--vars-store vars/deployment-vars.yml \
+--var-file bosh_ca_cert=vars/bosh-ca-cert \
+-o manifests/operators/monitor-bosh.yml \
+-o manifests/operators/monitor-bosh-foundations.yml  \
+-o manifests/operators/monitor-cf-foundations.yml  \
+-o manifests/operators/monitor-kubernetes-foundations.yml  \
+-o manifests/operators/alertmanager-receivers.yml \
+-o manifests/operators/custom_rules.yml \
+-o manifests/operators/monitor-kubernetes-federation.yml \
+...
+Grafana
+Grafana is a very powerful open source data analytics and visualization tool. Bosh Prometheus release includes Grafana installation and some dashboards ready to use. Dashboard provides by bosh release can be found in ‘manifests/operators’ folder in the repository. As you can see in the previous bosh Prometheus deployment command, monitor-…yml files also includes dashboards. In addition to dashboards provided by bosh release, we also created our custom dashboards contains detailed information our applications run on TAS and TKGi.
+
+Figure 3: Sample Custom Grafana Dashboard
+Automation with Concourse
+Automation is most crucial part of this monitoring project. Because we do not have a static or small environments. Every TKGi cluster creation or TAS environment creation we need to install federated Prometheus instances and exporters, need to configure scrape configuration of central Prometheus, need to setup new alertmanager receivers and routes etc. All of these stuff cost so much operational effort unless we have automated tasks. In that purpose we have built automation pipelines using Concourse.
+Concourse is an open source project present a general approach to automation that makes it great for CI/CD. Concourse has three basic concepts that are resources, tasks and jobs. Concourse pipelines consists of these three objects. All inputs and outputs of a job called as resources. It can be docker image, git repository, time or anything else that defined on this link. Tasks are the smallest configurable unit in Concourse. A task can be thought of as a function that can either succeed or fail. It is a reusable object in jobs. Jobs determine the actions of your pipeline. They determine how resources progress through it, and how the pipeline is visualized. The reason why we selected Concourse as automation tool is it is supported by VMware (Pivotal) and it works perfectly with Tanzu Applications.
+We already talked about we used Prometheus Bosh release for central monitoring components in previous chapters. To install and configure Prometheus Bosh release, we built a pipeline called deploy-prometheus.
+
+Figure 4: deploy-prometheus pipeline
+In this pipeline, we have defined a repo resource that contains all installation and configuration files including Alertmanager alerts and Grafana dashboards. We also enabled auto trigger option. So that if something changed in installation or configuration files, pipeline is triggered automatically.
+We also dynamically update some configuration files like alertmanager-receivers.yml, monitor-kubernetes-federation.yml.
+Alertmanager-receivers.yml file stores receivers and routes definitions of alert manager. When a org or a space is created in a TAS environments, the pipeline responsible for creating orgs and spaces updated alertmanager-receivers.yml file. So that deploy-prometheus pipeline is triggered and related receivers and routes ares created.
+Monitor-kubernetes-federation.yml file stores federated Prometheus scrape targets. A pipeline responsible for creating TKGi clusters also installs federated Prometheus, kube-metrics and some exporters in the cluster and then updates monitor-kubernetes-federation.yml file with inserting federated Prometheus target address. After the repo updated, deploy-prometheus pipelines updates central Prometheus config and central Prometheus starts to scrape metrics of newly created cluster metrics.
+We also have some custom alertmanager and scrape config files to store manually updated receivers, routes and targets. Deploy-prometheus pipeline is also triggered automatically when these files updated. So that we have more flexibility over our monitoring systems.
+Conclusion
+To sum up, we have build a automated monitoring system for both Tanzu Application Service and Tanzu Kubernetes Grid Integrated platform. We preferred Concourse CI for automated tasks. Installation Bosh Prometheus release, federated Prometheus, exporters and updating related configuration files are automated with Concourse pipelines. So that we have flexible and extendable monitoring systems.

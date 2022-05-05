@@ -1,0 +1,18 @@
+Rootless Datadog Containers 6.x
+Christian Oestreich
+Christian Oestreich
+
+Apr 17, 2018·1 min read
+
+
+
+
+In my previous post I explain how we worked around our limitations in running containers in OpenShift as non-root users. Here is an updated version to work with the new version 6.x of the agent.
+Below is an example datadog.yml having some place holder/replacement variables using %xyz%.
+
+When we start datadog we use the following command:
+supervisord -c /etc/datadog-agent/supervisor-apm.conf
+The secret sauce here is that currently the agent and trace-agent need to be started separately. When doing so make sure you add the following environment vars to your application because when using supervisord via the config below the agent tags and properties do not seem to carry over to the trace-agent
+- DD_TRACE_SPAN_TAGS=env:bar
+- DD_SERVICE_NAME=foo-service
+The supervisor-apm.conf looks like the following

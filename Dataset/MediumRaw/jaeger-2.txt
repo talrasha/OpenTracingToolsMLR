@@ -1,0 +1,27 @@
+Spring Boot Project using Kafka and R2DBC (Part VI)
+Gabriel Martins
+Gabriel Martins
+
+Apr 30·1 min read
+
+
+
+
+This is the end of the tutorial, and we are going to create the docker-compose.yml with all needed service to run and use the application.
+
+Running and testing application
+Go application folder and run the command
+docker-compose up -d
+After that run the application using local profile
+./gradlew bootRun --args='--spring.profiles.active=local'
+For Jaeger go to browser and navigate: http://localhost:16686/
+For Kafka Control Center UI go to browser and navigate: http://localhost:9021/
+For Postgres use PgAdmin4 with URL: http://localhost:5050 and configure Connection using host postgres
+To create a person you can use CURL
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{ "first_name" : "John", "last_name" : "Wick", "date_of_birthday": "1973-03-03", "gender": "M" }' \
+  http://localhost:8080/health-v1/persons
+To register schema on Schema Registry go to Control Center using http://localhost:9021
+
+To store a measurement you can use Conduktor Tool

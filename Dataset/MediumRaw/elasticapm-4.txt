@@ -1,0 +1,199 @@
+Elastic APM For PHP Developers: Also using APM with Laravel/Lumen
+Syed Sirajul Islam Anik
+Syed Sirajul Islam Anik
+
+Jul 11, 2020·9 min read
+
+
+
+
+
+Image from: https://www.elastic.co/guide/en/apm/get-started/current/images/apm-architecture-cloud.png
+APM stands for Application Performance Monitoring. That means you want to measure the performance of your application and your servers. How they are served, how much memories are consumed. Where is a bottleneck? And so many things. It may trigger some notifications if it finds high memory usage, or a remote call is taking too much time. Those triggers can be based on so many things. Let’s skip that part for now.
+Behind the story
+Back in Pathao days, we used to use New Relic. New Relic comes handy. For PHP, you just need to install their agent. And install a package. That’s all. You’ll be getting output in the New Relic’s dashboard as soon as the server starts to serve the requests. But, my current company (Digital Healthcare Solutions, previously known as Telenor Health)’s OPs proposed Elastic APM. So, I had to go through how it works. Till now, I started to learn Elastic Search for at least 4 times, never succeeded. Anyway, so I was looking for available packages. I came to visit the following package. The package is good, but under the hood, it sends HTTP requests to the APM server. Which is actually costly. And, it doesn’t support APM Server 7.x.
+philkra/elastic-apm-laravel
+IMPORTANT Looking for a maintainer/owner. If you want to take over the project, please open an issue here. Laravel…
+github.com
+
+That’s why I had to build one from scratch. In this article, I am going to explain how to use my package with any PHP code. The package already makes it easy to use with Laravel or Lumen. But you’re not bound to use that. You can use it in your own way.
+What is Elastic APM?
+Okay, did you skip the feature photo? Have a look then. The photo states the underlying structure of how it works. You need to install an APM agent for your favorite language (till now, APM agents don’t support a lot of languages. So check that out). Then, that agent will collect data on your code execution. It’ll then send to the APM server. APM servers will then send those data to Elasticsearch Server and you’ll be able to view those data in Kibana. That’s how it actually works under the hood. Keep in mind, so far I found that the APM Dashboard UI comes with XPack, which means you’ll have to invest some money on it.
+Installation
+Elastic provides a PHP APM agent. This agent will collect data from our server and will insert those data into the APM server. I used a docker container to serve my PHP application. The docker file looks like below.
+
+Dockerfile for PHP container. Ignore the CMD section.
+In the above snippet, check line 16 and those commands. We cloned the APM's git repository, then configured and installed that in our container.
+Line 22 copies an .ini file. The .ini file is below.
+
+elastic_apm.ini file
+In elastic_apm.ini file, line 2 points out the path of our git cloned repository’s src/bootstrap_php_part.php file. Line 4 points out the URL of the APM server. If you’re not using docker, then you can just git clone the repository, then install it. And then integrate the extension with php. That’s all for the APM agent install.
+Before we dive into the package, you can get basic ideas of the terms from the agent’s documentation.
+Basically,
+The transaction is, when your application is running then it’s creating a transaction. Each request is counted as a transaction. Each transaction has a name and a type.
+The Span is when you execute a set of codes, the information you’re dealing with, can be sent to the server as a span. A span is a piece of information when the code is executed. A DB query can be a span. Or HTTP request information can be a span.
+The Package & Usage
+ssi-anik/elastic-apm-php
+The package depends on elastic's apm-agent-php extension. If want to use with Laravel, Laravel version >= 6.x …
+github.com
+
+So, at first, let’s have a look at how to integrate the package with PHP. Then we’ll look at how to integrate with Laravel/Lumen. The agent itself requires PHP ≥ 7.2 that’s why this package requires a minimum of PHP 7.2.
+Installation
+composer require anik/elastic-apm-php
+Integration with PHP
+A class Anik\ElasticApm\Agent is the public entry point of all the interactions. And the Agent class cannot be instantiated. It uses a singleton object. So, whenever you need to interact, you’ll call Agent::instance(). It’ll give you a single object from wherever you call throughout the request lifecycle.
+To set a name and type for a transaction, you’ll need to instantiate an object of Anik\ElasticApm\Transaction with name and type. After successfully instantiating the object, you will need to pass it to the Agent class using its setTransaction method.
+Agent::instance()->setTransaction(new Transaction('name', 'type'));
+If you want to send data for this transaction, you’ll have to use a span. To create a new span, Anik\ElasticApm\Contracts\SpanContract interface has to be implemented. getSpanData(), getName(), getType(),getSubType() methods must have to be implemented. But if you use available trait Anik\ElasticApm\Spans\SpanEmptyFieldsTrait then you can skip getAction(), getLabels() method. If you want to send data to your APM server, then you can implement these methods as well. Read the agent documentation given above to have a better idea for the method return values.
+When you finish implementing a Span class, then you can add the span as
+Agent::instance()->addSpan($implementedSpanObject);
+So, when you’re done adding spans, then before returning the result, you need to push those transactions and spans to the APM agent. To do so, use
+Agent::instance()->capture();
+The above method will process all the transactions and spans, then pushes them to the agent. And agent then takes care of the transaction and spans and sends them to the server.
+Note: If you want to do everything of your own then you can use the Agent::getElasticApmTransaction() to get the current transaction of the agent or Agent::newApmTransaction($name, $type) to create a new transaction. Make sure to call end() method if you created a new Transaction. Or if you want to put the spans you add to a new transaction, then you can use Agent::captureOnNew() to send with a new transaction. You don’t need to call end when using captureOnNew. If you ever want in your code to get a fresh instance of Agent, then you can call Agent::reset() first and then Agent::instance() or Agent::reinstance() will do the same. Finally, keep in mind that if you’re calling any of the capture*() method, Transaction must be provided. Without passing Transaction will raise Anik\ElasticApm\Exceptions\RequirementMissingException exception.
+This is all for the PHP integration.
+Integration with Laravel/Lumen
+For Laravel,
+The package already uses the package discovery feature. But still, add Anik\ElasticApm\Providers\ElasticApmServiceProvider::class in your config/app.php‘s providers array.
+Add Anik\ElasticApm\Facades\Agent::class in your config/app.php's facade array.
+php artisan vendor:publish to publish the configuration file.
+For Lumen,
+You don’t need to enable Facade to use this package.
+Copy elastic-apm.php from package’s src/config directory to your lumen project’s config directory.
+// in your bootstrap/app.php file.
+use Anik\ElasticApm\Providers\ElasticApmServiceProvider;
+$app->register(ElasticApmServiceProvider::class);
+$app->configure('elastic-apm');
+Change your configuration file as per your requirement.
+Tracking Application Errors
+If you want to send your error data to you APM server, then
+For Laravel, in bootstrap/app.php
+// COMMENT THIS SECTION
+/**
+ *  $app->singleton(
+ *      Illuminate\Contracts\Debug\ExceptionHandler::class,
+ *      App\Exceptions\Handler::class
+ *  );
+ */
+// USE THIS SECTION
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Anik\ElasticApm\Exceptions\Handler;
+use App\Exceptions\Handler as AppExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use GuzzleHttp\Exception\ConnectException;
+$app->singleton(ExceptionHandler::class, function ($app) {
+    return new Handler(new AppExceptionHandler($app), [
+        // NotFoundHttpException::class, //(1)
+        // ConnectException::class, //(2)
+    ]);
+});
+For Lumen, in bootstrap/app.php
+// COMMENT THIS SECTION
+/**
+ * $app->singleton(
+ *   Illuminate\Contracts\Debug\ExceptionHandler::class,
+ *   App\Exceptions\Handler::class
+ * );
+ */ 
+
+// USE THIS SECTION
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Anik\ElasticApm\Exceptions\Handler;
+use App\Exceptions\Handler as AppExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use GuzzleHttp\Exception\ConnectException;
+$app->singleton(ExceptionHandler::class, function ($app) {
+    return new Handler(new AppExceptionHandler(), [
+        // NotFoundHttpException::class, //(1)
+        // ConnectException::class, //(2)
+    ]);
+});
+Anik\ElasticApm\Exceptions\Handler accepts an array of exception classes as the second parameter that won’t be sent to the APM server. By default, the NotFoundHttpException error is not pushed to the APM server. That’s why (1) & (2) were commented to show the usage.
+If your application encounters an error and the error is successfully caught by the Exception Handler, and the transactions are set, then it’s guaranteed that the APM server will receive a stack trace of the error. As the PHP agent provides no API to send stack trace, thus your trace has a chance to be trimmed by the ES, longer than certain characters.
+
+The response was returned with 500 (marked) & the exception with stack trace
+Track Application’s Request & Response
+Track your application’s number of requests it serves with status code and duration it took to serve, you can use the provided middleware.
+For Laravel, in your app/Http/Kernel.php class,
+<?php
+use Anik\ElasticApm\Middleware\RecordForegroundTransaction;
+class Kernel extends HttpKernel {
+    protected $middleware = [
+        // ...        
+        RecordForegroundTransaction::class,
+        // ..
+    ];
+}
+For Lumen, in your bootstrap/app.php file,
+use Anik\ElasticApm\Middleware\RecordForegroundTransaction;
+$app->middleware([
+    // ...
+    RecordForegroundTransaction::class,
+    // ...
+]);
+When a request is served, the transaction name will be in the following order
+If the route handler uses uses parameter i.e; HomeController@index (controller action).
+If the route handler uses as parameter i.e; ['as' => 'home.index'] (named route).
+If above fails, then HTTP_VERB ROUTE_PATH i.e; GET /user/api.
+If nothing matches, 404, then uses index.php or user-provided name from the configuration.
+
+Transaction of the request (Step 1)
+
+Name route as transaction (Step 2)
+
+Route with verb (Step 3)
+
+Not found routes (Step 4)
+
+Span as the request was served
+Track HTTP Remote Calls
+If you’re using Guzzle, then you can use the provided Middleware for Guzzle.
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Client;
+use Anik\ElasticApm\Middleware\RecordHttpTransaction;
+
+$stack = HandlerStack::create();
+$stack->push(new RecordHttpTransaction(), 'whatever-you-wish');
+$client = new Client([
+    'base_uri' => 'https://httpbin.org',
+    'timeout'  => 10.0,
+    'handler'  => $stack,
+]);
+$client->request('GET', '/');
+
+Remote HTTP call track
+Track Queue Worker
+To track the Jobs, you need to use the provided Job middleware whenever you’re dispatching a new job. You can use either from the below,
+From the class with the middleware method.
+use Anik\ElasticApm\Middleware\RecordBackgroundTransaction;
+use Illuminate\Contracts\Queue\ShouldQueue;
+class TestSimpleJob implements ShouldQueue 
+{
+    public function middleware () {
+        return [ new RecordBackgroundTransaction()];
+    }
+    
+    public function handle () {
+        app('log')->info('job is handled');
+    }
+}
+Otherwise, when dispatching a job
+use Anik\ElasticApm\Middleware\RecordBackgroundTransaction as JM;
+use App\Jobs\ExampleJob;
+dispatch((new ExampleJob())->through([new JM()]);
+
+Tracking Job Processing
+Note: If you use php artisan queue:work then it’s a long-running job. That’s why it’ll only send one Transaction. As no process is created, thus you’ll not get any transaction or span. On the other hand, if you use queue:listen, i.e; php artisan queue:listen it uses a new process for each job it picks, thus you’ll get a new transaction and spans for that transaction for each job.
+Tracking Query Execution
+Query execution is handled automatically and pushed to the APM Server.
+
+Query execution
+That’s all. Hope you’ll like it. Don’t forget to put a star on this project.
+Tracking Redis Query Execution
+Redis query execution is not handled automatically. If you’re using Redis as your Cache Driver, then you’ll have to explicitly mention that you want to enable Redis Query Logging by putting ELASTIC_APM_SEND_REDIS=true in your .env file.
+
+Redis Query Execution
+And, also for the development purpose, the docker-compose.yml file for the ES, Kibana & APM (Don’t use in production)
+
+docker-compose.yml
+Happy coding. ❤

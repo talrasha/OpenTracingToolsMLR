@@ -1,0 +1,45 @@
+Installing DataDog Agent in Kubernetes
+William Broach
+William Broach
+
+Sep 8, 2018·2 min read
+
+
+
+
+
+The versions used here are DataDog Agent 6.4.2 and Kubernetes 1.10.3
+In this article I’m going to show you how to deploy the DataDog agent to your Kubernetes cluster as a DaemonSet
+First we need to make a Kubernetes Secret so that we dont have the API key in plaintext in our datadog-ds.yml.
+Kubernetes secrets use the base64 encoded value. So lets get that
+$ echo -n "my_datadog_api_key" | base64
+( notice the -n flag passed to echo. If you leave that off, a trailing newline \n will be added and your secret wont work)
+Now we setup our datadog-api-key-secret.yml (Do Not commit this to source control!!)
+
+Add the secret to your cluster:
+$ kubectl create -f datadog-api-key-secret.yml
+If it was successful you’ll see:
+secret/datadog-api-key created
+You can now delete datadog-api-key-secret.yml
+$ rm datadog-api-key-secret.yml
+Next we have to setup the RBAC ServiceAccount, ClusterRole and ClusterRoleBinding that datadog needs to function properly.
+were going to make 3 files here:
+clusterrole.yml
+serviceaccount.yml
+clusterrolebinding.yml
+First we make clusterrole.yml
+
+Next, create the serviceaccount.yml
+
+And finally the clusterrolebinding.yml
+
+Now lets apply them to our cluster
+$ kubectl create -f clusterrole.yml
+$ kubectl create -f serviceaccount.yml
+$ kubectl create -f clusterrolebinding.yml
+Finally we make our datadog daemonset (datadog-ds.yml)
+
+Finally, launch the daemonset into your cluster:
+$ kubectl create -f datadog-ds.yml
+Thats it!!
+Hope you found this post useful :)

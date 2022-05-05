@@ -1,0 +1,101 @@
+Nested vSphere 7 and Kubernetes Lab Deployment explained
+Dennis Zimmer
+Dennis Zimmer
+Follow
+May 6, 2020 · 6 min read
+
+
+
+
+
+William Lam’s great deployment script triggered the idea of setting up a vSphere 7 and Kubernetes (VCF 4) environment completely nested on top of our development vSphere environment.
+While the deployment itself worked very well to deploy the nested vSphere 7 environment, you need to fulfill some important requirements before you can enable the Kubernetes part (VMware Cloud Foundation 4 — VCF).
+This blog post is going to cover these requirements as well as some tips and tricks to work with your fresh VCF 4 environment, the Workload Management and the Tanzu Kubernetes Grid (TKG) cluster.
+Automated Deployment
+Requirements
+William proposes the following requirements to run his script:
+https://github.com/lamw/vghetto-vsphere-with-kubernetes-external-nsxt-automated-lab-deployment
+Additional requirements
+In case you want to continue enabling Workload Management (VCF) within your nested environment we would further recommend the following — otherwise your SupervisorControlPlaneVM won’t be completely initialized.
+configure MTU size 1600 or higher on every virtual and physical swith on the communication path from the NSX T0 uplink to your Internet gateway (sNAT). That includes the underlying (where the nested environment is deployed) and the nested vSwitch/dvSwitch!
+Accept Security Promiscuous mode and Forged transmits setting on your Portgroups
+Configure a PFsense (or something similar) to act as a Gateway including SNAT for your NSX T0 Uplinks
+
+Run the script
+Simply is to clone the GitHub repository, change the script according to the README.md and run it using the PowerCLI.
+
+When the script successfully deployed your nested ESXi, the vCSA, the NSX Management and the NSX Edge, you can go ahead and connect to your newly deployed vCSA 7.
+Enable the Workload Management
+
+To enable the workload management and deploy the Kubernetes environment by doing so, simply select Workload Management in your vSphere client Menu.
+
+Let’s enable the Workload Management
+The wizard guides you through the most important steps and most people can select tiny as a deployment size.
+
+To simplify the guideline we used all the network settings William is using in his script.
+You need to make sure that your gateway has an adapter and ip address in the Management and Workload network (Ingress and Egress) to be sure that container images can be downloaded later on.
+
+Furthermore, make sure to enable SNAT in your Gateway and to configure the firewall.
+
+The next important step is to select the correct Datastore for all your images and related data.
+After starting the enablement, its time to get a coffee because that process can take some time.
+Deployment trouble
+
+The first couple of minutes are pretty boring and you can ignore some of the errors.
+
+But it doesn’t hurt to check the events of the first SuperVisorControlPlaneVM that will be powered on. That one is the Kubernetes Master and if this deployment fails, not much will happen in the future.
+If you see some entries like this
+burst of ‘com.vmware.vc.guestOperations.GuestOperation’ started
+in the Events of the first powered on SupervisorControlPlaneVM, you can be pretty sure that the deployment is progressing well and the communication between the nested ESXi and the VCF VMs works.
+
+Don’t be impatient!
+Some of the errors are absolutely normal and can be ignored if these don’t last for more than 15–20 minutes.
+You can also test the environment during the install by pinging the NSX T0 uplinks.
+
+When the master VM is configured, the other 2 SupervisorControlPlane VMs will start as well and all configurations is copied over to them.
+Create your first namespace
+
+When you select the Namespaces tab, you can create your first namespace to deploy demo applications or just test a bit.
+
+Let’s create the Namespace test
+
+Add permissions and storage
+Connect to the Control Plane
+
+The main tool to work with the Kubernetes platform is kubectl that can be downloaded by visiting the Control Plane IP using your browser or simply click Open under Link to CLI Tools.
+Download kubectl and the vsphere plugin, so you can directly connect to your vSphere based Kubernetes deployment:
+# Login to Kubernetes 
+kubectl vsphere login --server=https://controlplane-ip -u administrator@vsphere.local --insecure-skip-tls-verify 
+# select the test namespace - it safes you typing -n test after each command 
+kubectl config use-context test 
+# show all existing resources 
+kubectl get all
+If you haven’t deployed anything yet, you simply see No resources found in test namespace. We’re going to change that.
+Run a test Pod
+Let’s test, if we can access the internet to pull images by creating a demo nginx pod.
+
+# deploy nginx for testing 
+kubectl run nginx --image=nginx 
+# ignore the warning as we're just testing: 
+kubectl run --generator=deployment/apps.v1 is DEPRECATED and will be removed in a future version. Use kubectl run --generator=run-pod/v1 or kubectl create instead. deployment.apps/nginx created 
+# check the deployment status 
+kubectl get all
+Seems to work!
+If it doesn’t work for you, try these commands to get details:
+# get information about nginx deployment 
+kubectl describe deployment.apps/nginx 
+# get pods with label/value run=nginx and return full configuration kubectl get pods -l run=nginx -o yaml
+
+
+You can track all events and the configuration files in your vSphere client as well.
+# delete the pod 
+kubectl delete pods -l run=nginx 
+# check for pods again and you'll find a new pod with a low AGE kubectl get pods -l run=nginx 
+# delete the deployment 
+kubectl delete deployment nginx 
+# check for pods again and you'll nothing will be shown 
+kubectl get pods
+This little exercise explains a bit how Kubernetes works. The pod will be created based on a replicaset, that is created by the deployment. If we delete the pod the replicaset creates a new one.
+
+Deleting the deployment deletes the pod and the replicaset as well.
+Next blog post will be about adding the Tanzu Content Library, creating a TKG cluster and how to monitor logs and performance.

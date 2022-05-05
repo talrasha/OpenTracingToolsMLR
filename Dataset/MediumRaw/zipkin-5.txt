@@ -1,0 +1,35 @@
+Spring Sleuth and Zipkin
+digital needs
+digital needs
+
+Aug 31, 2020·4 min read
+
+
+
+
+
+Hi Readers, I present to you my new article which is based on spring sleuth and Zipkin projects from the spring cloud umbrella. Spring Sleuth and Zipkin are one of the most important projects which nowadays are in use since the microservices architecture has started coming in the picture.
+Most of the world nowadays is moving towards a microservices architecture for their different ERP based solutions which were earlier maintained as monolith based architecture. The following are brief snippets I have written about what are microservices and monolithic architecture.
+Monolith:- Monolith is a generalized term being used for application where the complete code of the application is bundled inside one complete package. Let's say we have an e-commerce website where there are different business functionalities happening like placing an order, searching for a product, managing the order cycle, and managing the customer engagement platform as well. So everything is inside one complete bundle of the project.
+Microservices:- As we have seen above for an e-commerce based application, where we have everything is inside one complete package. Exactly reverse, For every single business functionality, we have one complete code package whereas for microservices architecture we have different services and different code package for each service to maintain.
+As we can read above, So there are different additional responsibilities come with microservices architecture like the data transfer across all the services and then we have the monitoring part of the user journey and the application level. So For monitoring the user journey web the user comes to the website, it's a very important aspect to analyze. For that, we have a solution as you read through this page.
+Spring Sleuth And Zipkin
+Spring sleuth and Zipkin are basically a combination of two different projects under spring cloud which are actively getting used in monitoring the request when it goes from one service to another and to another. The following are some of the terms being used to track the request once it goes through different services.
+TraceID
+TraceID is the general term being used to track a request whenever the server receives a request from the user.
+SpanID
+SpanID is another general term being used to track whenever a specific span enters different services in its journey.
+So basically I will explain these two terms with an example, Lets say we visit amazon.com. We clicked on “shirts”. And the request when we clicked on shirts, it went to the server asking for the details and data related to shirts. So when this request is received at the server for the first time, a traceId is generated which remains the same whenever that request goes to any other service to fetch the data. So now our request has gone to the second service to fetch some other data for that request, so now we will have the second spanId being generated. So now to analyze this complete journey in microservices architecture, it's very difficult with existing monolithic architecture but with the monolith, we need to plugin the functionality which provides us the flexibility to read these kinds of data.
+Spring Sleuth and Zipkin help us to generate traceID and spanID as explained above and Zipkin is a kind of server with which we can analyze the data generated based on traceID and spanID.
+The following are some of the snippets we have to use.
+Add the dependency in Build tool configurations:-
+
+2. We can send the data to the Zipkin server in different ways like either in streaming formats like publishing the data to Kafka based queue and the second way of sending the data via HTTP api.
+3. We can add properties on the service side about application details and Zipkin related configurations as below.
+
+As you can see above, I have listed three basic properties for Zipkin and spring boot application which helps us identify the data is coming from which service.
+4. When we are creating a server for Zipkin we can add the following dependency and start receiving the data on the Zipkin server and can visualize the data on the Zipkin dashboard and analyze different spans and traces and check the bottlenecks if any.
+
+So this is a very basic implementation of Spring sleuth and spring Zipkin which can be used as a starting point who so ever is starting to use it. I will keep on updating this article to make it easily understandable and to get the maximum value out of it.
+Please drop me a comment or a query about anything around this topic or around any web-based architectures. Please refer to visual explanation above at https://www.youtube.com/watch?v=Y5YhmwRwiqM
+And for more innovative content, Please subscribe to my Youtube channel at https://www.youtube.com/channel/UChfpeiqISmTnAa5F_gMB5kA

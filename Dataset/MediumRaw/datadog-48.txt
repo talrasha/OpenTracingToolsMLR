@@ -1,0 +1,51 @@
+Rebuilding our infrastructure from scratch with Docker, AWS ECS, Datadog and Terraform
+CAB
+CAB
+Follow
+May 21, 2020 · 5 min read
+
+
+
+
+
+
+With the constant evolution of technology, there are always questions about how to build your application’s infrastructure.
+Where should the infrastructure live? What technologies should we use? Should we modernize it? In this post, we’ll be giving an overview of where we were in our earlier days compared to where we are now in the hope that you’ll learn a thing or two.
+Before
+In the world of startups, you never know whether you’re going to be successful or not. A wise decision is to build your initial product fast and deliver value to your client as soon as possible to increase these odds.
+During the early days of Yaguara, the initial engineers opted to go with Kubernetes hosted on dedicated EC2 machines using AWS. Unfortunately, after the initial deployment, knowledge of how these clusters were managed was forgotten as it was not version controlled. Additionally, many resources on AWS created manually, and only a handful of them was monitored.
+For our Continuous Integration and Continuous Delivery (CI/CD), it made sense to use the built-in pipeline solution provided by GitLab as it is the version control provider that we used. Unfortunately, even though we’re using a micro-service architecture design pattern, every service had to be built at once due to inadequate packaging practices. The services weren’t dockerized either. In other words, we couldn’t just deploy our API service or just front-end assets without building every package, which would be time-consuming.
+A consequence of the above is that it became tough to see the impact of some infrastructure changes, and often problems arose long after changes were deployed. Going forward, we wanted to be notified when something was behaving abnormally so as to be proactive with our fixes.
+After we received our initial seed round, we sat down to prioritize solutions that would allow us to improve these pain points.
+Core Infrastructure
+After evaluating other solutions, we opted to stay with AWS as it was the provider that was most widespread within our organization. They’re also offering a product called ECS that allows you to spin up docker images and scale horizontally and vertically reasonably quickly, which is why we’ve selected it to build the new generation of services offered by Yaguara. If you wish to dive into the subject of ECS, I would recommend this article: A beginner’s guide to Amazon’s Elastic Container Service.
+For instance, our production ECS cluster that hosts our application contains five different services (e.g. our API, WebSockets, Cron Jobs, …). ECS trivializes the process to have these services live on their own set of EC2 instances in different availability zones. Application Load Balancers then enable load balancing across multiple containers within those EC2 machines.
+Additionally, security and data privacy is something that we hold dear to our hearts at Yaguara. It was the number one priority when designing that new infrastructure. For example, each environment is separated into individual VPCs. Each resource lives in a private subnet and is only accessible via a load balancer on restricted ports. Also, non-sensitive information is logged for possible consumption to ease debugging processes.
+Infrastructure as Code
+To build said infrastructure, we’ve opted to go with Terraform. Terraform allows us to deploy infrastructure by writing code that we version control. Since we’re using a micro-service architecture for our different services, we’ve created ECS Services modules for each one. Spinning up a specific set of resources (i.e. an RDS instance, a Redis Cluster, Networking, …) then becomes increasingly easy to deploy.
+
+Here is an example of how it would look like to build up the required infrastructure that hosts our Staging API
+Another strong contestant was AWS CDK, but we’ve opted against it because we wanted to use Terraform also to manage our GitLab, Datadog and DigitalOcean pieces of the infrastructure and CDK only allows managements of AWS resources
+Another benefit of going with Terraform is that resources living in their respective domains are deployed by terraform apply. They can also very easily be destroyed by terraform destroy. That feature allowed us to use multiple test environments and delete them without being afraid of leaving them running and incurring additional fees.
+While we’re using a Monorepo for our main application, we’ve opted to go with a brand new repository that would hold all relevant infrastructure code. This allows us to encapsulate better infrastructure code of all our different pieces of software that might or might not live in our main application Monorepo.
+CI/CD
+We’ve opted to keep the GitLab pipeline. While there is definite room for improvements, it is still pretty solid and works for most of our use-cases.
+We’ve redesigned the dependencies between packages, which allows us to now build and deploy them as standalone services. In summary, for every deployment, we create the relevant images using Dockerfiles, we push them onto GitLab container registries, and deploy that image onto ECS using the infrastructure’s built image of its pipeline.
+
+Here is an example of a task to deploy our API infrastructure to staging
+GitLab Environments is also a killer feature. It allows the user to access the different deployed environments in one place and see their status. This significantly helps when you have dozens of environments as we do.
+Since we’ve decided to go with Terraform, we’ve been able to leverage an existing module that allows us to self-host the job runners for these pipelines and to configure them to our specific needs. Interesting tweaks are:
+the instance size of the runners
+the number of runners that are always left available
+the “outside working hours” period to reduce the amount of EC2 instances, which significantly reduces our incurred fees when jobs are unlikely to be run.
+Monitoring
+Like we’ve hinted a bit earlier, we’ve opted to go with Datadog for our monitoring platform.
+Datadog offers a lot of different services, but the main ones that we were interested in were the display of each machine and containers that were spun up, the ability to quickly access and put logs in context and the ability to create easily accessible visualizations. It also has a friendly UI.
+While you can integrate Datadog with CloudWatch and have metrics from your infrastructure instantly accessible, we also have a Datadog container living on every single EC2 instance of our ECS Cluster. This gives us additional metrics coming from our infrastructure, such as Docker Container CPU usage.
+
+This DataDog Infrastructure view allows us to visualize the different hosts for each service within a specific environment. The hexagon would change colour from green to red the more CPU it uses
+That was trivially done by setting our Datadog ECS service scheduling strategy to DAEMON.
+Conclusion
+Ultimately, there are no “perfect” solutions that work for every single use case. You have to evaluate what are the things that you want to optimize and what resources are available to find out what’s best for your organization.
+In the following post, we’ll be discussing the concept of review apps that were made possible with that new infrastructure. It allows engineers to create a dedicated and sharable environment with a click of a button. Additionally, the same concept applies to demo apps, which creates a dedicated environment for every member of our sales team that resets at the end of every day.
+We’ve love to have a conversation about your experiences with these technologies, don’t be afraid to comment!

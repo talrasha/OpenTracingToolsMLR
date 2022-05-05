@@ -1,0 +1,37 @@
+Flynn with DataDog integration in 5 steps
+Bartosz Górka
+Bartosz Górka
+Follow
+Oct 2, 2017 · 2 min read
+
+
+
+
+
+Flynn as an open-source PaaS is easy to use and allows quick and safe release of new version of our software. By extending it with monitoring and analysis from DataDog, we create a fully functional environment.
+In this article, I would like to share my experience with configuring Flynn app and DataDog agent.
+Step 1: DataDog agent on server
+Agent on server allows analyzing state of our hosts. The code to install agent can be found in Agent tab (in Integrations). Installation of this code guarantees automatic restart of the agent when restarting the server.
+
+Installing agent on Ubuntu — view DataDog Integrations
+Step 2: Generate API key
+To be able to send statistics from our app to DataDog, we must have the API key. You can generate new key or use default one (generated automatically when creating account).
+
+Generate new or use default API key
+Step 3: Set environment variables
+Having access to the application from console (e.g. flynn -a my_app run bash) we can set necessary environment variables. This allows you to set up a safe and verified connection between Flynn app and DataDog HQ (via DataDog agent).
+You can use the code below. Just remember to change bold snippets to match your app and API key.
+flynn -a my_app env set HEROKU_APP_NAME=YOUR_APP_NAME
+flynn -a my_app env set DATADOG_API_KEY=API_KEY_FROM_DATADOG
+Step 4: Buildpack with DataDog agent
+When you push your changes to Flynn git (and create new release), Flynn start buildpacks stored in Procfile.
+Add a new buildpack to your list. I recommend setting this Git source as first in Procfile.
+miketheman/heroku-buildpack-datadog
+heroku-buildpack-datadog - Heroku Buildpack to run Datadog DogStatsD in a Dyno
+github.com
+
+Step 5: Release
+If you have done all the steps above, you should not have any problems with starting DataDog analytics and sending your statistics.
+Push changes to Flynn Git and take advantage of opportunities offered by their analytics for your services.
+Summary
+Analytics is required for detecting weak points in our services (e.g. choke points). With this integration, you can identify and fix them. It is also a good way to analyze user experience.

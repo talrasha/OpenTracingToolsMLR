@@ -1,0 +1,119 @@
+How to provision Datadog resources with Terraform
+Kraig McFadden
+Kraig McFadden
+
+Apr 17·6 min read
+
+
+
+
+
+Provision your Datadog resources right in Terraform
+Tools like Terraform have changed how modern technology companies operate, bringing many of the benefits of code to our infrastructure. Infrastructure can now be versioned like code, packaged up like code, distributed like code, and reused like code.
+But the definition of “infrastructure” doesn’t have to stop at databases and EC2 instances. Infrastructure can also include observability tools like New Relic or Datadog — tools that help companies get insight into their systems to better diagnose and resolve issues, or even find them before they happen. Since Terraform makes it easy to use third-party providers now, treating your telemetric resources as just another part of your “infrastructure” is easier than ever.
+So if you’re using Terraform and want to provision Datadog resources such as monitors / alerts or dashboards, there are two steps you’ll need to take.
+Add the Datadog provider to your Terraform
+Add the Datadog resources you want to your Terraform
+Adding the Datadog Provider
+You’ll need to start by pulling in the Datadog provider. This is a little snippet that goes at the top of your main “entrypoint” file in Terraform (“entrypoint” being the main.tf file at the top of your module hierarchy — it’s probably in the module you call your terraform commands from, like terraform plan for instance).
+That provider block will look like this:
+provider "datadog" {
+  api_key = var.datadog_api_key
+  app_key = var.datadog_app_key
+}
+It only needs to be used in the code once, so don’t go sticking it all over the place! Any modules created by your top-level Terraform file will use this same provider. You would only need to create a separate provider if you were using multiple Datadog accounts with different API keys, or if you were provisioning for many apps with different app keys.
+(If that is the case, then I would advise moving each app’s Datadog resources into its own sub-module, then declaring the provider in that sub-module, so each app has its own provider declaration).
+Where do the API key and app keys come from? Well, you’ll have to get those from the Datadog web UI. Check here for some information about that.
+To get the secrets into your app, I would recommend passing them in as part of your terraform plan or terraform apply commands (see here) or possibly using the secrets management resource your cloud provider offers. In AWS for instance, you could pull the secrets from SecretsManager like so
+data "aws_secretsmanager_secret_version" "datadog_secrets" {
+  secret_id = var.datadog_secrets_id
+}
+and then use it for your provider by doing something like this:
+provider "datadog" {
+  api_key = jsondecode(data.aws_secretsmanager_secret_version.datadog_secrets.secret_string)["DATADOG_API_KEY"]
+  app_key = jsondecode(data.aws_secretsmanager_secret_version.datadog_secrets.secret_string)["DATADOG_APP_KEY"]
+}
+That extracts your keys from the SecretsManager JSON, and assumes they’re called DATADOG_API_KEY and DATADOG_APP_KEY. See here for more.
+Lastly, if you’re using Terraform 0.13 or above, you’ll need to specify the source your Datadog provider is coming from (and you can optionally set a version — it’ll use the latest if you don’t). Typically this will go in a versions.tf file and looks like this:
+terraform {
+  required_providers {
+    datadog = {
+      source = "DataDog/datadog"
+    }
+  }
+}
+Adding Datadog Resources
+After you’ve gotten the Datadog provider added to your Terraform, the next thing you’ll want to do is actually add some resources.
+Datadog provides dashboards, third-party integrations, log configuration, monitors, and more all through Terraform. You can even provision users and set their permissions! There’s almost no reason to do configuration directly in the UI.
+Working without the UI might seem a little slow at first, but after building up some modules, it will actually speed you up. In my own experience, it was a pain to write a Terraform module to provision a dozen different database monitors. But after it was done, it was a breeze to put that repo on GitHub and use Terraform’s module-sourcing magic to reuse that module in all of my services that needed database monitors! A little upfront cost in Terraform saved me many hours of copying and pasting monitors (and spared me all the copy-paste bugs I would’ve had).
+So how do you do it? I would recommend starting by making a monitoring module (or something similar) in your Terraform. This will just be a new directory containing your terraform files. I normally use
+main.tf
+variables.tf
+versions.tf
+in my modules, and add outputs.tf if I need it (you shouldn’t need one if you’re just doing monitors and dashboards though).
+While you won’t need to redeclare the Datadog provider block, you will need to set up your versions.tf file again with this code (it’s the same as what we wrote before):
+terraform {
+  required_providers {
+    datadog = {
+      source = "DataDog/datadog"
+    }
+  }
+}
+If you’re specifying versions in your Terraform, I would advise using a range of acceptable versions in the module itself, and then pinning the version you want in your “entrypoint” module. You can specify a range by doing something like:
+version = ">= 2.0.0, < 3"
+See more about versioning here. Using a range is especially important if you’re writing a module that’s going to be reused in other services. You want it to work with as many different provider versions as possible.
+Now you’re ready to actually add some resources! Here is a simple monitor you can put in your main.tf
+resource "datadog_monitor" "database_storage_low" {
+  name               = "${title(var.service)} database storage low"
+  type               = "metric alert"
+  message            = "Monitor triggered. Notify: ${var.notify}"
+
+  query = "avg(last_1h):avg:aws.rds.free_storage_space{environment:${var.env},service:${var.service}} < ${var.db_storage_critical}"
+
+  monitor_thresholds {
+    critical = var.db_storage_critical
+    warning  = var.db_storage_warning
+  }
+
+  notify_no_data = false
+
+  tags = [
+    "env:${var.env}", 
+    "service:${var.service}", 
+    "team:${var.team}
+  ]
+}
+This creates a metric alert that notifies us if our RDS free storage space dips below some threshold on average for an hour. If it recovers, we’ll get notified again (which is useful if you’re routing alerts through something like PagerDuty — it will resolve the issue).
+Notice I also tagged the monitor with env , service , and team . This makes it easier to find and keep track of monitors in the UI, though they’re certainly not necessary.
+Another note: the query is filtering for RDS instances by service and environment . This requires that your RDS instances be tagged with those tags in Datadog. If your tagging is different, make sure to update those filters to match what you have.
+For more information about the Datadog monitor resource, check out the documentation.
+Lastly, you’ll need to fill out your variables.tf file. Since we need the variables we specified in our monitor, our variables file will look something like this:
+variable "service" {
+  type        = string
+  description = "Your service name. Should match the service tag on your db"
+}
+variable "env" {
+  type        = string
+  description = "The environment we're in. Should match the environment tag on your db"
+}
+variable "team" {
+  type        = string
+  description = "Your team's name"
+}
+variable "notify" {
+  type        = string
+  description = "Where to route alerts to. Will look something like @pagerduty-<service> or @slack-<channel> etc."
+}
+variable "db_storage_critical" {
+  type        = number
+  description = "Lowest acceptable free storage in bytes"
+  default     = 10000000000  // ~10 gb
+}
+variable "db_storage_warning" {
+  type        = number
+  description = "Low free storage warning threshold in bytes"
+  default     = 20000000000  // ~20 gb
+}
+Providing default values for our thresholds means those variables are optional for users of this module. Remove the default if you want to force users to provide values.
+That should do it! You are now ready to build out your Datadog infrastructure right in Terraform. Add resources to that main.tf file as you need them.
+I’ve found a lot of value creating monitoring modules and putting them on GitHub for reuse. Check this out for more info. You can also build out a module for common dashboards that you want services to have, or even lump monitors and dashboards into a single module since you may want to display all the monitor data on your dashboard anyway. Take a look at the main Datadog provider page for more documentation and inspiration!

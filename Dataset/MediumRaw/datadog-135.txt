@@ -1,0 +1,21 @@
+Datadog PNG snapshot not showing
+Andrea Falzetti
+Andrea Falzetti
+
+Apr 17, 2017·2 min read
+
+
+
+
+in Slack incoming webhook attachments
+Issue
+If you are here, you have probably experienced the same issue I did using the Datadog programmatic API v1 to generate PNG snapshot of your metrics.
+I have integrated Datadog metrics in Slack using snapshots and incoming webhooks as shown below:
+Datadog Slack Example
+The problem I was facing was that the image was missing or simply not displaying! But, whenever I opened the URL of the snapshot in the browser or using the Slack Message Builder there!
+I eventually found out that it was a problem of time.
+Solution: Delay
+Add a delay of few seconds before displaying the image or before calling the Slack API to send the attachment will solve the issue. This time is needed for Datadog to generate the actual image file. I am currently using a 60 seconds delay, just to make sure it doesn’t happen again.
+A more elegant solution would be requesting the image, checking the size of the document or maybe the content-type and only then using the snapshot URL provided by Datadog. For the moment, the delay just works for me.
+Sounds stupid, but I wasted at least half an hour on this. Hopefully, you will find this article before wasting any of your time!
+Happy coding!

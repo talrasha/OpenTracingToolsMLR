@@ -1,0 +1,65 @@
+Journey of Apache Kafka & Zookeeper Administrator ( Part 7 )
+Davinder Pal
+Davinder Pal
+Follow
+Aug 26, 2020 · 3 min read
+
+
+
+
+
+March, 2020 ( Painful Integration of Kafka with Appdynamics )
+Another big surprise came to me that New Relic Contract will be gone and New Product called Appdynamics, will take over it. I already spent around a month on New Relic Integrations and Now I have to do it fucking again with Appdynamics.
+
+I knew that it has to be done, I can’t do anything about decision. I decided that let me ask for help so other teammates can learn things as well. I asked my colleague to check it out and let me know how it can be done, I gave him examples from New Relic experience but he was too naive and honestly wasn’t that much interested in doing it. Anyways he found Appdynamics Kafka Integration. It looked okay to me, I asked my colleague to implement on one machine and let’s see how it will appear in Appdynamics Portal. I had very high expectations from Appdynamics about it and it fell apart.
+The Appdynamics Bummer List
+how confusing Appdynamics Portal :( .
+No easy docs for Appdynamics?
+No Support for Labels or similar things.
+Old Style Custom Dashboards where everything was supposed to be static.
+Integrations were super hard to configure and check?
+No support for API, where I can download and upload custom dashboards.
+configuration files should small so can be updated easily.
+Anyways, my colleague did the integration on one machine and showed me a small demo on installation and other aspects. As he wasn’t interested so I had to do it and I said to myself that how fucking hard it can be, I will give a proper shot to it. If it didn’t worked then I will run current Production Kafka without Monitoring ( Already had CMAK so wan’t that concerned ).
+Integration Documentations:
+Kafka Monitoring Extension for AppDynamics
+Kafka Monitoring Extension for AppDynamics Use Case Apache Kafka® is a distributed, fault-tolerant streaming platform…
+www.appdynamics.com
+
+Zookeeper - Monitoring Extension
+Before the extension is installed, the prerequisites mentioned here need to be met. Please do not proceed with the…
+www.appdynamics.com
+
+Very Odd Part in documentation was that I need define each and every metric which I need to collect and It will make my Config quite log and very hard to update later.
+Configure Tier
+under which the metrics need to be reported. This can be done by changing the value of <Component-ID> in
+metricPrefix: "Server|Component:<Component-ID>|Custom Metrics|Kafka".<br/>Please refer this link to find Component-ID of your tiers.
+For example,
+metricPrefix: "Server|Component:19|Custom Metrics|Kafka"
+Config.yml
+- objectName: "kafka.server:type=BrokerTopicMetrics,*"
+          metrics:
+              - Count:
+                 alias: "Count"
+                 multiplier: ""
+                 delta: false
+                 aggregationType: "OBSERVATION"
+                 timeRollUpType: "AVERAGE"
+                 clusterRollUpType: "INDIVIDUAL"
+    
+              - MeanRate:
+                 alias: "Mean Rate"
+                 multiplier: ""
+                 delta: false
+                 aggregationType: "AVERAGE"
+                 timeRollUpType: "AVERAGE"
+                 clusterRollUpType: "INDIVIDUAL"
+I didn’t understood why the fuck I need to add these “Count” / “MeanRate” and many more?
+If you remember that New Relic was monitoring more than 200+ JMX objects and above type of config.yml will be too long.
+Custom Dashboards
+Each Kafka Server was reporting its metric separately so you have to find each server in “metric browser” and then export each metric to custom dashboard. If just do small calculations
+36 Kafka Servers * 10 Metrics = 360 ( Only small portion of NewRelic Dashboard )
+above steps I need to do 360 times which was just too much manual work, Even I didn’t had any Junior DevOps so I can’t handover to someone :( .
+Finally !
+I decided no matter what happens, I won’t be doing it because of too much work on Appdynamics Integration which provides very little insights to myself aka Kafka Administrator.
+Journey will continue to actual custom monitoring!

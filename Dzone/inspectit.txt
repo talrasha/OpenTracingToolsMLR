@@ -1,4 +1,0 @@
-https://dzone.com/articles/how-to-write-your-own-sensor-for-the-open-source-a
-https://dzone.com/articles/can-opentracing-scene-benefit-from-new-tracer-impl
-https://dzone.com/articles/the-6-most-common-performance-testing-mistakes-and
-https://dzone.com/articles/6-common-performance-testing-mistakes

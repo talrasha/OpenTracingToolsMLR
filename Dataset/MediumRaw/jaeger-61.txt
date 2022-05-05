@@ -1,0 +1,44 @@
+April 2018 Newsletter
+Juraci Paixão Kröhling
+Juraci Paixão Kröhling
+Follow
+May 2, 2018 · 3 min read
+
+
+
+
+
+It has been several months since we announced Jaeger 1.0 in December, it is time for the next update. We want to try publishing this newsletter more often from now on. As always, everyone is welcome to join our bi-weekly video calls for discussions about project direction, current work, and decisions about open issues and pull requests.
+Jaeger Project Updates
+Several new releases of Jaeger have been published, up to v1.4.1. For a full list of changes please see the change log. Some highlights include:
+UI: Revamped design using Ant instead of Semantic UI
+UI: Enhanced tag search input using logfmt syntax
+UI: Ability to run at custom URL prefix and/or behind a reverse proxy
+UI: Ability to view unadjusted and pretty-formatted traces as JSON
+Binary distribution of Jaeger components, including Windows executables
+Great performance improvements for Elasticsearch backend
+And we have a new official client library, Jaeger tracer for C# and .NET, which originated as https://github.com/Chatham/LetsTrace/ and has since been donated to Jaeger project. It is still in active development.
+Last, but not least, we have a brand new website https://jaegertracing.io/, many thanks to Luc Perkins.
+Interns!
+We welcome Prakriti Bansal as our new Outreachy intern for Jaeger and OpenTracing projects.
+Content from the Community
+InfoQ • Debugging Containerized Microservices
+Idit Levine, founder of Solo.io, presented at QCon about Debugging Containerized Microservices. She shared her open source project Squash, which is OpenTracing-native. In her talk, she went over the concepts and also did some live demoing, including Jaeger’s HotROD!
+JavaLand 2018 • Finding Performance Bottlenecks with Distributed Tracing by Juraci Paixão Kröhling
+Microservices are now the standard for new architectures. Their distributed nature makes it harder to determine the causes of a performance bottleneck, as one can’t just watch a single process and see the big picture. In this talk, you’ll learn how to instrument a business application (Spring Boot, Vert.x, Wildfly Swarm) with the OpenTracing API and use a tracing backend solution like Jaeger and/or a metrics solution like Prometheus to find, fix, and measure performance improvements to our distributed application.
+Ways to Engage
+There are many opportunities to learn or help others learn about distributed tracing and Jaeger. Below are some of the upcoming events. Please reach out if you can attend and/or want to be more involved.
+May 2–4, KubeCon + CloudNativeCon Europe in Copenhagen
+Wednesday, May 2 • 11:10–11:45 • A Survey of the OSS Tracing Ecosystem, Ben Sigelman & Ted Young (LightStep) (Beginner Skill Level)
+Wednesday, May 2 • 14:45–15:20 • Jaeger Project Intro, Juraci Kröhling (Red Hat) (Any Skill Level)
+Thursday, May 3 • 11:10–11:45 • Jaeger Project Deep Dive, Juraci Kröhling (Red Hat) (Intermediate Skill Level)
+Thursday, May 3 • 14:00–14:35 • How we used Jaeger and Prometheus to Deliver Lightning-Fast User Queries, Bryan Boreham (Weaveworks) (Intermediate Skill Level)
+June 12–15, DockerCon, San Francisco, CA
+Wednesday, Jun 13 • 3:30 PM — 6:00 PM • Cloud Native Projects SIG
+June 18–20, Developer Week, New York, NY
+Wednesday, June 20 • 1:00pm–1:25pm • Better Logging for Microservices with OpenTracing, Yuri Shkuro (Uber Technologies)
+July 16–19, O’Reilly’s OSCON, Portland OR
+Monday, July 16 • 1:30pm–5:00pm: Introduction to OpenTracing: Follow your requests from mobile and web clients to microservices and monoliths, Priyanka Sharma (LightStep ), Ted Young (LightStep), Ben Sigelman (LightStep)
+We Would Love to Hear From You
+Want to share a Jaeger-related update in the newsletter? Email us at jaeger-tracing@googlegroups.com or drop by the chat room. We’d also love feedback as always, so don’t hesitate to drop us a line!
+— The Jaeger Team

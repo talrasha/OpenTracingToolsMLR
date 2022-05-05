@@ -1,0 +1,22 @@
+Managing Kubernetes Applications with Instana & Giant Swarm
+Giant Swarm
+Giant Swarm
+
+May 23, 2019·3 min read
+
+
+
+
+As the leader in monitoring cloud-native, Kubernetes (K8s) based applications, Instana has long made sense out of the complexities that K8s based applications entail. Instana’s Automatic Kubernetes Monitoring continuously monitors K8s based applications at scale by automatically discovering all clusters, pods, containers, and services deployed by K8s and deploying the appropriate, technology specific sensors required to monitor the entire environment. With Instana, K8s services are automatically correlated to application services so you always know the impact of the K8s platform on the performance of your applications.
+
+Since launching the first version of K8s monitoring, Instana has continuously broadened its ‘out-of-the-box’ support for K8s clusters across multiple vendors and distributions. Instana’s Automatic Application Performance Monitoring (APM) platform monitors the health of K8s as well as the performance of the cloud-native applications that run on them. Instana currently supports bare metal Kubernetes, Amazon EKS, Red Hat OpenShift, Google GKE, Azure AKS, Oracle OKE, and more.
+Regardless of which K8s version you are running, Instana makes it incredibly easy to deploy the Instana Agent into your environment. The Instana agent can be installed in numerous ways including; via a YAML file, through Helm Chart, directly from public cloud providers like Google GKE, and recently announced, via the Instana’s Red Hat OpenShift Kubernetes Operator. No matter which installation method you choose, only a single, lightweight agent is required per host.
+Instana extends K8s coverage with Giant Swarm integration
+With all of the previously mentioned versions of K8s, the user administers and controls the clusters themselves. As more business critical enterprise production applications move to K8s, organizations realize that the daily operational challenges of managing applications, the underlying infrastructure, and performance of cloud-native environments can be overwhelmingly complex. This is where Giant Swarm, a K8s Managed Service Provider (MSP), comes into play. Giant Swarm is focused on helping organizations manage their K8s performance at scale. Users leave the day-to-day administration and maintenance of their clusters in the capable hands of Giant Swarm.
+Instana has expanded its K8s monitoring reach with a first of its kind integration with Giant Swarm’s K8s managed service. Together, Giant Swarm and Instana remove the ‘chaos’ of managing K8s based applications and environments, enabling users to focus on what they do best, building great software. Giant Swarm proactively manages the K8s infrastructure, alleviating many of the operational challenges for their user base, while Instana provides the application level insights that developers need to prioritize application optimization opportunities. Additionally with Instana, developers are able to hone in on the applications and services that they are responsible for with Application Perspectives. With Giant Swarm handling the operational duties, the development team can leverage Instana’s Application Perspectives to fully understand the state and performance of the applications and services they are responsible for.
+Users of Giant Swarm and Instana can install the integration directly from Giant Swarm’s application catalogue and, with just a few clicks, get the application level insights required to tame cloud-native K8s based applications.
+
+To learn more about the Giant Swarm, Instana integration register for the joint webinar on June 12th where K8s experts from Giant Swarm and Instana will discuss:
+Practical strategies for managing and monitoring Kubernetes environments
+Reducing the cost, complexity, and lack of visibility into Cloud-Native architectures
+Empowering teams to focus on what they do best. Delivering high-quality software!

@@ -1,0 +1,156 @@
+If you code it, you should TRACE it !
+Vishwa Mohan
+Vishwa Mohan
+
+Mar 20, 2019·6 min read
+
+
+
+
+This post is all about understanding latency issues in any application and building a tracing platform to debug all those issues.
+
+Application development these days are getting more and more granular . Every system/service depends on multiple systems to complete one business request. Micro- services is the next cool buzz word in the companies which, once were excited just with idea of Service Oriented Architecture.
+But as more and more distributed we become, figuring out the bottleneck becomes further tough. It get’s really difficult to identify which part (actually which code block) is causing the lag.
+Let’s take a simple application example below :
+
+In the above simple service diagram, we are exposing a service, which internally makes another service call, make a DB call and does some CPU intensive tasks. So for every service request, it need to go through three steps, each of which is in itself holds some business critical time. And the overall latency of the service depends on the sum total of latencies at eacf of the step.
+Overall latency = latency1 + latency2 + latency3.
+This is a very simple example, but in the real case scenarios, our services can be internally interacting with many more micro services. So at any time, to identify what is the exact cause of high latency, we need to know the latencies of each step for the same request.
+Generic Tracing Platform
+The proposed generic tracing platform is based on OpenCensus and using zipkin as the backend
+
+OpenCensus
+OpenCensus provides observability for your microservices and monoliths alike by tracing requests as they propagate through services and capturing critical time-series metrics.
+The core functionality of OpenCensus is the ability to collect traces and metrics from your app, display them locally, and send them to any analysis tool like zipkin (also called a ‘backend’). However, OpenCensus provides more than just data insight.
+After instrumenting your code with OpenCensus, you will equip yourself with the ability to optimize the speed of your services, understand exactly how a request travels between your services, gather any useful metrics about your entire architecture, and more.
+More details about OpenCensus can be found here : https://opencensus.io/
+Backend that we are using for the collecting trace is ZIPKIN
+
+ZIPKIN
+Zipkin is a distributed tracing system. It helps gather timing data needed to troubleshoot latency problems in microservice architectures. It manages both the collection and lookup of this data. Zipkin’s design is based on the Google Dapper paper.
+Applications are instrumented to report timing data to Zipkin. The Zipkin UI also presents a Dependency diagram showing how many traced requests went through each application. If you are troubleshooting latency problems or errors, you can filter or sort all traces based on the application, length of trace, annotation, or timestamp. Once you select a trace, you can see the percentage of the total trace time each span takes which allows you to identify the problem application.
+More details about the zipkin can be found here : https://zipkin.io/
+We are using ElasticSearch as the back-end storage for the zipkin. Using ES gives us an advantage, as we can run more analytics on the traces collected, with the help of Kibana
+
+How my application can start pushing trace data to Tracing platform ?You just need to add the libraries of opencensus, make little code changes and you are all set for start tracing your application.
+I am attaching code snippet, for doing the same in Java and Python.
+JAVA
+pom dependency example
+<dependencies>
+<dependency>
+<groupId>io.opencensus</groupId>
+<artifactId>opencensus-api</artifactId>
+<version>${opencensus.version}</version>
+</dependency>
+<dependency>
+<groupId>io.opencensus</groupId>
+<artifactId>opencensus-impl</artifactId>
+<version>${opencensus.version}</version>
+</dependency>
+<dependency>
+<groupId>io.opencensus</groupId>
+<artifactId>opencensus-exporter-trace-zipkin</artifactId>
+<version>${opencensus.version}</version>
+</dependency>
+</dependencies>
+Sample java code
+public class TracingToZipkin {
+public static void main(String[] args) {
+// 1. Configure exporter to export traces to Zipkin.
+ZipkinTraceExporter.createAndRegister("host-address", "tracing-to-zipkin-service");
+// 2. Configure 100% sample rate, otherwise, few traces will be sampled.
+TraceConfig traceConfig = Tracing.getTraceConfig();
+TraceParams activeTraceParams = traceConfig.getActiveTraceParams();
+traceConfig.updateActiveTraceParams(activeTraceParams.toBuilder().setSampler(Samplers.alwaysSample()).build());
+// 3. Get the global singleton Tracer object.
+Tracer tracer = Tracing.getTracer();
+// 4. Create a scoped span, a scoped span will automatically end when closed.
+// It implements AutoClosable, so it'll be closed when the try block ends.
+try (Scope scope = tracer.spanBuilder("main").startScopedSpan()) {
+System.out.println("About to do some busy work...");
+for (int i = 0; i < 10; i++) {
+doWork(i);
+}
+}
+// 5. Gracefully shutdown the exporter, so that it'll flush queued traces to Zipkin.
+Tracing.getExportComponent().shutdown();
+}
+private static void doWork(int i) {
+// 6. Get the global singleton Tracer object.
+Tracer tracer = Tracing.getTracer();
+// 7. Start another span. If antoher span was already started, it'll use that span as the parent span.
+// In this example, the main method already started a span, so that'll be the parent span, and this will be
+// a child span.
+try (Scope scope = tracer.spanBuilder("doWork").startScopedSpan()) {
+// Simulate some work.
+Span span = tracer.getCurrentSpan();
+try {
+System.out.println("doing busy work");
+Thread.sleep(100L);
+thirdCall();
+}
+catch (InterruptedException e) {
+span.setStatus(Status.INTERNAL.withDescription(e.toString()));
+}
+//span.setStatus(Status.OK.withDescription("Successfully passed this method"));
+//Annotate our span to capture metadata about our operation
+Map<String, AttributeValue> attributes = new HashMap<>();
+attributes.put("use",AttributeValue.stringAttributeValue("demo"));
+span.addAnnotation("Invoking doWork",attributes);
+}
+}
+private static void thirdCall(){
+Tracer tracer = Tracing.getTracer();
+try (Scope scope = tracer.spanBuilder("thirdCall").startScopedSpan()) {
+Span span = tracer.getCurrentSpan();
+// Simulate some work.
+try {
+System.out.println("doing busy work");
+span.setStatus(Status.INTERNAL.withDescription("Error occured"));
+Thread.sleep(700L);
+}
+catch (InterruptedException e) {
+}
+}
+}
+}
+Python code example
+#!/usr/bin/env python
+import os
+from datetime import datetime
+import time
+import sys
+from opencensus.trace.tracer import Tracer
+from opencensus.trace import time_event as time_event_module
+from opencensus.trace.exporters.zipkin_exporter import ZipkinExporter
+from opencensus.trace.samplers import always_on
+# 1a. Setup the exporter
+ze = ZipkinExporter(service_name="python-quickstart",
+host_name='<host-address>',
+port=9411,
+endpoint='/api/v2/spans')
+# 1b. Set the tracer to use the exporter
+# 2. Configure 100% sample rate, otherwise, few traces will be sampled.
+# 3. Get the global singleton Tracer object
+tracer = Tracer(exporter=ze, sampler=always_on.AlwaysOnSampler())
+def main():
+# 4. Create a scoped span. The span will close at the end of the block.
+with tracer.span(name="main") as span:
+for i in range(0, 10):
+doWork()
+def doWork():
+# 5. Start another span. Because this is within the scope of the "main" span,
+# this will automatically be a child span.
+with tracer.span(name="doWork") as span:
+print("doing busy work")
+try:
+time.sleep(0.1)
+except:
+# 6. Set status upon error
+span.status = Status(5, "Error occurred")
+# 7. Annotate our span to capture metadata about our operation
+span.add_annotation("invoking doWork")
+if __name__ == "__main__":
+main()
+I hope with this tracing platform, you will able to find out which small flow inside your big service flow is the actual bottleneck causing high latency.
+For any doubts or followup, please feel free to comment below .

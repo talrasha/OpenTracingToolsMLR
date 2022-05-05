@@ -1,0 +1,500 @@
+This breakthrough enables code and database performance monitoring, dynamic baselines, and transaction snapshots when performance deviates from the norm, drastically reducing mean time to repair (MTTR).
+Intelligent Alerting — AppDynamics for SAP baselines normal performance and intelligently alerts IT based on health rules that are automatically set for key performance metrics on every Business Transaction.
+These intelligent alerting policies reduce the noise from siloed monitoring tools and also integrate with existing enterprise workflow tools, including ServiceNow, PagerDuty, and JIRA.
+Now operations teams can break out of their siloes and work directly in the tools they already use.
+Because AppDynamics for SAP provides complete visibility into SAP environments, enterprises moving their SAP applications to the cloud can more effectively plan application migrations and measure post-migration results to ensure the same or better levels of user experience.
+The new APM is capable of performing a full end-to-end transaction trace within production environments.
+How to Monitor Your Atlassian Tools With AppDynamicsAs part of our Application Performance Management solution, AppDynamics automatically discovers the topology of your distributed application (application flow map shows the interconnections between different parts of your application – Figure 1) and provides a unified monitoring capability for your application and infrastructure components.
+It also automatically discovers the business transactions in your applications (Figure 2), computes performance baselines and generates alerts based on various configurable conditions.
+As part of the Infrastructure Visibility tool, AppDynamics provides the notion of extensibility through AppDynamics Extensions where it can monitor or integrate with any of your existing tools with minimal efforts.
+We now have 140+ extensions covering a wide range of categories like Big Data, Message Queues, Cloud Providers, databases (SQL/NoSQL) etc.
+AppDynamics Alerting Extension for JIRAAppDynamics integrates directly with JIRA to create JIRA tickets in response to events being generated in AppDynamics.
+With theAppDynamics Alerting Extension for JIRA extension, you can leverage your existing ticketing infrastructure to notify the operations team and resolve performance degradation issues.
+AppDynamics Alerting Extension for HipChatThe AppDynamics Alerting Extension for HipChat enables AppDynamics to post custom notifications as messages to a HipChat room.
+Chat room members can see a brief description of the health rule violation or event and get more detail on AppDynamics by following the URL provided in the alert message.
+Team members can now collaborate in real-time, wherever they are to resolve issues quickly.Figure 6: AppDynamics health rule violation as shown in Atlassian’s HipChat.3.
+AppDynamics Monitoring Extension for ConfluenceThe AppDynamics Monitoring Extension for Confluence extracts various usage statistics from Confluence and shows them in the AppDynamics Metric Browser.
+You can also create custom health rule alerts and custom dashboards from these metrics.4.
+AppDynamics Monitoring Extension for BambooThe AppDynamics Monitoring Extension for Bamboo extracts various build statistics like the number of tests failed from Bamboo and shows them in the AppDynamics Metric Browser.
+Again, custom dashboards, baseline computation and configuration of health rule alerts is possible on these metrics.5.
+Detect Application Performance Issues at Code Level With AppDynamics and AlertSite Integration[This article was written by Laura Strassman]This morning we announced that AlertSite is now integrated with AppDynamics Application Intelligence Platform.
+Together you get an always on solution that detects performance and availability issues, alerts you to them and shows you, at the code level, where the problem is.
+This means you can fix performance problems before end users even see them.Below is a screenshot of response times from the AlertSite UXM interface, followed by a screenshot of the trace into the AppDynamics interface.The trace is seamless, just click through.
+You can use SQS to transmit any volume of data, at any level of throughput, without losing messages or requiring other services to be always available.”The Amazon SQS Java Messaging Library, which is a Java Messaging Service (JMS) interface to Amazon SQS, enables you to use Amazon SQS in the applications that already use JMS.
+By using service endpoints, Microservices iQ can automatically discover and map new microservices.
+Because it automatically maps these new pieces of your architecture, they can also monitor isolated microservices and track their KPIs.
+Those KPIs are set by development teams who know what matters to them and can be adjusted as needed.
+Microservices iQ can analyze what threads are blocking each other and causing application slowdowns, helping teams synchronize their data between microservices.
+With this new solution, currently under beta, you can monitor your Python applications in real-time, drill down into call stacks, correlate transactions traversing across your distributed environment, and diagnose performance bottlenecks while running in a live production or development environment.
+AppDynamics 3.0 enables real-time Java heap monitoring, garbage collection memory pool monitoring, an shows the correlation between the heap and the major and minor GC collections:Root cause diagnostics in AppDynamics 3.0 will look at code paths and transactions and determine which ones are accessing the collection.
+You’ve probably noticed the main screen at AppDynamics include a map of the services the application is using with their call loads and health index while NewRelic displays a response time graph.
+They’ve come up with a solution of their own that automatically creates a dynamic baseline for the apps performance which varies by time.
+In this category, AppDynamics offers a few more features than New Relic, mostly around memory: heap size & utilization, garbage collection stats divided by gens and memory leak detection.
+We’ve truly gained a sincere understanding of end-user experiences and an ability to rapidly resolve issues in real time—to ensure our employees and contractors can access the services they need.
+For example, AppDynamics can automatically discover a large number of microservices, dynamically baselines their performance, collects deep diagnostics and alerts when the performance deviates from the normal baseline.
+Introducing AppDynamics C/C++ Application Performance Management ModuleAppDynamics C/C++ Application Performance Management (APM) module provides end-to-end business transaction-centric management of C/C++ applications in the most complex and distributed environments to deliver exceptional user experience by proactively identifying and resolving performance issues.
+As a key module of AppDynamics Application Intelligence Platform, C/C++ APM module monitors the C/C++ applications via a monitoring SDK that enables the same real-time, end-to-end, user-to-database performance visibility as other supported languages, for rapid root-cause analysis and issue resolution.
+AppDynamics C/C++ application monitoring SDK enables automatic discovery and mapping of all tiers that service and interact with the C/C++ applications, automatic dynamic baselining, data collectors, and health rules, as well as managing key metrics including application load and response times, and system resources including CPU, memory, and disk I/O.Instrumenting C/C++ Application for Monitoring.
+AppDynamics delivers standard key metrics through an intuitive dashboard, along with features to allow you to create your own customized dashboards so cross-functional teams can see the metrics that matter to them.Understanding performance in real time is essential to ensure that applications are meeting customers performance expectations.
+Along with having the ability to quickly create dashboards that show the performance of key business transactions, application owners can also correlate customer demand with application capacity to make sure that applications continue to perform during peak periods of usage in order to optimize application performance.
+AppDynamics allows you to delve deeper with insights into your machine data from multiple sources, and visualize and analyze logs to get forensic insights.
+Users also have the ability to set up metrics alerts to proactively manage user experience.
+Application owners can pinpoint errors, dig deeper into the root cause of issues, and gain complete visibility into infrastructure issues that go beyond code fixes.
+AppDynamics, on the other hand, has dynamic baselining — self-learning thresholds that understand your application load times fluctuate and acceptable response times change depending on overall usage.
+By capturing users’ business transactions, AppDynamics times specific users’ response times through their contact with the application.
+Viewing these times in aggregate help develop the standard and anything falling outside of this will be flagged.
+Along with dynamic baselines, AppDynamics has integrations with all the key alerting tools you already use.
+If there’s a performance issue, the corresponding node will intuitively flag the problem and illustrate the affected nodes.Along with your application flowmap, we know it’s important to monitor and communicate your applications’ health to a wider internal audience.
+AppDynamics Unified Monitoring is the industry-first, application-centric solution that traces and monitors transactions from the end user through the entire application and infrastructure environment, to help quickly and proactively solve performance issues and ensure excellent user experience.
+Additionally, AppDynamics provides metrics to drive visibility inside the application without creating an additional burden for developers.
+In fact, with automated instrumentation as part of AppDynamics APM, metric data is produced consistently and comprehensively across all teams.
+AppDynamics provides you with the flexibility of defining alerting rules generally or on individual business transactions.You need to analyze your application behavior and configure the alerting engine accordingly.4.
+When you do this, AppDynamics treats that method call as a tier and counts the number of calls and captures the average response time of that method execution.You might be able to use the out of the box functionality, but if you have special requirements then AppDynamics provides a mechanism that allows you to manually define your application tiers by using the Node.js API functions to further tailor your application.5.
+There are configuration options and tuning capabilities that you can employ to provide you with the information you need while minimizing the amount of overhead on your application.
+Developers can also understand a mobile application usage patterns, and gain detailed visibility into usage across devices, networks, operating systems, and more, all in real-time in optimize future development.A key factor of visibility is being able to visualize your entire back-end environment, as transactions occur.
+AppDynamics implements a dynamic flowmap of your application and infrastructure along with third-party extensions.
+It adds a level of confidence that new releases will perform as expected in production.And to reiterate the benefits in production, Browser Synthetic Monitoring confirms availability across a spectrum of time and geography, helps detect issues before they impact users, and can confirm performance of critical transactions, all using real browsers.Another crucial use case for synthetic is for setting, monitoring, and enforcing service-level agreements both internally or with third parties.
+The automatic, dynamically set baselines are hugely useful in agreeing on SLA performance thresholds.
+The Server Monitoring dashboard provides a comprehensive summary of all server resources – CPU, memory, storage and networking.
+In addition, the dashboard also provides details about the top ten processes consuming CPUs and memory on the dashboard.Asynchronous Business Transaction Discovery – AppDynamics discovers a lot of frameworks and services out of the box for asynchronous transactions.
+They can configure this by specifying a class/method or a tier with last thread execution.It’s possible to use the asynchronous transaction configuration to specify more than one demarcator for a particular business transaction.
+With APM, end-user monitoring, infrastructure visibility and application analytics modules, AppDynamics Application Intelligence Platform integrates monitoring, troubleshooting, and analytics capabilities to provide real-time, actionable IT operational and business insights into Hybris based application performance, user experience, and business outcomes — all in real time, and all in production.
+The platform embraces three key principles:See faster with Unified Monitoring: Identify customer-impacting issues quickly with end-to-end business transaction monitoring.Act sooner with Unified Troubleshooting: Minimize business impact with rapid problem resolution.
+AppDynamics Application Intelligence helps retailers, including those leveraging Hybris to power their applications, take their digital strategies from good to great by ensuring mobile and eCommerce performance, allowing business, dev and ops teams to collaborate easily and automatically correlating technical performance with business outcomes.
+AppDynamics Application Analytics provides real-time visibility to deliver insights into both aggregated or rolled-up metrics, as well as details into individual customer interactions.
+New Relic reports will automatically be created and shown to you on the app’s APM page on New Relic’s website.
+Connectivity anywhere with distributed computing.Transferring data from one location to another.Connected devices sharing data.We can model anything with an IP address and a way to talk to it through an API interface.
+additionally, it helps create tests efficiently and at speed on upgraded versions of open sources tools.
+its application performance management (apm) tool enables users to focus on factors such as application mapping, dynamic baselining, and code-level diagnostics.
+moreover, the appdynamics platform helps you to keep a check on the performance of the mobile app to ensure customer experience.
+We'll provide our approach towards solving these challenges, discuss best practices for integration with a continuous development cycle, and share ways to reduce cost on testing infrastructure when testing the application.
+Handy features like the User Interaction Traces allow you to track individual user interactions in your application by providing code-level data traces.
+Datadog wants you to view all your application performance metrics in one place - and does so well.
+DataDog also charts a vast variety of data on simple-to-use dashboards and is not limited to monitoring data only.
+One of the best features is the detailed transaction monitoring, offering cross-application tracing and performance tracking of the SQL statements.
+It supports multiple technologies, has deep transaction tracing, user experience monitoring (synthetic monitoring and real user monitoring) and network monitoring.
+The best feature, in my opinion, is a one-agent component, which automatically detects all the server components and quickly starts reporting data in different levels, once it is installed.
+With AppDynamics, they are empowered to have real-time insights into application performance, user performance, and business performance so they can move faster in an increasingly sophisticated, software-driven world.Where Pokémon Is GoingPokemon Go brought reality to the concept of meshing the virtual with the real, so you should expect augmented reality to develop quickly now that it’s finally become profitable.
+one of the leading incident management tools that tackles this is pagerduty: collecting alerts from your monitoring tools, creating schedules to coordinate your team and deliver each alert to the right person through texts, emails, sms or push notifications.
+These frameworks provide a collection and storage platform along with an API for generating the observed data.
+ChatOps provides a visible interface for automations, allowing teams to issue commands and see the work done by automations right in the chat client they use to communicate with their team.
+In addition, Atomist takes an organization-wide view of events and code, greatly easing management of builds and deployments across many repositories.
+Like application performance monitoring, tools can check the status of these services with their requests.
+Prioritize having robust, redundant monitoring tools to ensure potential issues aren’t missed.
+Visualize what data it would contain and the metrics that matter.
+The provider will likely offer customer service, training, documentation, and other resources to help you integrate the tool with your stack.
+Other features they offer include AI-powered insights, end-user monitoring to model customer journeys, and business monitoring with integrated revenue analysis.
+It features robust features in visualization, alerting, and data consolidation and analysis.
+They also offer synthetic web transaction monitoring, allowing you to simulate usage and collect metrics.
+Containers provide the ability to manage and migrate application dependencies along with the application while abstracting away the OS and the underlying cloud platform in many cases.
+Adopting Spring Boot has helped to standardize how we externalize and consume configuration and allowed us to hook into an existing ecosystem of available integrations (like Micrometer, gRPC, etc.).
+We provide the ability to monitor your applications in real-time both from an app performance as well as business performance perspective, providing data you need to see your application in action, validate the decisions and money spent on the migration, improve your user experience and provide the ability to rapidly change your development and release cycles.
+Pros: Unlike hybrid architectures, multi-cloud gives you far more options beyond the public/private dichotomy: you can mix and match cloud infrastructure vendors, choosing the solutions that best fit your needs, taking advantage of a wider selection of technologies while avoiding getting stuck with one vendor.
+AppDynamics Application Analytics provides real-time visibility to deliver insights into both aggregated or rolled-up metrics, as well as details into individual customer interactions.
+TSO Logic provides an analytical report on how to save the budget and what type of cloud is best suited for your company.
+With the help of BMC Discovery, you will be able to analyze the costs, make a plan before migration, and manage all the AWS managed support tools.
+it is an open-source tool that enables automation of native, mobile web, and hybrid application across ios and android platforms.
+considering it is cross-platform, it enhances the reusability of the code between ios, android, and windows test suites.
+the tool is built on the premise that while testing native apps, it need not require the inclusion of an sdk or rearrangement of the application.
+it automates any mobile application across any language or testing framework, facilitating complete access to back-end apis and databases of the test code.
+in addition, it enables teams to validate the work quickly on real platforms, and effectively run tests in espresso, xctest, selenium, or other test frameworks across multiple platform versions.
+If any anomaly observed an alert is triggered, based on the alerts teams can build automated scripts for known issues which can be executed as and when the issue occurs.
+We believe in using automation to empower your people to solve bigger problems.We provide a suite  of proprietary apps in our internet performance management platform.
+We use a lot of open  source beneath our proprietary solutions.We're starting to do  turnkey integration for Fortune 500 based on open source tools.
+DevOps has been good at helping people understand that performance is a feature that can be used to steer software engineering.
+Keep production performance very fast.
+Ensure adding an agent doesn’t affect performance.
+Standardization of how apps evolving and how the community is evolving.
+The best way to do that is to simulate heavy traffic and deploy tools like AppDynamics to filter out common errors and exceptions as soon as possible and long before the app hits production.
+set up a sound log management strategy to help you see beyond the pale lines of bare logfiles and react fast after new deployments.
+with takipi, you’re able to know which errors pose the highest risk and should be prioritized, and receive actionable information on how to fix each error.
+this eliminates the need to manually reproduce errors, saves engineering time, and dramatically reduces time to resolution.
+One of the key enablers of cross-silo collaboration is intelligent monitoring at each layer of the application and the infrastructure components that provide the underlying resources.
+The application uses Microsoft’s database and machine learning services to monitor traffic increases, get directions, controls some car functions, and share travel times.
+The key benefit here is proactive visibility, such as real-time alerts on sudden changes in company sales, revenue or customer churn.
+The true benefit of the business-focused virtual assistant is its ability to provide proactive reporting, on-demand interaction and automated task execution—all without the need for pesky logins or dashboards.
+By making the testing environment as similar as possible to production, you are making the test more accurate, thus raising the number of bottlenecks you discover in time and reducing the risk of surprises during Black Friday peaks.3.
+While there are some fantastic tools out there that can help with getting better visibility into code-level issues — such as New Relic, AppDynamics, and others — the real problem is that these often end up being used to diagnose issues after they have appeared in production.
+Using them will shorten and improve your testing and help you alert about issues faster.
+It describes a category of UX design practices that have little to do with improving the actual experience and everything to do with suggesting that the experience is a good one.
+The difference can be subtle, but true user experience improvement begins with precision application performance optimization that only an APM solution can provide.
+APM diagnoses the cause of a slowdown, allowing developers to address the root cause and not the surface symptoms.
+Starting from the business transaction, you can use APM solutions to drill down from end user clients to application code-level details.
+This is helpful for developers because it makes it easier to work on the app throughout its life cycle.Docker is kind of like a virtual machine, but instead of creating a whole virtual operating system (OS), it lets applications take advantage of the same Linux kernel as the system they’re running on.
+Though other performance monitoring tools have collaborative functionality, Datadog puts this at the heart of the product and makes sure teams consider monitoring various parts of their applications together.
+Where New Relic builds different agents to monitor various aspects of your application code, DataDog serves this information in one dashboard.
+This information can then be reassembled to provide a complete picture of the application’s behavior at runtime.
+OverOps provides complete context to resolve every error and can even Slack the developer who wrote the code.
+OverOps is a dynamic code analysis solution that seamlessly integrates with your existing CI/CD pipeline to uncover all of the unknown errors in your applications and help you achieve the broader goal of continuous reliability.
+The Eclipse Memory Analyzer is a Java heap analyzer that can help you pinpoint memory leaks and reduce memory consumption.
+It can be used to analyze productive heap dumps to calculate the retained sizes of objects, see who is preventing the Garbage Collector from collecting objects, and run a report to automatically extract leak suspects.
+In fact, the majority of AMPs used range from fairly affordable to enterprise-exclusive — which is really a shame when you consider how important it is to monitor application performance, especially with a complex application topology executing (hopefully) in cohesion on the same server.
+An open-source Java APM, Glowroot, prides itself on being lightweight, easy to install and offers an extensive feature-set as well as the support of a variety of application servers.
+Free and well-documented, Glowroot is the performance monitoring solution for Java programmers who are also avid fans of open-source software (or simply lack a budget).
+Among others, Scouter can show you information about user activity, service metrics, and resource distribution.
+Stability monitoring measures overall error levels and helps you understand when application errors have reached a critical level that could impact your users’ experience.
+Stability monitoring adds logic to the process of monitoring for errors.
+It provides a definitive metric that lets engineering teams know when errors are impacting stability to the point that they must spend time debugging.
+In backend services or applications, it will report on the percentage of successful requests.
+Similarly, for client-side and mobile monitoring, the stability is measured as error/crash free sessions.
+Performance monitoring at the application layer provides information about how fast an application is responding.
+Using performance monitoring to tackle slow responses, especially after a new release, can help pinpoint induced performance changes in a system.
+Setting up KPIs for any service where higher CPU or memory usage could result means you are notified closer to the source of any problem occurring.
+This approach allows you to have an intelligent conversation around increases in those metrics with your operations team.
+Real user monitoring is often the first monitoring implemented on client-side applications because it tracks the actual experienced loading and response times of users on your site.
+In addition to that, OpenTracing also described the model of a trace and its semantics.
+For Instana, all of these trace technologies are excellent sources of contextualized data from which we can derive and present an automated understanding of performance and service quality understanding to our APM users.
+Once the tracing data is available, Instana automatically leverages this data.
+Another developer can use X-Ray to trace Lambda functions and Instana will seamlessly combine the data from all different tracing technologies.
+Instana will automatically provide an end-to-end trace combining OpenTracing, OpenCensus, automated tracing and X-Ray into one single distributed trace.
+Instana uses an AI-based approach to understand the health of infrastructure, endpoints, services, and applications.
+Instana's AI leverages our unique Dynamic Graph which provides the context to pinpoint to the root cause of problems and ultimately arrive at accurate causation.
+Looking at the CNCF stack, the popular frameworks are Prometheus for time series metrics and Jaeger for distributed tracing.
+These frameworks provide a collection and storage platform along with an API for generating the observed data.
+The resulting high fidelity monitoring data improves the quality of feedback in the CI/CD loop.
+Adoption of K8s had had a dramatic effect to state declaratively what the architecture application is.
+A lot of the tax of developing and monitoring are being taken off the table, so developers can focus more on developing the software.
+Resource monitoring: reports on how servers are running with metrics such as RAM usage, CPU load, and remaining disk space.
+Network monitoring: reports on incoming and outgoing traffic which can be broken down into the frequency and size of specific requests.
+Application performance monitoring: reports on the performance of services by sending internal requests to them and monitoring metrics such as response time, completeness of response, and data freshness.
+Third-party component monitoring: reports on the health and availability of third-party services integrated into your system.
+By choosing service level indicators with the highest customer impact, SLOs can safely empower development to accelerate.
+Setting fair on-call schedules and properly assigning ownership of services can be complex, but alerting tools will help you stay organized and consistent.
+Alerting tools can help by building calendars around user-defined roles and teams and logging responses to help qualitatively assess load.
+Teams practicing DevOps often have automated alerting and sometimes responses, typically using the native capabilities of their monitoring platform, e.g., Datadog, Honeycomb, PagerDuty, AppDynamics, and Dynatrace, reducing the time they spend monitoring and fixing issues that arise.
+ChatOps provides a visible interface for automations, allowing teams to issue commands and see the work done by automations right in the chat client they use to communicate with their team.
+As you can tell from the classes of automations listed above, automations in DevOps have largely focused on the operation side of the methodology: deployments, monitoring, remediating, and reporting.
+In this way, automation of operations in operational ways has come to define DevOps to date and the limitations of this approach are becoming manifest as teams migrate from a handful of on-prem deployable artifacts to dozens or even hundreds of microservices in the cloud.
+It features robust features in visualization, alerting, and data consolidation and analysis.
+They enable correlating performance metrics with business impact.
+Prometheus is a popular open-source monitoring tool offering alerting, querying, visualization, and many other useful features.
+The dedicated development community offers plenty of documentation and instruction to help you get up to speed.
+Solarwinds offers several products, each specializing in different areas of monitoring: Network Management, Systems Management, Database Management, IT Security, IT Service Management, Application Management, and Managed Service Providers.
+They also offer synthetic web transaction monitoring, allowing you to simulate usage and collect metrics.
+They offer several pricing plans depending on the services required.
+Splunk, Elasticsearch, and fluentd help in log aggregration while Open Tracing and Zipkin help in debugging applications.
+These are all valuable signals for diagnosing and debugging production issues, especially in a microservice environment where containers are largely ephemeral.
+Able to scale services differently independent of other services.
+Resilience, reliability, scalability, and fault isolation.
+The other primary benefit customers see is scale — an elastic environment that allows your business to auto-scale takes the worry out of slow performance during critical events or peak traffic seasons.
+Microservices architecture makes it easier to scale the computationally (or I/O wise) heavy parts of the application.
+That means we often introduce support for new firewall models.
+When new ideas don’t work, they can get tossed without impacting other development; when they do work and adoption drives demand, it’s easy to devote additional resources.
+Putting the right stack and the right environment provides flexibility and portability.
+Several APMs offer custom plug-ins for NGINX Plus and NGINX, including AppDynamics, Datadog, Dynatrace, and New Relic.Testing is most straightforward if all servers have the same capacity.
+Another advantage is that only the one server has to cache that particular set of data.
+for centralized log analysis and datadog for metric monitoring, you can now use both for log correlation.
+specifically, we will be creating an alert in logz.io for a specific elasticsearch query, ingesting this alert using the datadog api, and then building a comprehensive dashboard.
+Visualization means graphically depicting the collected metrics and could be achieved via OpsClarity, DataDog, Grafana etc.
+It provides a predefined dashboard to jump-start the monitoring of our Reactive applications.
+On their security page, DataDog provides details on physical and corporate security, information about data in transit, at rest, as well as retention, including personally identifiable information (PII), and details surrounding customer data access.
+They also provide details of their monitoring agent and how it operates, as well as how they patch, employ SSO, and require their staff to undergo security awareness training.
+The important part of this is that they encourage you to disclose any security issues you find.
+The Jaeger UI offers one very neat feature: its ability to compare two spans by IDs.
+As the tracing provides you the ability to get a view into the application communication layer and recognize potential issues, when the JFR is attached to the microservice JVMs, you can directly analyze the potentially suspicious code.
+This library allows us to record Scopes and Spans into the OpenJDK Flight Recorder for a very deep analysis.
+Since CloudTrail records the API events in JSON format, Elasticsearch easily maps the different fields included in the logs.
+Taking logging a step further, tracing allows you to follow the execution of an application component, helping you drill down into what went wrong and where.
+A huge benefit of time-based logs is that aggregations showing trends over time can be performed extremely fast since the aggregation is touching only a small subset of data.
+Any metric aggregation can be done in parallel via a simple map-reduce, which can be done via an internal database process or third party framework like Spark.
+Consolidating monitoring data into the service level indicators, combining several sources into a single measurement.
+Istio simplifies deployment and configuration of Envoy for you.
+network level statistics and tracing.
+Speaking of Envoy, yes, when attached to your application it adds a lot of useful features from observability bucket, e.g.
+Zipkin's connection to cassandra is independent from the normal spring setup.
+I've also managed to get it working by using just the cloud trace api by doing this before I create a span.
+With the new Brave tracer instrumentation (Sleuth 2.0.0) you will be able to do it in a much easier way.
+You can create a  SpanAdjuster  bean, that will analyze the span information (e.g.
+You can create your own custom  SpanAdjuster  that will modify the span name.
+You can also use  FinishedSpanHandler  to operate on finished spans to tweak them.
+With the @EnableZipkinStream server you need to set up and configure the services being traced and the Zipkin server to publish/listen to RabbitMQ or Kafka for tracing data.The advantage of the @EnableZipkinStreamServer annotation is that you can continue to collect trace data even if the Zipkin server is unavailable.
+Advantages of  @EnableZipkinServer is simplicity in setup.
+Also BAM will allow you to create your own dashboard to visualize, hence you can customize the dashboard.
+From BAM 2.4.0 onwards, CEP features have been added inside BAM also hence you can use BAM and do real time analytics.
+You can also create your own  JsonLoggerFactory  which encapsulates this for you so that the line to include in each class is more concise.
+It can then offer the  info ,  debug ,  warn ,  error  methods like a normal logger.
+You can then use Jackson, GSON or your favourite object to JSON mapper inside your JsonLogger so that you could do what you want.
+Once this if fixed, you'll start seeing some endpoints populated when you describe the service &amp; that will enable you to access the service by DNS name.
+You can create an implementation that will wrap an existing  SpanReporter  implementation and will delegate the execution to it only when some values of tags match.
+You can exec to Zipkin because  exec  is taking zipkin as the default container.
+Although I don't have much experience with AWS CloudWatch what I know is it helps you to collect logs to a central place from different AWS components.
+Basically with ribbon and service discovery like eureka you can deploy your product to any cloud provider or on-premise setup without additional effort.
+Former has the advantage of not having any dependency to any specific external solution.
+However, Kubernetes has some additional features like self healing, auto-scaling, rolling updates, compute resource management, deployments etc.
+So, Kubernetes has a different set of components to manage the Microservices.
+If you move to Kubernetes, you don't need the infrastructure support services like Zuul, Ribbon etc.
+because Kubernetes has its own components for service discovery, gateway, load balancer etc.
+In Kubernetes, the packaging unit is Docker images and one or more Docker containers can be put inside one pod which is the minimal scaling unit.
+In Spring Cloud the packaging unit is Spring Boot application and a single server may host many such Spring Boot applications.
+If you want, you can containerize the Spring Boot applications and other Spring Cloud infrastructure support components.
+It has the advantage that you can work with it outside Kubernetes and it might be more convenient for your particular team if it's Java team.
+With this tag, zipkin will identify and highlight the trace in red colour.
+Zipkin generates traces and communicates them back to a Zipkin server.
+In general it is better to use the zipkin's http variant of Elasticsearch as it cannot conflict with Spring Boot's elasticsearch library versions.
+Certain zipkin-specific libraries like Spring Cloud Sleuth and Brave have means to  customize how headers are parsed , to support variants of B3 or new or site-specific trace formats.
+The easiest is something set-once (like zipkin's trace id).
+Ways people usually integrate other things like flags with zipkin is to add a tag aka binary annotation including its value (usually in the root span).
+Spring Cloud Sleuth has a Sampler strategy that you can implement to take control of the sampling algorithm.
+You can actually redirect the trace information to other collectors like Elasticsearch by changing the connection_string parameter in the conf file to the elasticsearch server.
+Brave will work regardless of the server that you choose to use.
+You can file an issue in Sleuth to allow  SpanAdjuster  to actually not send spans to Zipkin (by for example returning  null ).
+we can just click on each services which are display on zipkin and get more info as below image.
+In the zipkin UI there is an option to see the trace and download it, which can be used to view at a later point in time.
+Zipkin currently supports four types of backend storage to store spans in-memory, MySQl, ElasticSearch, Cassandra.
+Application Insights users would also be able to leverage the distributed tracing offered through Zipkin by instrumenting their services using existing libraries.
+To fix the rest with your logs, you can check the logging config  here , the  log integration in the docs  and  this answer .
+Until then, you can re-use thread binders via TracerAdapter or use a different in-process propagation library.
+The Zipkin UI is making an AJAX request to the API in order to retrieve the data that is displayed.
+Sleuth in latest snapshots uses brave internally so integration will be extremely simple.
+Sleuth cloud project provides  ZipkinRestTemplateCustomizer  to configure the  RestTemplate  used to communicate with the Zipkin server.
+Just to clarify though, Sleuth doesn't force you to use any of the rest of the spring-cloud components.
+So it is not a tracing solution itself, but an API that can be implemented by the trace recording SDKs of multiple tracers, allowing you to swap between vendors more easily.
+I'm not entirely sure if that's what you mean, but you can use Jeager  https://www.jaegertracing.io/   which checks if trace-id already exist in the invocation metadata and in it generate child trace id.
+I configured zipkin to use ES as a data storage on top of kubernetes.
+Enabling metrics using micrometer is very simple, you need to just add a micrometer-core and spring-cloud-starter-zipkin libraries.
+The easiest way to get it working is to use the Micrometer library and configure the micrometer to send this data to the Zipkin server.
+For example, one could convert trace data that is made in another tool to  zipkin's json format .
+Besides explicit instrumentation like this, one could also export data to zipkin.
+I'm not aware of anything at the syscall level, but many tracers support explicit instrumentation of function calls.
+This way you can drill down within Zipkin to more quickly determine bottlenecks.
+If Zipkin is already in your stack, it's not a bad idea to enrich higher level Zipkin spans (ie a complete REST requests) with specific method calls as child-spans, particularly those that do I/O.
+That said, most profilers will only provide realtime data, where Zipkin persists, allowing for analysis over large datasets.
+No, the App Autoscaler will not force anything, after the decision cycle, it will prepare the instance to be escalated-down (shutdown), so the intention is to avoid lose requests or data during this process.
+You can automate all this provided you're configuring all this correctly.
+In summary, there's no reason to manually pass the connection credentials or pack them as application properties inside your apps.
+On the other hand, if you are using the SCDF Tile, the SCDF service broker will auto-create the RMQ SI and automatically bind it to the apps it deploys.
+You don't need to muck around with connection credentials manually.
+In that case, you are providing the right RMQ service-instance configuration (that you pre-created) in the  manifest.yml , then SCDF would automatically propagate that RMQ service instance and bind it to the apps it is deploying to your ORG/Space.
+In that way, you could set the host header to  api.system_domain  and at the same time connect to the IP address of your foundation.
+Stagemonitor now features a in browser widget that is automatically injected in your web page.
+However, stagemonitor offers a "Custom Metrics" dashboard for Grafana.
+It also offers you a Kibana dashboard you can use to drill into the requests your application serves to find out about causes of errors or latency.
+Another use case is lightweight web analytics to identify which devices and operating systems your customers use to access your site.
+Most of the metrics stagemonitor collects are not available via JMX.
+SW creates index templates, and now I see that this is part of the template, and indeed the indexes have this sw-policy attached.
+So you can see this more clearly in the output.
+change the time start and end to having collection data area.
+If you have OpenTracing on the classpath, we automatically register the OpenTracing Tracer bean.
+Spring Cloud Sleuth is compatible with OpenTracing.
+For example, setting the mode via environment variable is supported as well with  INSTANA_AGENT_MODE.
+the Instana repository has been upgraded to support Disco Dingo as well.
+You can get started with React native monitoring by creating a mobile app within Instana's user interface under  Websites &amp; Mobile Apps -&gt; Mobile Apps .
+Instana offers an agent tailored to React native, which simplifies the integration.
+Instana will use the same protocol to make the sourcemap request.
+Instana has a  demo application  that shows to do this.
+If you don't have a tenant unit yet, you can register for a free trial at  https://www.instana.com/trial/  or contact Sales.
+It will automatically detect your Kafka and Zookeeper installations and start reporting metrics for them to your tenant unit.
+So all you need to do is to install the Instana agent on the server(s) you want to monitor.
+Instana provides out-of-the-box support for Kafka and Zookeeper nodes.
+Unlike Jaeger, LightStep is a commercial SaaS offering.
+It allows you to pick specific spans and record them as data points (metrics).
+For instance, Jaeger is able to expose an endpoint with  Zipkin compatibility .
+This allows implementations like Jaeger to use non-HTTP transport by default when sending data from the client (tracer) to the backend, by sending UDP packets to an intermediate "Jaeger Agent".
+NOTE: The important thing by default jaeger will trace something like 0.1% request i.e.
+To complement @christiaan-vermeulen's answer: the  tracing  service is Jaeger's UI (jaeger-query) so that the same URL can be used for alternative backends, whereas the Zipkin service is a convenience service, allowing applications using Zipkin tracers (like Brave) to send data to Jaeger without requiring complex changes.
+zipkin - could be the UI which allows debugging with traces, or replaying requests etc.
+jaeger-collector - This is the place where all of the jaeger-agents will push the logs and traces they find on the node, and the collector will aggregate these as a trace may span multiple nodes.
+jaeger-agent - This is the components which will collect all the traffic and tracing from your nodes.
+When Istio deploys it's tracing mechanism, it deploys modular parts so it can deploy them independently, and also scale them independently, very much like micro-services.
+This can be achieved by using the LightStep (via OpenTracing API) or Zipkin tracer directly within the service itself, to extract the trace context from the inbound request and inject it into any subsequent outbound requests.
+I would say  Fluentd  +  Elasticsearch  would give you something as powerful as you need.
+Zipkin and Jaeger are tracing systems, meaning for latency, not for logging.
+You can use any of the  Jaeger client libraries  to augment&quot;the traces already created by Envoy by appending your own spans.
+Yes - it is possible to use external services with istio.
+OpenTracing allows you to manually instrument your code to generate traces with relevant spans containing information about code execution in your app.
+This span will have the trace ID that can be used to examine data in the Jaeger UI.
+Elasticsearch gives you a powerful query language to look at the data as well as many other tools that integrate with it.
+Jaeger has a UI to look at your data, but no tools to create statistics.
+This allows the engineers to quickly build and test images before they are released and version tagged.
+Jaegar claims it is backward compatible with Zipkin by accepting spans in Zipkin formats over HTTP.
+You can edit the jaeger service with  kubectl edit svc jaeger-query , then change the type of the service from  ClusterIP  to  NodePort .
+You can connect this to any backend of your choice that supports  Open Telemetry  including but not limited to  Jaeger  and  Zipkin .
+Once you've have a Jaeger up and running, you need to configure a Jaeger exporter to forward spans to Jaeger.
+And Kibana allows you to build nice aggregated views of the traffic.
+and then I was able to see my services in Jaeger UI.
+The Jaeger tracer (the part that runs along with your application) will send spans via UDP to an agent running on localhost by default.
+Jaeger clients implement so-called  head-based sampling , where a sampling decision is made at the root of the call tree and propagated down the tree along with the trace context.
+That’s it, DataDog will start showing the CPU/RAM metrics.
+The most important feature is that the collected traces seamlessly correlate to browser sessions, logs, synthetic checks, network, processes, and infrastructure metrics across hosts.
+Datadog announces native Azure integration.
+Datadog provides dashboards, third-party integrations, log configuration, monitors, and more all through Terraform.
+You can even provision users and set their permissions!
+There’s almost no reason to do configuration directly in the UI.
+Working without the UI might seem a little slow at first, but after building up some modules, it will actually speed you up.
+With Kibana, Datadog, and Grafana easily integratable with any programming language and infrastructure providers, collecting logs is not a problem.
+Most of these tools come with visual dashboards, sometimes heavily configurable, like in Datadog, giving you the full power of deciding what metrics you want to monitor and how you want to do it.
+On August 11th, Datadog has announced its new Marketplace, a platform for third-party application development that provides customers with access to a wide range of tools, integrations, and services from Datadog’s Partner Network.
+Beam also utilizes Datadog for our metric and log aggregation so it made sense for us to ship custom metrics to Datadog.
+A Datadog account and the Datadog k8s agent installed to your cluster.
+The Datadog Kubernetes agent is looking for pods that have the ad.datadoghq.com/<podname>.<config_option> annotations and utilizes them for autodiscovery of metrics.
+In this post we’ll create a Bolt project for deploying a Datadog agent.
+In order for our Datadog agent to connect to the Datadog service an API key is required and should be protected.
+This means that you can run just one datadog agent on the host, and configure it to listen to URL endpoints of services exposed from each container.
+In most cases, the datadog agent retrieves metrics from an integration by connecting to a URL endpoint.
+Datadog maintains mobile SDKs that can be included in mobile clients to produce metrics and logs to the platform.
+It contains information about the requests as well as log messages from your app.
+You can instrument your service with OpenTelemetry and then send data to one - or more - analysis tools, both commercial and open source.
+In addition, since OpenTelemetry is available in multiple languages with a shared data format and trace context format, you can guarantee that your traces will work properly in a polyglot environment (so, if you have Node.JS or Golang services in addition to your Java services, you could use OpenTelemetry for each language, and trace context propagation would work seamlessly between all of them).
+Jaeger supports OpenTelemetry, allowing you to use open source tools like the  OpenTelemetry Java Automatic Instrumentation  libraries, which will automatically generate spans for many popular Java frameworks and libraries, such as Spring.
+One important distinction between something like AppDynamics or New Relic and tools like Jaeger is that Jaeger does not rely on proprietary instrumentation agents in order to generate trace data.
+AppDynamics itself powerful enough to provide all sort of information, However if you still want actuator data to be captured and displayed then you may need to use AppD extension.
+Jaeger, Zipkin, Elastic APM, etc) and as per logging; in theory we should be able to change the underlying tracing solution without any code changes.
+Using Instana, you can achieve a fully integrated view of Jenkins, the application services it builds, the underlying infrastructure, and the state of the deployment tool (such as Kubernetes).
+There is a wealth of meta-data collected for every monitored component and every time-series metric that Instana collects has a granularity of 1 second.
+Instana is able to automatically detect issues and identify the root cause of problems in your Jenkins build pipeline because it understands the relationships between Jenkins and the full stack supporting the Jenkins service.
+You can start monitoring Jenkins and all of your application services today by signing up for the Instana free trial.
+Instana monitors both the Kubernetes core services and the applications deployed on the cluster, providing deep insight into the infrastructure and the deployed microservices.
+Instana monitors the data plane, while the control plane is hosted by Oracle in a highly available environment.
+Once the Instana Agent has been installed into the OKE cluster it will start to automatically discover all the containers running in the Pods.
+Instana AutoTrace does this entirely automatically without the need for any code modification or restarts for supported languages.
+Instana’s Python sensor supports many popular frameworks for entry and exit points, see the documentation for a complete list.
+Instana will now monitor the Python runtime and trace all requests end-to-end.
+Prior to Application Perspectives, Instana provided trace analysis in a manner consistent with other tracing implementations such as OpenTracing and Jaeger.
+By utilizing Instana to monitor our Node.js services, we can get the full picture of our infrastructure.
+Datadog is a monitoring service for cloud-scale applications, providing monitoring of servers, databases, tools, and services through a SaaS-based data-analytics platform.
+When a request is made to an application, Datadog can see the traces across a distributed system and show you systematic data about precisely what is happening to this request.
+But in a production environment, this will use the Bulk API for Elastic which will be much more efficient.
+As mentioned earlier, we were utilizing Datadog dogstreamer to monitor logs.
+Hence, the Datadog dashboard above was setup to display the budgets from AWS which provides better visibility on a monthly basis and over a longer period of time for each service and platform which otherwise could not have been done via the emails Ops received.
+The second a new application or service artifact is deployed, Harness will automatically connect to Datadog and start analyzing the application/service/infrastructure performance data to understand the real business impact of each deployment.
+AppDynamics Now Monitors Python Applications, Enter our Beta Program!Python is a programming language that lets you work quickly and integrate systems more effectively.
+Here we have a greater distinction with a richer AppDynamics dashboard looking into things like resource consumption, wait states, user sessions, specific query calls and more.
+it offers real-time visibility into the experience of the end-users on ios and android platforms.
+The AppDynamics events service is architected to cater to customers based on the deployment chosen.
+AppDynamics automatically discovers and names these exchanges enabling you to correlate data and visualize topologies of applications.
+AppDynamics provides comprehensive end-to-end mobile app performance management.
+Enterprises can use AppDynamics as a SaaS tool as well as an on-premise option.
+In the meanwhile, read this blog post to learn how AppDynamics provides complete visibility into Docker Containers.
+Additionally, connections to monitoring tools like AppDynamics, New Relic, and Dynatrace will be critical to monitor the success of these load tests and be able to quickly make changes based on feedback.
+For example, AppDynamics offers an analytics platform that allows users to take data from their IoT applications and manipulate it — in real time — to produce visualizations and reports.
+If you're using AppDynamics, it will automatically utilize the N|Solid API to avoid some of the more costly monitoring of its own.
+Several monitoring tools such as AppDynamics, Datadog, Grafana, and Prometheus are available to help collect this data and display it in efficient ways.
+Other features they offer include AI-powered insights, end-user monitoring to model customer journeys, and business monitoring with integrated revenue analysis.
+DataDog is a monitoring platform targeted at cloud-scaled services.
+It features robust features in visualization, alerting, and data consolidation and analysis.
+They enable correlating performance metrics with business impact.
+Prometheus is a popular open-source monitoring tool offering alerting, querying, visualization, and many other useful features.
+They offer applications for iOS and Android, giving you more options for monitoring.
+They offer a highly customizable interface and monitoring over your entire IT network.
+They also highlight their ease of use, with configuration wizards to guide users in setting up new monitoring services.
+Dynatrace allows for cross-team collaboration with its monitoring platform, offering a shared single repository of monitoring data.
+They also include autonomous cloud features and the ability to bring monitoring to the Internet of Things layer of deployment.
+They also offer a free trial.
+Solarwinds offers several products, each specializing in different areas of monitoring: Network Management, Systems Management, Database Management, IT Security, IT Service Management, Application Management, and Managed Service Providers.
+They also offer synthetic web transaction monitoring, allowing you to simulate usage and collect metrics.
+They offer several pricing plans depending on the services required.
+SignalFx offers a wide array of microservice integration, allowing you to see a complete picture of service health.
+On their security page, DataDog provides details on physical and corporate security, information about data in transit, at rest, as well as retention, including personally identifiable information (PII), and details surrounding customer data access.
+They also provide details of their monitoring agent and how it operates, as well as how they patch, employ SSO, and require their staff to undergo security awareness training.
+The new Datadog portfolio includes Real User Monitoring (RUM) and Network Performance Monitoring services.
+Moreover, tracing without limits will be added to its application performance monitoring (APM) and distribution tracing services to enable DevOps team to find all the traces without live sampling along with storing traces that match bad user experiences.
+Datadog improves it’s AI-driven monitoring capabilities with the acquisition of app-testing startup Madumbo.
+Handy features like the User Interaction Traces allow you to track individual user interactions in your application by providing code-level data traces.
+You get visual timelines for any activity in your app giving you insight into how your app uses memory, database, and CPU.
+Interaction traces also provide insight into how your data is optimized across the different threads in your app so you can dive into this code and make sure there are no inefficiencies.
+With a ton of insights into how the elements of our application interact, New Relic helps tune the experience for users and identify potentially disastrous issues before they become problems.
+There are a large number of integrations that allow you to connect various other tools as well as what Datadog provides out of the box.
+DataDog also charts a vast variety of data on simple-to-use dashboards and is not limited to monitoring data only.
+Firmly placing it's offering towards the Enterprise end of the market, AppDynamics is one of the performance monitoring tools providing APM and End User Monitoring in one solution.
+AppDynamics has instrumentation to handle application data collection if the application is in a supported language.
+They also collect data from mobile devices, mobile apps, and browsers.
+Tracing transactions from the user through all the components within the application means AppDynamics can relate all of the infrastructure and log messages back to that single transaction.
+AppDynamics automatically discovers and names these exchanges enabling you to correlate data and visualize topologies of applications.
+Datadog is mostly used for infrastructure monitoring, so most of this data is coming from production use cases.
+It's an all-inclusive option with robust infrastructure and many options for configuration and customization.
+Its high price tag comes with a monstrous amount of ability to configure in terms of its pre-canned integrations, monitoring options, analytics, and dashboarding.
+Thinking About an API Observability StackI am learning about observability from reading Stripe's post on Veneur, a high-performance and global aggregation for Datadog.
+We see a lot of companies using broader monitoring tools like DataDogand Wavefront to provide time series data.
+It collects the hardware metrics such as CPU or RAM usage, the derived metrics such as Requests Per Second and overall statistics like healthy and unhealthy host count.
+Datadog has been designed as a monitoring service for hybrid cloud ecosystems, but it can be also configured to monitor network, services, and app performance.
+In fact, it comes with the largest list of supported integrations that you can plug to receive a unified view of your ecosystem.
+Very small companies, with up to five hosts, can get Datadog for free.
+Simply from a description of the tools, it is easy to glean the benefits of using infrastructure monitoring.
+When a request is made to an application, Datadog can see the traces across a distributed system and show you systematic data about precisely what is happening to this request.
+Zipkin is a distributed-tracing system.
+It helps gather timing data needed to troubleshoot latency problems in service architectures.
+Features include both the collection and lookup of this data.
+Datadog lets you collect all the unused metadata that makes your programs slow such as slow database queries, thrown exceptions, unmanaged error logs and cache misses, and growing upstream services.
+With Datadog, all these events, service states, and metrics are collected in one place and a handy visual graphic representation is created.
+It brings together data from servers, containers, databases, and third-party services to make your stack entirely observable.
+Presents real-time dashboards with mix-and-match events and metrics from linked services, containers, hosts, and apps.
+It allows seamless workflow regardless of the platform, geographical positions, and language by pre-integrating with third-party apps.
+Can trace requests automatically across several frameworks and libraries.
+It has an easy-to-use search tool.
+Offers an integrated view of the services and programs.
+A good amount of work needed upfront to install and configure across your entire application or software stack.
+Datadog — an efficient cloud monitoring service, allowing to analyze the processes within any infrastructure, database or app at any scale, using a SaaS-based platform.
+ElasticSearch — a RESTful, distributed engine for data search and analytics, built on Apache Lucene.
+As a heart of Elastic stack, Elasticsearch allows to store and process the data from multiple cloud monitoring and logging tools.
+It allows input from a huge variety of tools like ElasticSearch and provides output to a wide selection of dashboards configured with multiple plugins.
+Datadog Application Performance Monitoring (APM or tracing) provides you with deep insight into your application’s performance — from automatically generated dashboards for monitoring key metrics, like request volume and latency, to detailed traces of individual requests — side by side with your logs and infrastructure monitoring.
+When a request is made to an application, Datadog can see the traces across a distributed system and show you systematic data about precisely what is happening to this request.
+In AppDynamics we can see the response time of one application is much higher that other.
+I use appdynamics to monitor the queries and I see that whenever there is a procedure call, there is a INFORMATION_SCHEMA calls as well.
+I've checked for errors and exceptions in the service, used analytics tools (AppDynamics) to check the time spent in the service and the resources used, and everything looks fine, so as far as I can tell it's my Rabbit configuration that's the problem.
+Through AppDynamics, I have found that there is a significant amount of retained memory which keeps increasing over time under  processImmediate  call tree.
+AppDynamics Exchange offers 100 plugins and is also an open platform for developers to build plugins.
+Both tools have a free lite version with limited features across all products, including a 24hr data retention with pro trials of 14-30 days.
+A: We found that features like visual transaction-flow maps, dynamic baselines, real-time business metrics, and customizable dashboards made it easy to apply the application intelligence that was provided by end-to-end monitoring.
+By introducing AppDynamics, our teams are now able to quickly drill down and leverage the solution to identify and solve issues before they create problems with the end-user experience.
+A: Our application team was relying on AppDynamics’ machine learning capabilities for root cause analysis within just a few short months.
+With built-in intelligence, our teams could proactively detect application performance and availability issues across 160-plus applications.
+We also saw an increase in the number of tickets being resolved, as well as a decrease in the number of false positives, with faster ticket resolution and better communication with third-party application providers.
+Now, we’re onboarding applications in a day and a half, down from what used to take 18 days a month.
+Here are the key capabilities of the AppDynamics Microservices iQ:Service Endpoints: AppDynamics automatically detects service endpoints of your microservice architecture, enabling you to shine a spotlight on microservices without worrying about the entire distributed business transaction that uses it.
+Figure 2: Service Endpoint DashboardDevOps teams can monitor the key performance indicators (KPIs) like calls per minute, average response and errors per minute of their microservices not only in production, but also in early development and throughout the entire lifecycle using the Service Endpoint Dashboard (Figure 2).
+The dashboard also lists the snapshots with detailed diagnostics that enables the DevOps teams to drill down and isolate the root cause any performance issues affecting the microservices.
+Thread Contention Analysis: Given the independent nature of components in microservice architectures, it is more likely that a particular microservice is invoked as part of multiple business transactions and can become a performance bottleneck for those transactions if it blocks their execution.
+In addition, it minimizes the system’s overhead by recycling the logical node identity after a certain period to ensure that the enterprise applications can scale to meet their growing business needs.
+As an APM tool, AppDynamics can help people quickly find bad code, inefficient code, database problems and a host of other things that negatively impact the experience for end users of applications.
+It was simple and instantly compelling.
+By being plugged directly into an application’s code you can get real-time analytics without the challenges and costs associated with traditional analytics.
+By inserting similar code, you can do distributed transaction correlation, backend monitoring, error monitoring and collect data (key/value) from methodsHopefully this gives you an overview of C++ monitoring solution and gets you started.
+AppDynamics also implements a dynamic flowmap of your application and infrastructure along with third-party extensions.
+Any performance issue is intuitively flagged by a corresponding node and indicate it for the user.
+With features like Unified Analytics, customizable dashboards, and alerting, AppDynamics creates a flexible environment for cross-functional teams, like application or line of business stakeholders to utilize the data most important to them.
+Based on our measurement technology, AppDynamics can link metrics together to allow you to attribute earnings or cash flow with a release or change that represents an incremental improvement in the application.
+But with AppDynamics, consistent measurements are always obtained from the application components and desired business outcomes of the application.
+AppDynamics can deliver standard key metrics via its intuitive dashboard, along with features to allow you to create your own customized dashboards so cross-functional teams can see the metrics that matter to them.
+AppDynamics integrates with load testing processes and technologies, like LoadRunner, to gain deep application-level visibility to answer why a problem occurs, rapidly pinpoint bottlenecks in their environment, and compare results across releases and performance tests 
+It also improves performance by measuring the end-to-end performance from the end-user perspective and increases scalability of the application by optimizing software and avoiding unnecessary hardware investments.Cross-functional Collaboration to Resolve Application Performance IssuesIn a software-defined business, application performance becomes everyone’s responsibility.
+With features like Unified Monitoring, Business Transactions, and virtual war room support, AppDynamics provides some of the key capabilities needed to succeed in application performance.Want to learn the latest insights and best practices around the Gartner Critical Capabilities report?
+The best part about AppDynamics is its request snapshots.
+They not only allow us to troubleshoot performance problems faster – they also allow us to perfect this code.
+“AppDynamics allows us to see what is going on and identify the issues that could be refactored and made faster,” he said.
+I used a test instance of AppDynamics for Databases to remotely monitor each database instance (yep, no agent install required).
+AppDynamics IoT monitoring provides visibility into your connected device applications for real-time performance diagnostics and usage analytics so you can quickly understand and resolve performance issues.
+AppDynamics follows the transaction at each hop, starting from a connected device to a data center, network equipment, and all the way to the database.
+AppDynamics End-User Monitoring provides great visibility into browser and mobile applications and now – with our Winter Release – we are extending it to monitor all connected devices.
+Ability to monitor IoT applications that run on devices with different processor architectures (e.g., ARM7, x86, Cortex-M series), and a multitude of operating systems.
+Ability to monitor IoT applications written in multiple languages (e.g., C, C++, Java, Python, Javascript, Node.js).
+Overhead for monitoring IoT applications should be minimal and operate within device constraints such as memory, computing resource, and network connectivity.
+Ability to ingest data generated by IoT applications that can vary significantly based on application type.
+Ability to manage the complexity of software and services offered on the new IoT device types and applications.
+Ability to provide the same user experience, independent of device type.
+Ability to correlate business performance with IoT application performance.
+Ability to react to real-time alerts on application or business performance issues.
+AppDynamics will also allow you to automatically capture benchmarks to be used for future diagnostics.
+In short, AppDynamics provides holistic, multi-dimensional view at the business transaction level as well as the lower level infrastructure component performance.
+It makes it quick and easy to find slow transactions, memory leaks, slow database queries, thread contention and more.
+AppDynamics has designed a generic monitoring solution and, as such, it defaults to alerting to business transactions that are slower than two standard deviations from normal.
+For example, if your business transaction calls a rules engine service tier then AppDynamics will capture the number of calls and the average response time for that tier as a contributor to the business transaction baseline.
+Out of the box, AppDynamics identifies tiers across common protocols, such as HTTP, PHP CLI, PHP MVC, and so forth.
+AppDynamics can be configured to capture contextual information and add it to snapshots, which can include all of the aforementioned types of values.
+AppDynamics offers flexible deployment options including a pure SaaS option, and pure on-premise option of a mixed hybrid SaaS/on-premise option.The first option is to choose to use either the Mobile RUM Cloud SaaS data collector or the on-premise Mobile RUM Server.
+AppDynamics views are also pure HTML5 and JavaScript, including our rich topology map pictured above.
+We also animate and show detailed data regarding usage and performance across the communication paths.
+AppDynamics is the most advanced topology visualization on the market to manage these new and increasingly popular complex architectures, but open source projects such as Spigo will improve visualization.
+To accelerate this process of finding and fixing these problems at least 5X faster, a product like AppDynamics is required.
+One of AppDynamics' core strengths is its ability to compare workloads and platforms for effectiveness.
+By using AppDynamics to trace a business transaction such as user conversion, IT can easily justify where and why a workload is running in a particular segment of the hybrid cloud environment.
+Like all of AppDynamics’ monitoring solutions, Browser Synthetic Monitoring automatically and dynamically establishes baseline performance thresholds — especially useful for SLA management.
+Results are stored and easily accessed for troubleshooting, historical comparisons, release and version performance validation, service level agreement accounting, and other analyses.Built For Development And ProductionThere are compelling use cases for Browser Synthetic Monitoring throughout the application lifecycle.
+It is fully integrated into the AppDynamics Application Intelligence Platform, and provides the data needed to quickly identify and resolve application performance issues.AppDynamics Server Monitoring solution provides extensive host visibility, extended CPU, network and storage performance metrics, and detailed process list information.The Server Monitoring dashboard provides comprehensive summary of all server resources – CPU, memory, storage and networking.
+In addition, the dashboard also provides details about  top ten processes consuming CPUs and Memory on Dashboard.Detailed storage and network pages provide additional details required for troubleshooting application performance issues that are potentially caused due to storage or networking issues.
+Storage ( Volumes ) page shows detailed information on disk usage, I/O utilization, I/O rate, I/O wait time and I/O operations per minute for each attached physical disks or shared storage.
+Similarly Networks page provides overall health, sent/received network throughput and incoming/outgoing packets per sec.
+It provides detailed information on all the processes running on the server.
+For example, process count, thread count, start time, end time, CPU usage, CPU trend, memory usage, memory trend, command line info, user, user group, process ID, etc.Customers can also set-up health rules and policies to automate actions to resolve the performance issues.
+Health rules are created using the health rule wizard.Health rules establish the health status of an entity by defining levels of performance based on metrics; for example, CPU utilization (for a server) is too high.When the performance of an entity affected by the rule violates rule’s conditions, a health rule violation exists.Policies provide a mechanism for automating monitoring and problem remediation.
+The breadth of visibility covers the frontend to backend technology stacks — from clients (mobile or browser apps) to the Java or .NET or other language apps, to databases, to servers and infrastructure components.

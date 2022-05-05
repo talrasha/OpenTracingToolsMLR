@@ -1,0 +1,21 @@
+SkyWalking 6.1 APM tool shatters performance record
+Tetrate
+Tetrate
+
+Jun 2, 2019·2 min read
+
+
+
+
+Apache SkyWalking, the observability analysis and application performance monitoring (APM) tool, shattered its own performance record with its recent 6.1 release.
+Designed especially for microservices, cloud native and container based architecture, SkyWalking provides distributed tracing, service mesh telemetry analysis, metric aggregation and workload visualization.
+Following SkyWalking’s integration with Istio and Envoy-based Service Mesh at the end of 2018, our colleague, Hongtao Gao, set a performance baseline with his blog post SkyWalking performance in Service Mesh scenario.
+Using an 8 CPU, 16GB VM test environment, SkyWalking was found to support 25K telemetry data per second, or 100K data per second in a 3-node cluster using elasticsearch as storage.
+This performance was acceptable, considering most containers wouldn’t support over 400 tps/qps payload. The testing showed that, turning only server-side telemetry (which is the default setting in Istio 1.0+), we could support about 200 service instances in a 3-node cluster.
+But the target for performance is always “as high as possible.” After the 6.0.0 GA release, I contributed several pull requests to SkyWalking to optimize the thread model and batch mechanism.
+Retesting SkyWalking’s updated version under the same conditions, we found a single node could support nearly 100k telemetry data per second, like the old 3-node cluster did. After we scaled out to 3 nodes, 276k telemetry data per second was supported.
+
+The results confirmed SkyWalking could support 3x times the performance as its GA release. In theory, if we still consider 400 tps per service instance, then over 500 service instances would be supported.
+This is the limit test. Real world variations would affect performance, such as the number of endpoints, endpoint grouping rule and TTL (removal of data from storage). But it would not change the 3X performance improvement as such factors would equally apply in the GA deployment.
+For the lastest on SkyWalking, follow us on Twitter, join the #skywalking channel at Apache Slack and subscribe to the mailing list.
+Learn more about SkyWalking features from our post on the v6 release.

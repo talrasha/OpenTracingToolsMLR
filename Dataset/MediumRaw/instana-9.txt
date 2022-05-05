@@ -1,0 +1,52 @@
+My “Microservices Best Practices on Kubernetes” Talk on booking.com
+Huseyin BABAL
+Huseyin BABAL
+Follow
+May 2, 2018 · 4 min read
+
+
+
+
+
+
+Booking @ Amsterdam
+At the end of April 2018, I visited Amsterdam for a good reason. Visiting the good places that I couldn’t
+visited 3 years ago, and after filling that power, I just made a talk about Microservice Best Practices
+on Kubernetes. The event is handled by Booking, and I was very happy with their hospitality. Thank you again !
+Let me provide brief summary of each topic I have mentioned on the event. You can see my slides here, if you are not so much patient :)
+1. Glory of REST
+Microservices are like humans, and they need to communicate with each other by using well structured interfaces. Richardson’s Maturity Model is a good reference to this
+2. Power of HATEOAS
+Hypermedia As The Engine Of Application State provides navigate-able resources that you will find all the informations within the response. Forget about trying to generate some links on different kind of client applications to navigate next resources by using previous one.
+3. Distributed Configuration
+When you switched to the Microservice Architecture, you will need to configure multiple services at the same time, that configs must be applied to applications in real-time, etc… Distributed configuration can be handled with Consul as key/value pair, git2consul for synchronizing configurations to Consul, and you may need to keep those configurations on a simple git project.
+4. Client Code Generation
+In order to communicate microservices, you may have 2 options at least to make inter service communications.
+If you are already using service discovery, you can think about Feign Client. Or else, you can use swagger-codegen to generate client library whenever you deploy your app to any kind of environment. Do not think about writing client libraries manually for your hundreds of microservices, just trigger a Jenkins job and take a REST!
+5. Kubernetes Warm-up
+You can create a k8s folder to keep your k8s resource definitions to use on deployment pipeline. A typical micro service may have deployment, service definition at least for deployment and exposing your application to the outside or at least to the load balancer
+6. CI/CD
+If you have kubernetes specifications within your project, you are ready to deploy your app by using Jenkins with a simple kubectl configuration
+within jenkins servers. In order to reduce complexity, you can use multi stage builds to build docker image to use in your k8s deployment.
+7. Monitoring
+Even you are in a stable environment like k8s, you need to track your infrastructure and application insights. To collect metrics, you can use
+Prometheus, and to serve them in a good dashboard, you can use Grafana. CoreOS team developed a good project that is called prometheus operator
+comes with a built-in kubernetes configurations. One click monitoring !
+8. Logging
+There are several types of logging architecture on kubernetes and I mainly focused on cluster level logging with daemon set agents. You can send your logs to logging backend like Elasticsearch to show on Kibana dashboard, or if you don’t want to maintain ELK stack, you can use
+logz.io which is a hosted Kibana as a service. Just create a daemonset to ship your logs to logz.io
+9.APM & Service Mesh
+Monitoring and Logging may not help you all the time, you may need to see deeper insights about your application. When it comes to
+Microservice and Container world, Instana is a good choice to handle Tracings, Monitoring with a simple sensor integration. You can create your
+infrastructure map, see traces and spans for a request lifecycle, even you can see real time service requests on simple dashboard.
+10. API Gateway
+If you are planning to expose your services to the public, you definitely manage your APIs with an API Gateway to perform Authentication,
+Authorization, Rate Limiting, API Versioning, etc… I have used Tyk API Gateway to set this up in Kubernetes to route traffic to microservices
+after successfully validated by API Gateway.
+11. Event Sourcing & CQRS
+In a synchronous world, you can only change 1 object in 1 transaction at a time. When you switch to distributed systems, you need to
+use 2-phase commits in an extended architecture. Again, with this strategy, whenever you made an update to current state of an object, all
+the previous states will be gone. You can use Event Sourcing with asynchronous events stored in an event store like Apache Kafka, Hazelcast, etc…
+Also, you can separate read (query) and write (command) in order to handle events asynchronously and populate desired views on database to serve it
+via query later.
+Hope above sections would be a good reference for your next Microservice Architecture design.

@@ -1,0 +1,179 @@
+Inside Datadog: What It’s Like to Intern at a Top SaaS Analytics Company
+Isabella Pham
+Isabella Pham
+Follow
+Dec 27, 2020 · 21 min read
+
+
+
+
+
+COVID19 drastically changed my college plans. I planned on graduating from my Bachelor’s degree a year early in 2021 (instead of 2022) and was accepted into the computer science program at Seoul National University to study abroad in Fall 2020. Due to COVID19, my study abroad was cancelled and my school opted to be completely online. From my experiences in the Spring 2020 semester prior, I knew I could not learn well in an online environment. I realized that Zoom University was not worth it and opted to take a gap year to do internships instead. Thus, I did internships in both semesters of my junior year instead of attending university.
+Finding a Fall internship was challenging as many companies do not offer off season internships. Anticipating that the COVID19 situation would worsen, I began my Fall internship search at the end of January 2020 and was able to secure an internship as a Software Engineer Intern at Datadog at the beginning of March. Through my internship, I learned a lot about Datadog, working remotely, and met really amazing people along the way!
+The Interview Process
+Two weeks after I applied, a university recruiter reached out via email to let me know about next steps. No coding challenge was necessary, I simply applied on their website and submitted my resume. What’s unique about Datadog is that they only do 1 round of interviews while many other companies typically send out a coding challenge and then do two to three rounds of interviews afterwards. I really enjoyed Datadog’s process because it made things a lot less stressful since I could focus on classes and prepare for my interview.
+I replied to the recruiter’s email to schedule an interview date for a week later. The recruiter let me know that interview would be held through Zoom while any coding would be done on Coderpad. He was super helpful and clearly outlined what to expect during the interview:
+Duration: 1 hour and 15 minutes
+Parts: background, a project you worked on, career interests, 2 coding questions
+Coding questions will focus on speed, problem solving, and technical proficiency
+The end of the interview is saved for questions
+There is no dynamic programming
+You will hear back at most one week after the interview
+They sent over this video titled “Why I love being an engineer at Datadog” to give a better understanding of what it’s like to work at Datadog!
+The first 15 minutes of my interview were spent discussing my background, projects, and career interests. Then, the next 45 minutes were spent on solving two coding questions (Leetcode easy-medium). One of my questions was somewhat similar to Meeting Rooms II on Leetcode to get a better understanding of the difficulty (it wasn’t exactly the same as none of the questions I was asked could be found on Leetcode, but in terms of difficulty it was similar). My interviewer was super friendly which helped me relax more and I was able to have a conversation with him while I was doing my interview.
+Two days afterwards, I received a phone call from my recruiter who then told me I received the internship! He explained pay details, housing (they would be giving a stipend), and asked me what dates I will be able to work. In his followup email after the phone call, he also provided a list of some really cool perks the company offers such as:
+Unlimited snacks and drinks
+
+An image of the Datadog snack area
+Frequent company and monthly intern events
+Catered lunches on Monday, Wednesday, and Friday
+A great location with an amazing view
+The recruiter had me at unlimited snacks and drinks! And so, I began my journey as a Datadog intern.
+Day -21 (August 10, 2020): Getting Equipment
+Due to the worsening COVID19 situation, Datadog decided to make the internship completely remote. As a result, they mailed me work equipment 3 weeks in advanced to prepare for the internship which is pictured below.
+
+
+I received a MacBook Pro and an adapter. With this equipment, I began setting up my work laptop and was greeted with a nice “Welcome to Datadog!” screen once I finished!
+Day 1 (August 31, 2020): New Hire Onboarding
+The first day of work included different onboarding processes and trainings interleaved with generous break times. It was nice since there were three breaks throughout the day after each session and they were an hour long, so the day didn’t feel jam packed with back to back Zoom meetings.
+
+Online orientation that start off with IT set up
+This orientation was for all Datadog new hires and not just interns, as the intern orientation would be the next day. Thus, I didn’t meet my fellow interns yet.
+Day 2 (September 1, 2020): Intern Onboarding
+I really loved how Datadog had an intern onboarding for all the interns to get to know each other! Something I realized in previous remote internships was that it was really difficult to get to know other interns and become friends with them, which was something I really missed.
+Because the Fall 2020 intern class had only ~25 interns (while there were 30 interns total as some Summer interns extended their internships into the Fall), it was definitely a lot easier to get to know everyone because rather than trying to know thousands of interns at perhaps a much larger company, there’s a smaller group to easily become friends with.
+For the intern onboarding, all interns were asked to create a Google slide with six images to introduce themselves. Then, our recruiter would compile all these slides together into a big presentation for us to get to know each other. My slide (featured below) showed a bunch of different aspects of my life.
+
+The top left is a meal I cooked (as I started picking up cooking during quarantine) which consisted of miso soup, salad with ginger dressing, and karage. The top middle is a picture of me playing badminton as I compete on my university’s badminton team! Top right is a picture of me getting a super awesome quickscope in Fortnite while my friend was spectating me since I love to play video games. Bottom left is my anime keychain collection as I love to watch anime and I collect keychains by ordering them online or buying them at conventions. And the bottom middle and bottom right are my two dogs Lieutenant (the tan Shih Tzu) and Curly (the black Pomeranian).
+Having get to know me slides for each intern was super helpful in becoming friends with interns because we could find common ground for us to bond over. For example, many of my co-interns and I found out that we’re all fans of the manga Berserk, so we could talk about it with each other and discuss recent chapters (albeit, we couldn’t do this often as Berserk is often on a hiatus…).
+After intern onboarding, there was one more onboarding I had to do the next day which was engineering onboarding. This was for all new hire software developers (full time and intern) to learn about joining the Datadog organization on Github, learning more about the Datadog product, etc… With this completed, I could finally start learn more about my team and what I’ll be working on during my internship!
+Day 5 (September 4, 2020): Intern Lunch Event
+Datadog has done a great job trying to have remote events during the internship and this was the first of them! They reimbursed all interns $30 for lunch (breakfast for west coast interns or dinner for Paris interns) and scheduled a Zoom call for us all to relax and talk to each other while we eat lunch.
+I was able to get a really nice bowl of Poke with the meal reimbursement and it was a solid 10/10.
+
+Poke bowl with tuna, salmon, white rice, edamame, scallions, tobiko (small fish roe), pickled ginger, sesame seeds, furikake (rice seasoning mix), nori (seaweed), onion crisps, tempura crisps, and topped with ginger ponzu and eel sauce
+Day 16 (September 15, 2020): Pushing out Code
+On Friday September 4 and 11, I actually got to push out code to my team’s repository. This really shocked me cause I pushed out code in the first two weeks of my internship, which shows how fast paced working at Datadog is. Not only do you work at a faster pace, but interns have a greater impact. I saw myself contributing to my teams actual code base instead of spending the duration of my internship working on a project that has nothing to do with what my team does.
+Pushing out code at Datadog was interesting because my team works on an open source repository, so there were a lot of additional protocols I had to do when pushing out my code. While in my previous intern projects I just had to test my code with one set of testcases, open source projects require you to test code with multiple sets of testcases, as individuals could be using different versions of a library or Python. Thus, you have to test different combinations of Python and library versions to make sure that all of them work with your code. To do this, I had to write the testcases and learn how to use tox to automate the testing process.
+Then with my code tested, I added the testcases to the CircleCI test pipeline (which tests code whenever you push it to the repository) and then made a pull request to update the repository with my code. For my code to be reflected in the repository, it has to be peer reviewed, pass CircleCI tests, and I have to merge it with the code in the master branch to resolve any overlapping changes. While pushing out code had some similarities to private projects, there were many differences when working with open source projects.
+Day 17 (September 16, 2020): Escape Quest
+I’m so glad that there were actually intern events during the internship, and unique ones that I didn’t realize existed. Datadog scheduled an escape quest for all of us to do through the company Confetti and it exceeded my expectations. An escape quest is basically like an online escape room where you have to solve a series of puzzles and make it to the end.
+Confetti only allows 5 people maximum per team so there were 5 teams with 3 people each. We all tried to compete with each other to reach the end of the puzzle the fastest. The website for the puzzle had a really nice UI and what was really cool was that the puzzle wasn’t confined to the Confetti website itself. To find the answers to the puzzle, there were times where you had to surf the web on Google Maps, Instagram, and more.
+
+
+The puzzle was broken up into 8 chapters/levels that we had to solve, with a timer on the top right, and if you were stuck you could request a hint on the bottom right.
+All of the 5 teams were able to solve the puzzle within the time limit (in fact, many solved it within half that time), except mine which was the only team who had to go over the time limit 😎.
+It was so much fun and I got to bond with my fellow interns, shoutout to the Datadog intern coordinators for putting this together!
+Day 32 (October 1, 2020): 10 Year Anniversary
+The 10 day anniversary of Datadog occurred the week before and today there was an All Hands meeting (or as Datadog calls it, “All Paws”) through Zoom to commemorate it. It was quite interesting to learn about the development of Datadog as a company, as it started out in 2010 with only 2 employees and now in 2020 there were 2,057 employees and it grew to be a large company.
+Through this event, I got to learn a lot about the development of Datadog to the company it is today. From how the founders learned the importance of logos (the Datadog logo has changed a lot over time) to how Datadog started off with a capital D in the middle (“DataDog”) to becoming a name with a lowercase d (“Datadog”), Datadog has grown so much in the past 10 years and it was great to see the progress that it made!
+
+The graphics team does a very good job making visuals for Datadog
+Day 37 (October 6, 2020): Visiting the NYC Office
+On October 1, Datadog reopened their offices for employees to optionally go in. If you do choose to go in, you must wear a mask at all times other than sitting at your desk, socially distance, and follow numerous other safety protocols to prevent the spread of COVID19.
+I really appreciated how Datadog had the option to come into the office while making it as safe as possible. Just having that change in environment from home to work every now and then can boost energy and make you less tired. With the office reopened, I knew I wanted to go in and visit to actually see the in person office, which I decided to do on October 6.
+To get to NYC, I took the Coach community buses from NJ as they stop at Port Authority, which is right across the street from the Datadog office. Datadog’s office is on the upper floors of the New York Times building in NYC, which was amazing because the view from the office was stunning!
+When I arrived the reception at the entrance gave me a temporary badge (since I didn’t receive one yet due to being remote) and then I made my way up to the 45th floor where I’d be working.
+
+
+Elevator lobby (left), my temporary badge (right)
+I really liked the feel the Datadog office gave off, it looked colorful and fun and I was super excited to get situated at my desk. There were only 5 other people in the office, but everyone was so friendly and kind, I definitely loved the office appearance and the Datadog culture I experienced in person and virtually.
+
+
+
+Datadog reception desk (left), A picture of the office from when you first enter (middle), Variations of the Datadog logo hanging in the office (right)
+While I waited for reception to check me in, I looked out the window where I could see so much of NYC and Jersey City! I wish I stayed later at night (but I couldn’t miss my bus to get home) so I could see the view at night time. I could only imagine how beautiful it’d be to see all the NYC lights at night.
+
+
+
+One of the receptionists took me to my desk when they finished checking me in and they left a Datadog backpack with a ton of swag in it! There was also a postcard written with welcoming messages signed by everyone seated in my desk area which I thought was really sweet and cute.
+I mentioned earlier in my article that Datadog offers a lot of free snacks, so of course once I got situated my next course of action was to check out all the snacks they have :). Unfortunately, due to COVID19 and the office being relatively empty, there weren’t many snacks available. However, the snacks they did have were very tasty (I really liked the spicy tempura seaweed snacks they had).
+
+
+The Datadog location is really close to Times Square and is surrounded by a lot of terrific restaurants. Before COVID19, I would travel to NYC from NJ (as it was 40 minutes without traffic and 1 hour with traffic) just to eat food in the area around Datadog! For lunch, I ordered soba. Lunch was so enjoyable because I got to eat good food with a spectacular view.
+
+
+natto with tuna and soba with grated yam + poached egg (to go as indoor dining was not available)
+After lunch I worked until 4:40PM and left to go to Port Authority to catch the 5:00PM bus to head home. It was great going to the Datadog office since I felt refreshed to continue working at home after having a change of environment for a day.
+Day 38 (October 8, 2020): ddtrace v0.43.0
+The open source library that my team worked on (ddtrace) released version 0.43.0 and some of the changes that I made are included in the changelog! This was a really new experience for me since I’ve never worked on open source code so I learned how to do code releases, write changelogs, and monitor the performance of different Datadog services to make sure the release doesn’t drastically affect them.
+Day 54 (October 23, 2020): Project Artemis
+Every month there’s an event called Party Pups that is company wide game for all employees. This game was called Project Artemis and people registered in teams of 4.
+The premise of the game was that your team crash lands on the moon and have to try to survive. Every 5 minutes, a communication comes in from mission control to your landing vessel with updates on what is happening and you have to use this information to make the best survival plan (a video pops up on our screen).
+
+
+Project Artemis screenshots! Datadog events are so well made and they always exceed my expectations for virtual events.
+At the end of the event, all participating teams are ranked against each other based on how well they survived based on their plan. My team scored 12th place out of 21 and had a 38% survival rate :(. Some teams had hilarious responses. One team said they were going to travel through one of the moon craters by riding a life raft down the crater and back up (using rope to tie their teammate to the life raft and drag him because he jokingly disagreed with their plan). Another team said they wanted to go explore the crater because there could be chicken nuggies there. I loved seeing the silly responses people had and how casual everyone was!
+Day 68 (November 6, 2020): APM Team Demos
+APM Team demos occur bi-weekly and are when people in my department (which is called APM) demo some new products they made. This meeting was particularly interesting because the Engineering director said that we will be freezing our code starting with today in anticipation of the Sony PS5 release so that Sony won’t have to update their product to be compatible with any Datadog changes and to ensure that the release is as smooth as possible. It was really neat to learn how widely used Datadog is (it’s also used by Airbnb, Facebook, Spotify, Palantir, Hulu, and so many more companies!).
+Day 74 (November 12, 2020): AMA w/ Datadog CTO Alexis
+A nice thing about Datadog culture is how approachable everyone is, even the CEO and CTO! Interns could talk to them through Slack and the CTO Alexis scheduled time to do an AMA just for interns.
+Day 85–86 (November 23–24, 2020): Team Hackathon & Pie Making
+To be honest, this week was a lot due to Thanksgiving break (Thursday and Friday) and so there was a lot of work left to be done and only Monday, Tuesday, and Wednesday to do it. There was one project my team had to complete and decided to do a team hackathon to do it during this week. This means that we would be working all day Monday and Tuesday to try to get the project done (like a hackathon), have no meetings on these days other than hackathon related meetings, and we’d get reimbursed for Monday dinner and Tuesday lunch.
+The project was called riot which is a command line interface meant to generate tests for different Datadog Python tracer integrations (as we have to test different combinations of library versions and Python versions) and then run test files with these different combinations. My task was to colorize the command line output of the tests (e.g. making success test cases green and error test cases red) which I did using the Python click library.
+Because my mom cooked dinner on Monday, I used my reimbursement to get cookie delivery instead for my family. For my Tuesday lunch reimbursement, I ordered sushi!
+What was challenging this week was working outside of standard 9AM-5PM hours, especially with a four day weekend coming up soon. I felt especially tired at night as I worked past 9:30PM on Monday, and so I didn’t have much time to relax during the day.
+On Tuesday I decided to relax more and I did not work outside of work hours, especially because there was an intern pie making class I wanted to attend! Thus, I finished work early to attend the pie making Zoom class where they reimbursed us for ingredients and I got to make a VERY delicious apple pie.
+
+
+Homemade Apple Pie & Cookies (flavors: birthday cake, smores, apple pie, coconut, cookies and creme, cinnamon roll)
+My Projects
+To give some context for the work I did at Datadog, I’ll talk about what team I was on first. My department was the Application Performance Management team, which means we develop software to monitor the performance for different apps you program. Because apps can be programmed in different languages from Python to C++, there were different teams for different programming languages. I was on the Python Integrations team, which means that we write Datadog the portion of the APM service compatible with Python applications.
+My Team’s Overall Project
+As mentioned earlier in my article, I got to work on an open source project which means I can freely talk about my project because the source code is publicly available!
+ddtrace is Datadog’s tracing library for Python. It is used to trace requests as they flow across web servers, databases and microservices so that developers have great visiblity into bottlenecks and troublesome requests (taken from ddtrace’s documentation on Pypi). Within ddtrace, there are multiple integrations (code that implements Datadog’s tracer), for different Python libraries, as tracing would occur differently between some libraries (e.g. synchronous vs asynchronous libraries).
+When using a tracer, all a developer has to do is call a single function in their code and the function will add the tracer to their app. The tracer then records lots of metrics and metadata which gets sent to Datadog for us to nicely display for the developer in our web app.
+
+How a trace is displayed in the Datadog webapp
+In the image above, you see a lot of colorful rectangles. Each rectangle represents a span and all of the spans form a trace. You can think of a span like a unit of work. The length of a span is based on how long it took the span to complete. At the top of all the spans is a timeline that has tick marks corresponding to different timestamps.
+To better understand spans and how they work, I’ll use a generic example. Let’s say that you have a web app that allows individuals to get data from it. The largest span would be the get request made by someone using the web app. Then, underneath that span would be more spans which are the different function calls that are made following that get request. Think of it as the steps that are taken to get the end result, with each step occurring underneath the one that happened before it. It may be hard to understand without ever using Datadog, but if you do ever try it you will understand what I mean quickly!
+My Role
+I developed a tracer integration for Starlette and FastAPI. To do so, I had to actually learn what Starlette and FastAPI were (as I never heard or used them before). Then, I had to go through the source code of each to figure out how to implement the tracing library into it. It was definitely a challenge at first since I’ve never done anything like this before, but I learned a ton from it.
+Once I had a Starlette and FastAPI integration created in the first month of my internship, I spent the rest of my internship doing the tasks that my teammates were doing and was just like any other employee on the team (so I didn’t really have an intern project just for myself). I reviewed pull requests, responded to customer inquiries and requests, sat in on customer calls, and more. This experience was so different compared to what I’ve done in my previous internships and I got to really be a part of my team, though it was very intimidating at first since I had so much responsibility right from the start.
+What was cool was that I was able to create my own project based on what I wanted to do once I became integrated into the team. Thus, I wrote up a project proposal, presented it to my team, and got to work on the project I designed during the remaining quarter of my internship!
+Work Culture
+COVID19 Response
+At the beginning of July (two months before my Fall internship start date), my Datadog recruiter emailed to let interns know that the internship was going to start off remote and stay remote if it is still unsafe to go into the office. They’ll be mailing us Macbook pros and providing a stipend for at home office equipment so that we are able to conduct our internship from home. While it was disappointing to know that the internship couldn’t be in person, it was understandable that this was for the best and I am glad that Datadog has made this decision.
+On October 1, Datadog officially reopened their office; though coming into work is optional and not recommended unless needed. They send out a detailed presentation about all the cleaning protocols as well as some of the benefits traditionally offered wouldn’t be available in the office (e.g. free lunches). I appreciate that they gave individuals the option to go into work (as it’s good to get a change in environment every once in a while since working at home can get draining) while implementing strict protocols to make sure that the office isn’t too full and that everyone is safe and healthy.
+Fast Paced
+While I got to have a lot of impact just as an intern, there’s also a lot more pressure because you have more responsibilities. This has its pros and cons. I learned an incredible amount through my internship, but I will admit there were times where I did feel stressed. At the beginning of my internship it was a challenge at first getting used to the amount of responsibility I was given, but over time I was able to adapt and no longer feel as stressed.
+Memes and Dog puns
+There are lots of memes and dog puns at Datadog and they are all on point and PUPtastic 👌. They even bought out the datadoge.com domain just for the meme :’).
+
+
+Datadoge meme (left) and Pikachu version of the Datadog logo (right)
+Intern Events
+Even though the internship was remote, there was still events happening! Below is a list of virtual events that Datadog had for interns.
+Cooking class (using ingredients in your own kitchen)
+Escape Quest
+Monthly lunches (September 4, October 2, November 6)
+Monthly intern game events (September 16: Escape Quest, October 14: GoGames, December 9: Mini Games)
+Monthly Party Pup game events (October 23: Project Artemis, November 19: Race around the World)
+Remote interns also got to learn a lot about in person events that happened in previous internships (which all sound so amazing and I’m really disappointed I couldn’t experience them :/)
+Rented out the entire Natural History Museum for a scavenger hunt
+Dinner cruise on the Hudson River
+Datadog Annual Unleash Party (photos below are from Josh Pindjak’s blog. I really wish I had my own photos to share but due to COVID19 there wasn’t a party)
+
+
+
+Photos of the unleash party from Josh Pindjak’s Blog
+Perks/Free Stuff
+$30 lunch reimbursement several times throughout the internship
+Unlimited drinks and snacks at the office
+New hire swag box (with lots of goodies!)
+
+Datadog backpack (it’s super nice I’m switching out my current backpack with this), headphones, waterbottle, postcard, sticker, and tshirt
+More swag
+
+Sweater, tshirt, Bose Quiet Comfort II headphones, notebook
+$30 Amazon Giftcard (for winning intern bingo)
+
+Gaming room in the office (it’s small and I’ve been told you shouldn’t really be in there during work hours though)
+Free lunch Monday, Wednesday, Friday (in non-COVID times) catered by Zero Cater (they get food from local restaurants such as Empanada Mama, Halal Guys, Mighty Quinn’s BBQ, and more)
+Day 110 (December 18, 2020): My Last Day
+I received a card in the mail with a Datadog sticker from the recruiting team to thank me for spending the Fall at Datadog. It was such a sweet card to receive and the message inside was handwritten!
+
+For the rest of the day, I wrapped up my internship by writing a document with feedback on what went well during the internship, what needed to be improved, as well as some tips for the next intern. I also discussed logistics for a full time return offer from Datadog to see how Fall internships differ from Summer. My recruiter said that they’ll give me an official offer letter next year in Fall 2021. This was really convenient because it gives myself time to complete my other internships and see where I’m the best fit for.
+To finish off my last day, my team and I had a final Zoom call and ordered sushi (which we got reimbursed for)! I had a great internship and I’m glad I got to spend my Fall 2020 at Datadog :).
+If you liked reading about my internship experience at Datadog, check out my articles about my Amazon, Goldman Sachs, and Colgate intern experience!
+Be on the lookout for my articles about my Snapchat, Microsoft, Stripe, and Google intern experience!

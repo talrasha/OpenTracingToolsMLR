@@ -1,0 +1,56 @@
+Add Jaeger tracing to NGINX
+Sun Dery
+Sun Dery
+
+Dec 16, 2020·3 min read
+
+
+
+
+
+Many of us use NGINX as our reverse proxy gateway for microservices,
+That NGINX config can get complex and integrating Jaeger inside is not a trivial task. This article takes into consideration that you already implemented Jaeger tracing in your microservices using the header uber-trace-id as the trace id to add spans to.
+So lets get started, first we need to see what’s needed to accomplish this:
+NGINX image with opentracing and jaeger libraries, check this out for alpine
+NGINX config that loads and configures the tracing — up next
+Jaeger NGINX configuration JSON file to set your outgoing traces endpoint and more — up next
+So lets start with some documentation that I based this on, for the NGINX conf I used this example and this for the opentracing syntax.
+We have this great article that helps get started and also provides an example for integrating the jaeger in your code.
+Lastly if you want to use something else in addition or instead of Jaeger, this is a good place to start.
+NGINX configuration
+Now we need to configure our NGINX, I like to split it into 2 parts
+The “main” configuration that loads the module and tracer
+The actual reverse proxy section
+This is the main configuration — notice lines 2 and 24
+
+Next we want to integrate the opentracing and jaeger to the microservices reverse proxy:
+
+named nginx.conf for syntax highlighting only
+This is very important, this line has to be there, I’ve commented on that on the gist as well, but doing it again here since its not documented, you need to add log_subrequest on; otherwise the propagation for auth_request and further won’t work!
+If you read the Opentracing NGINX reference you can say that you don’t have to specify opentracing_propagate_context; for each location, you can put in on the server directive, and although it won’t fail and will allow you to run NGINX with this conf, for me it did not propagate the context when using it on the server directive.
+Last, we have the Jaeger configuration for nginx.
+Although this is a JSON file, it utilizes the C++ Jaeger client so if you are missing some documentation there (I know I needed some) the best place to look is at their Github page at the moment.
+{
+  "service_name": "nginx-reverse-proxy",
+  "sampler": {
+    "type": "const",
+    "param": 1
+  },
+  "reporter": {
+    "localAgentHostPort": "jaeger-logzio-agent:6831"
+  },
+  "headers": {
+    "jaegerDebugHeader": "jaeger_debug_id",
+    "jaegerBaggageHeader": "jaeger_baggage",
+    "traceBaggageHeaderPrefix": "uberctx_"
+  },
+  "baggage_restrictions": {
+    "denyBaggageOnInitializationFailure": false,
+    "hostPort": ""
+  }
+}
+For reporter if you want to use the Jaeger collector directly you can do:
+"reporter": {        
+    "endpoint": ""http://jaeger-logzio-collector.default.svc.cluster.local:14268/api/traces"
+}
+In the end it will look something like this:

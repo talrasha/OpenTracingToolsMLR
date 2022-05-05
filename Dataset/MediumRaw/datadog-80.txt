@@ -1,0 +1,44 @@
+Observability as Code — DataDog
+Gurnam Madan
+Gurnam Madan
+
+Sep 2, 2019·2 min read
+
+
+
+
+At Latitude Financial Services we have been focusing on improving the observability of our distributed systems; to have consistency and reduce time to instrument metrics, tracing, dashboards, monitors and alerts for our appropriately sized services.
+Teams were doing repetitive tasks to set-up observability for their services. Changes were made over time to dashboards, monitors, and alerts but reasons were not being captured anywhere.
+Thoughtworks featured observability as code in their 2018 tech radar highlighting these concerns and how treating these configurations as code can address the issue.
+At Latitude, we use DataDog for our application and infrastructure monitoring. We could not find any suitable tools for managing DataDog dashboards and monitors. Hence we decided to build our own tool Growl.
+Growl uses DataDog APIs to manage dashboards and monitors. The first version has the following features:
+Create and edit time-boards and monitors.
+CLI interface for CI/CD integration.
+Golang library for dynamically generating dashboards and alerts. Primarily used by our cloud team when they provision infrastructure for tenants.
+Capability to dynamically introduce variables and tags like service name, environment and domain.
+Local developer experience to create changes and export it back as configuration.
+
+Dashboard management life cycle
+Our service starter kit provides developers standard dashboards and monitors. So they are part of the source code from day one.
+
+Standard health dashboard created by Growl
+
+Standard monitors created by Growl
+Any changes made dashboards or monitors get captured through github commits and pull requests.
+
+Github pull request example
+To ensure users don’t edit these dashboards or monitors manually, they are locked to be only modified by the creator i.e. Growl.
+By treating these configurations as code and embracing naming & tagging conventions, we are saving developers hours of effort and introducing better practices and consistency.
+Next steps for us to include relevant infrastructure metrics and potentially look at making Growl open source.
+We are always on the lookout for good engineers to join our team, please feel free to reach out if you want to know more.
+Gurnam Madan
+Principal Engineer
+
+Follow
+100
+
+
+1
+
+
+100

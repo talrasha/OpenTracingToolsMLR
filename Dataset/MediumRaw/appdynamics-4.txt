@@ -1,0 +1,100 @@
+INTERN PERSPECTIVE
+Because learning never stops — Virtual Summer Internship at AppDynamics
+Dear COVID19,
+You really have brought the entire world to a standstill but guess what, learning and growth still continues. Even in the toughest of times. 🌱
+
+Always wanted a picture here, people will say it’s a sketch 😏
+Hi, I am Abhishek Dhar, pursuing Masters in Design at IIT Guwahati. I will be sharing my experience and 7 lessons from the 10-Week UX Design Internship at AppDynamics.
+AppDynamics
+[AppD] / verb
+The art of identifying the root cause of a problem and finding a
+solution for it.
+User experience is the heart and soul of any business and in today’s fast-paced industry, companies are harnessing the power of cutting edge technologies to provide faster and better solutions.
+But is that enough to provide a “Good experience?”
+No.
+A digital environment comprises of servers, virtual machines, data warehouses, cloud storage etc. The list is mammoth, and to provide a “Good experience” it becomes important for organizations to ensure that their environment is performing optimally.
+AppDynamics provides APM (Application performance management) solutions that helps organizations to consistently monitor their environment, detect problems before the users are impacted, and rapidly resolve those issues.
+My Journey to becoming an AppDynamo
+September 2019, AppDynamics India Design team came to IIT Guwahati to hire interns and a pre-placement talk was organized where the candidates were given a glimpse of the life at AppDynamics.
+I was completely amazed by their presentation, especially when they spoke about the significant role Design plays at AppD, the plans to expand the team, and the “Design Bytes” newsletter, which is edited by the team and distributed company-wide to celebrate the design milestones aimed at spreading design awareness.
+The presentation ended with the attendees getting an AppDynamics T-shirt. I told myself then and there, “you gotta earn it Abhishek!” That’s where it all began :)
+From there on, we received a design task which was followed by a comprehensive interview by an expert panel.
+The interviews were held remotely and if you ask me what it takes to get through it — It’s simple, just stay calm and have confidence in your work. It’s completely okay to be open about what you don’t know. After all, you would want to learn the rest during the internship.
+The final list of candidates were announced and 
+Shiva Sah
+ and I made it through.
+
+The team made a welcome video for us :’)
+
+Virtual internship vs In-Office internship
+Fast forward to 15th March 2020, we got a notice from college that due to the COVID19 pandemic we have to vacate the campus ASAP! I was worried about my internship with AppD. One fine day, we received a mail from AppD confirming that the summer internship program will now be conducted virtually.
+The questions that I pondered since the beginning were -
+How will the virtual experience be?
+Will I be able to make the most out of it?
+All my doubts were laid to rest. I had never imagined that I would feel sad when I receive the email to complete the exit formalities from AppD. I sat down for a while reflecting upon the past few weeks. The culture, the people in the company, they pull you in. Every day a new chapter unfolds. You understand the user, the product better. It’s like a journey in itself.
+What did I miss the most in this virtual internship?
+Getting to meet the amazing people I worked with during the internship.
+AppDynamics workplace.
+
+My work setup
+Virtual internship tips
+1) Time management is super important
+Yes, flexibility is definitely a plus point. But remember you are a part of a team and you have to walk along with the team.
+Respect the deadlines! Creating a to-do list always helps you to keep track of things.
+Communication is the key. Talk to your mentor. Reach out to them in times of need. Remember, the person on the other side of the screen knows where you’re coming from.
+Schedule mindful meetings even if it is just for 10 minutes, the agenda and the outcome of the meeting should be really clear. If you have scheduled a meeting but are not prepared. It is completely fine to discuss with the other person and move the dates ahead.
+Remember, always respect other’s time!
+2) Productive off-days
+Weekends are the best time to reflect upon the work and plan the next week ahead.
+As a designer, it is important that you document everything you did in the process. One doesn’t realize this, but a lot of ideas are hidden in those scribbles you made during the meeting or while brainstorming. Weekends are the best the time to collate all those ideas.
+
+3) Find a balance
+When at home, one has to take care of many things. Finding a balance between work and personal life is very important. My parents asked me, what do you work on? So, one day I took some time, simplified my problem statement and what AppD does and I explained it to them. To my surprise, they got very involved and started helping me with the root cause analysis!
+There were also days when I had to spend more time doing house chores, it does takes away your scheduled work time. No worries! go ahead, put in that extra effort, extra hours. Always meet your targets!
+Tip : 15 Minute power naps are the best! 😎
+4) Use the right tools
+The team introduced us to a range of tools we could use to get the best out of this virtual experience.
+
+Apart from fine-tuning my design skills, another thing I learned is efficient collaboration & people management skills. With the research team located in San Francisco, you have to keep them in the loop too. From late-night calls to early morning testing sessions, it was super exciting to be a part of it!
+7 lessons I learnt from Internship at AppDynamics
+1) You are more than just an intern
+The first day of our internship, we were told “now you are an employee of the company for the next 10 weeks”. Having been surrounded by such brilliant minds and an open and inviting culture, it was very easy to settle in.
+Having access to a huge library of information, being able to learn what everyone on the team is working on, getting to know their journey to the solution, I can go on and on about it!
+
+Take ownership of your work!
+2) Always keep an open mind
+We learn something from every person we interact with. 101% true.
+Every little appreciation counts! I was very touched with how everyone in the team acknowledges each other’s effort. People here at AppDynamics want you to grow. They may not hold your hand and help you walk, they teach you how to sprint!⚡
+Mentors play a huge role during your internship, the effort they have to put in also doubles up. So, please make sure that you mindfully work on the feedback you receive.
+
+Take every single critique and feedback into account because you never know what you seek might be seeking you.
+3) Love challenges? Then AppD is the place to be
+Curiosity was at its peak for those 10 weeks and every day was a new challenge. Oh! the beautiful world of APM, it will keep amazing you as you dig in more. The time we joined the company, we were introduced to something that would bring in a paradigm shift in the monitoring world. There were so many cool innovations happening and getting to see it unfold was an amazing experience.
+4) Mentor will push you to thrive
+As a person, I tend to grow in an environment where I have people to look up to, people who tell you “Go take that extra mile, even if that’s a path you have never taken.” I couldn’t be luckier to have had two amazing mentors. They are the driving force of AppDynamics’s design @ India. I got to learn something out of every conversation I had with them.
+
+5) Take regular breaks from work!
+The first week of our Internship — Pictionary Session followed by a Me-Day Friday off! Onboarding couldn’t have been more fun ;D
+Shorter breaks in between work were all about Football Manager! Won the treble with Borussia Dortmund 🏆🏆🏆
+
+The slack channel was the primary source of communication apart from email. There were many sessions and fun events that were conducted.
+
+The alerting team party!
+6) It’s 95% process and 5% solution
+While working at AppDynamics there were several times when my mentors and PM stressed how important the process is. The difference between working on a college project and working in the industry is very clear.
+Here you have a real-time opportunity to address the user’s needs.
+How to create great user-centered products? Follow the process holistically. That’s it.
+There are various design methodologies. It looks very enticing like the dessert section of any menu, where you feel like trying it all. But this is where your decision-making abilities come into the picture. Spend time and understand your problem statement, and use the methods which you feel suits your project the best.
+
+7) The best part — User testing
+Getting this opportunity to test our Designs with the user is something which I had always wished for. That immense satisfaction you get is paramount even if a single design intervention matches the user’s mental model.
+The major innovators of the product are the users.
+A single function can be interpreted in multiple ways by different users. AppDynamics users love user testing sessions as much as we do. Suppose, we are testing a feature A, the user testing sessions are open-ended and the user while talking about A, also points out other features which then paves the way for innovations.
+
+One with the team :)
+While penning down my experience, I realized how much I had gained during those 10 weeks. It was an absolute pleasure to be able to work with such amazing people. It definitely feels good when you go back to college on such
+a high note!
+It gives me immense pleasure to share that I have been offered a
+Pre-Placement Offer and I will be joining the team next year as a
+Product Designer 😃
+I want to thank my mentors, and the team who played a pivotal role in making the internship experience a walk to remember.

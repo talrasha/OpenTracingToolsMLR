@@ -1,0 +1,111 @@
+Troubleshooting vSphere 7 with Kubernetes (Tanzu) installation
+Navneet Verma
+Navneet Verma
+
+Dec 24, 2020·7 min read
+
+
+
+
+
+Introduction
+The native integration of Kubernetes within vSphere 7 brings a slew of innovations to the vSphere platform. Various articles on the web discuss the benefits, design, and architecture of this new platform. Let us take a look at the multiple layers that make up the new platform.
+At the heart of this new platform is the Workload Control Plane (WCP), a new service that runs within the vCenter appliance and responsible for managing the integration of Kubernetes with vSphere.
+The next layer is the Supervisor Cluster control plane VMs. In its simplest definition, these VMs convert the traditional vSphere cluster to an environment able to understand and interpret the Kubernetes dialect. This control plane is also responsible for delivering multiple services for consumption by the platform. Some of the standard services offered are Load Balancer (LB) services, registry service, Tanzu Kubernetes Cluster (TKC) service, Virtual Machine (VM) service, and others.
+The last layer is the individual service delivered by the previous layer. These services may be consumed individually or consumed by other services. For example, the VM and LB services are consumed by the TKC service to deliver a conformant Kubernetes cluster to run application workloads. Since these services are growing in number, this article will discuss advanced troubleshooting techniques for essential services like TKC, Registry (Harbor), and VM services.
+This platform is designed to bring vSphere administrator and DevOps engineers closer in their Day-1 and Day-2 responsibilities. The blurring of duties between the two personas may cause some issues with seamless management of the platform, especially during troubleshooting scenarios.
+While this article will not discuss specific troubleshooting scenarios, it will walk through some traditional, new, and advanced troubleshooting methods. It will discuss how to access the platform’s multiple layers, helping the two personas’ need to perform troubleshooting as part of their day two responsibilities.
+Troubleshooting WCP vCenter Service
+wcp is a standard vCenter service, running in the vCenter appliance. Its troubleshooting process is similar to troubleshooting other vCenter services.
+You can manage the wcp service using the service-control CLI options.
+The wcp service is dependent on vpxd, eam, lookupsvc, vmware-vpostgres services.
+The logs for the wcp service are stored in the /var/log/vmware/wcp folder.
+/var/log/vmware/wcp/wcpsvc.log is of particular importance as it contains crucial troubleshooting information.
+Most of the wcp configuration files are stored in /etc/vmware/wcp folder. WARNING: Do not modify the contents of any of the files unless asked by VMware support. Doing so could lead to an unsupported and broken configuration.
+/etc/vmware/wcp/wcpsvc.yaml is of particular interest as it contains several configuration details on the Supervisor Cluster control plane configurations. WARNING: Do not modify the contents of any of the files unless asked by VMware support. Doing so could lead to an unsupported and broken configuration.
+The binaries for setting up the Supervisor Cluster control plane VMs, Spherelet VIBs, and Supervisor Cluster Node Agent for ESXi are stored in /storage/lifecycle/vmware-wcp and /storage/lifecycle/vmware-hdcs folders. They are delivered through the vCenter lifecycle management process. WARNING: Do not modify the contents of any of the files unless asked by VMware support. Doing so could lead to an unsupported and broken configuration.
+Troubleshooting Supervisor Cluster Control Plane
+During the Supervisor Cluster’s initial setup, the Control Plane VMs are installed using the binaries stored in the /storage/lifecycle folder (see above). Also, depending on the type of networking (NSX vs. non-NSX) used, the ESXi hypervisor may (or may not) be configured with the spherelet VIBs and the node agents. Again the binaries are consumed from the /storage/lifecycle folder within the vCenter appliance.
+Since the stability and availability of the Control Plane is very critical to the stability and availability of the entire platform, the control plane VMs are locked down. Limited access is provided to the VMs running the Kubernetes control plane. Most of the troubleshooting can be performed with the kubectl CLI after authenticating using the kubectl vsphere plugin. Some of the standard commands are —
+# Use the command to authenticate to the Supervisor Cluster
+kubectl vsphere login — server Supervisor-Cluster-API-endpoint — vsphere-username administrator@vsphere.local
+# Get events logged by the control plane
+kubectl get events -A or kubectl get events -n namespaces
+# Get logs of various applications/pods running in the control plane
+kubectl logs -n namespace pod-name
+IMPORTANT: While the administrator@vsphere.local SSO user can perform most of the daily housekeeping functions of managing the Supervisor Cluster and the related functionalities; it does not have the all-powerful cluster-admin Kubernetes role to perform full administrative duties. This is by design. Currently, the process to get cluster-admin role access is to log in to one of the control plane VMs and use the kubectl CLI to perform those functions. The steps are explained below —
+WARNING: Use extreme caution while using these steps (only when asked by and in the presence of VMware Support). Incorrect changes could lead to a broken Supervisor Cluster and data loss, including corrupted TKC workload clusters.
+SSH into the vCenter appliance as root and execute the following command — /usr/lib/vmware-wcp/decryptK8Pwd.py. This should return something similar to this —
+Read key from file
+Connected to PSQL
+Cluster: domain-c8:bf950692-ec28-45cf-9228-13ce8e607244
+IP: 192.168.10.40
+PWD: WUwoRDlAY.....u9Aywjd1Ex8W/ZzqHQjC3NX7pyFv7IXhNyJ8CTvE08=
+------------------------------------------------------------
+Note the IP address and the password. The IP address is the floating IP for the Supervisor Control Plane. This is an IP assigned to one of three Control Plane VMs.
+Using the IP address and the password captured in the above step, log in to one of the Control Plane VM using the root credentials. Once logged in, use the kubectlCLI to execute required troubleshooting commands with the cluster-admin role.
+The above process could also be used to login to any Control Plane VMs to capture the necessary system logs for troubleshooting.
+Troubleshooting Tanzu Kubernetes Cluster Service
+The two areas where troubleshooting may be required are the Kubernetes environment (applications and configurations) and the VMs operating this Kubernetes cluster. Kubernetes cluster troubleshooting in these scenarios is pretty conventional, following standard troubleshooting patterns using administrative roles.
+Use kubectl CLI after authenticating using the kubectl vsphere plugin.
+kubectl vsphere login --server Supervisor-Cluster-API-endpoint --vsphere-username sso-user-name --insecure-skip-tls-verify --tanzu-kubernetes-cluster-name tkc-cluster-name --tanzu-kubernetes-cluster-namespace tkc-cluster-namespace
+At times troubleshooting process may require a login to the VMs (nodes) operating this Tanzu Kubernetes Cluster. The method may vary depending on the networking stack that the Supervisor Cluster is using.
+NSX based networking
+In NSX based Supervisor Cluster, the VMs that operate the Tanzu Kubernetes Cluster (TKC) is on a logical overlay network and hence not easily reachable for SSH connectivity. The recommended method to connect to the nodes is to execute a container running a basic Linux OS within the same namespace as the TKC, within the Supervisor Cluster. The private ssh key is mounted as a volume to the container. Once ready, kubectl exec is used to SSH to the nodes.
+With kubectl authenticated to the supervisor cluster, perform the following -
+cat <<EOM > jumpbox.yaml
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jumpbox
+  namespace: tkc-namespace
+spec:
+  containers:
+  - image: "photon:3.0"
+    name: jumpbox
+    command: [ "/bin/bash", "-c", "--" ]
+    args: [ "yum install -y openssh-server; mkdir /root/.ssh; cp /root/ssh/ssh-privatekey /root/.ssh/id_rsa; chmod 600 /root/.ssh/id_rsa; while true; do sleep 30; done;" ]
+    volumeMounts:
+      - mountPath: "/root/ssh"
+        name: ssh-key
+        readOnly: true
+  volumes:
+    - name: ssh-key
+      secret:
+        secretName: tkc-cluster-name-ssh
+EOM
+Execute this file on the supervisor cluster.
+kubectl apply -f jumpbox.yaml
+Get the IP addresses of the VMs that are running this TKC —
+for node in `kubectl get tkc tkc-cluster-name  -n tkc-namespace -o json|jq -r '.status.nodeStatus| keys[]'`
+do
+  ip=`kubectl get virtualmachines -n tkc-namespace ${node} -o json|jq -r '.status.vmIp'`
+  echo ${ip}
+done
+Use the IP from the previous section to SSH into the VM -
+kubectl -n tkc-namespace exec -it jumpbox -- /usr/bin/ssh -o StrictHostKeyChecking=no vmware-system-user@${ip}
+Once logged in, you can use sudo to execute troubleshooting commands that require elevated privileges.
+Non-NSX based networking
+For non-NSX based networking, the steps are a bit simple since the VMs operating the TKC are generally on a public routable network. In such a scenario, perform the following steps.
+With kubectl authenticated to the supervisor cluster, get the private ssh key for the nodes, and save it in the user’s .ssh folder —
+kubectl get secret -n tkc-namespace tkc-cluster-name-ssh -o json |jq -r '.data."ssh-privatekey"'|base64 -d > ~/.ssh/id_rsa
+chmod 600 ~/.ssh/id_rsa
+Get the IP addresses (if not already available) of the nodes running the TKC -
+for node in `kubectl get tkc tkc-cluster-name  -n tkc-namespace -o json|jq -r '.status.nodeStatus| keys[]'`
+do
+  ip=`kubectl get virtualmachines -n tkc-namespace ${node} -o json|jq -r '.status.vmIp'`
+  echo ${ip}
+done
+SSH into the VM in question using your favorite ssh client —
+ssh -o StrictHostKeyChecking=no vmware-system-user@${ip}
+Troubleshooting Registry service
+Harbor Registry service is currently available through the Supervisor Cluster only on NSX based networking environment. This is because only this configuration provides the PodVM service required to deliver the Harbor Registry service. Since this service runs within the Supervisor Cluster as a Kubernetes application, the troubleshooting process relies upon the standard Kubernetes toolkit like kubectl .
+The Registry service is locked down to provide the necessary SLAs to the Tanzu Kubernetes clusters that would consume this service. Hence, the Harbor registry's admin credentials are not readily available to perform administrative tasks on the Harbor registry. At times, during standard troubleshooting, a need to configure/login to the Harbor environment may arise using the privileged administrative login.
+To get the admin credentials, perform the following steps on the Supervisor cluster
+kubectl get namespace |grep vmware-system-registry
+# Replace xxxxxxxx with the registry ID found in the previous step
+kubectl get secrets -n vmware-system-registry-xxxxxxxx harbor-xxxxxxxx-controller-registry '.data.harborAdminPassword'|base64 -d|base64 -d;echo
+WARNING: Use extreme caution while using these steps (only when asked by and in the presence of VMware Support). Incorrect changes could lead to a broken Supervisor Cluster and data loss, including corrupted TKC workload clusters.
+Use the credentials to log in to the Harbor UI with admin credentials.
+This article will be updated frequently as new features and updates within the platform warrants a new troubleshooting methodology.

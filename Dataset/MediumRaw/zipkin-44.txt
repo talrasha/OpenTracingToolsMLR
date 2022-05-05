@@ -1,0 +1,60 @@
+Distributed Tracing with Zipkin, Stackdriver Trace in Kubernetes
+Ray Tsang
+Ray Tsang
+Follow
+Jun 16, 2017 · 3 min read
+
+
+
+
+
+In the previous article, I configured a Zipkin proxy for Stackdriver trace to capture trace information from Spring Boot microservices with Spring Cloud Sleuth.
+You can run the Zipkin proxy anywhere — in on your local laptop, in your own data center, in a Virtual Machine, or in a container. This article will deploy the Zipkin proxy in Kubernetes (with Google Container Engine) and then deploy the microservices to send trace information to this proxy.
+Create a new Kubernetes cluster
+First, create a new Kubernetes cluster using Google Container Engine with gcloud SDK:
+$ gcloud container clusters create mycluster --scopes default
+This will create a new Kubernetes clusters and also download the Kubernetes credential to your local machine. It’s important to specify the scopes parameter. This scope will enable frequently used permissions such as creating a new trace record. Any container you deploy into this cluster will be able to inherit this permission. You can have fine-grained control over the scopes, by specifying the trace.append scope.
+Deploy the Zipkin Proxy
+The Zipkin proxy for Stackdriver Trace is already containerized. It can be deployed easily into Kubernetes directly from the command line:
+$ kubectl run stackdriver-zipkin \
+  --image=gcr.io/stackdriver-trace-docker/zipkin-collector:v0.2.0 \
+  --expose --port=9411
+This will deploy one instance of the Zipkin proxy container into the Kubernetes cluster, and exposing it as a service that’s accessible via the URL http://stackdriver-zipkin:9411/ from within the cluster.
+Deploy the Sleuth Example
+I’ve containerized the Sleuth WebMVC Example into a container as well. I can also deploy both the frontend and the backend into Kubernetes. Furthermore, I’ll want to configure them so that they will consume services at the proper endpoints rather than from localhost.
+To deploy the backend:
+$ kubectl run sleuth-example-backend \
+  --env="SPRING_ZIPKIN_BASEURL=http://stackdriver-zipkin:9411" \
+  --env="SPRING_SLEUTH_SAMPLER_PERCENTAGE=1.0" \
+  --image=saturnism/sleuth-webmvc-example \
+  --expose --port=9000 \
+  -- -Dexec.mainClass=sleuth.webmvc.Backend
+This will configure a couple of application.properties entries directly from the environmental variable. In particular, I want to make sure the backend is sending trace data to the Zipkin proxy in the Kubernetes cluster rather than http://localhost:9411.
+This will also expose the backend as an internal service that is accessible from within the Kubernetes cluster, via http://sleuth-example-backend:9000.
+Similarly, to deploy the frontend:
+$ kubectl run sleuth-example-frontend \
+  --env="SPRING_ZIPKIN_BASEURL=http://stackdriver-zipkin:9411" \
+  --env="SPRING_SLEUTH_SAMPLER_PERCENTAGE=1.0" \
+  --env="BACKEND_HOST=sleuth-example-backend" \
+  --image=saturnism/sleuth-webmvc-example \
+  -- -Dexec.mainClass=sleuth.webmvc.Frontend
+This command also configures the backend hostname via an environmental variable.
+Finally, I’d like to expose the Frontend as an external service, so that it’s accessible via a public IP:
+$ kubectl expose deployment sleuth-example-frontend \
+  --port=8081 \
+  --target-port=8081 \
+  --type=LoadBalancer
+This will create a Google Cloud Platform Network Loadbalancer that will be able to route the traffic from a public IP to any of the frontend instances (only 1 instance at the moment).
+You will need to check whether the public IP has been assigned by running:
+$ kubectl get svc sleuth-example-frontend
+NAME                      CLUSTER-IP      EXTERNAL-IP       PORT(S)          AGE
+sleuth-example-frontend   10.15.249.158   AAA.BBB.CCC.DDD   8081:30674/TCP   30s
+Look for the EXTERNAL-IP, you can then access the Frontend via http://AAA.BBB.CCC.DDD:8081/
+Generate Requests
+I used Apache Bench to generate the requests against the newly created endpoint:
+$ ab -n 1000 -c 10 http://AAA.BBB.CCC.DDD:8081/
+If this worked properly, you should see the trace details in the Stackdriver Trace console:
+
+Give it a Try
+See Using Stackdriver Trace with Zipkin for more examples and FAQs to learn more about how to use the proxy. I’d like to hear your feedback and thoughts too.
+You can find more examples on my GitHub:

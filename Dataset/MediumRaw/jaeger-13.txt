@@ -1,0 +1,158 @@
+Learn How to Use and Deploy Jaeger Components in Production
+Yusuf Syaifudin
+Yusuf Syaifudin
+Follow
+Nov 19, 2020 · 9 min read
+
+
+
+
+
+Past week I got questioned again about Jaeger — an end to end distributed tracing. That question come from my workmates that they’re in doubt whether the Jaeger can be single point of failure. Though this post will not answer that case explicitly, but it will give a new perspective about how Jaeger should be properly deployed in production (both for me and for you — the readers).
+First time when I get my hand dirty with the so called things as “distributed tracing”, I always use Jaeger all-in-one docker image which just works. At that time I don’t think that it would be hard for DevOps or SRE to give the resilient environment of Jaeger for the developer so that developer can focus on their code and help them to trace the request’s flow.
+So, for the end of this preamble, I just want to clarify that I write this post just to documented about what I learn instead giving some advice about dos and don’ts.
+Development and Playground Mode
+In Development, Localhost or even Playground mode, the all-in-one Jaeger installation is the right choice for the developer to play with Jaeger. Using below docker compose YAML file, we can easily run all Jaeger’s component and play with it. This is what I have done when I learn about Jaeger back in last year of 2018.
+Understand Your System Behavior By Implement Distributed Tracing Using Jaeger
+I’ve been more than 3 years in programming and building many applications from simple website to an API that needs to…
+medium.com
+
+version: '3'
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.7
+    container_name: jaeger
+    restart: on-failure
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14268:14268
+      - 9411:9411
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+At first, I imagine that the installation of Jaeger may look like this even in the production mode.
+
+Wrong Jaeger Deployment Installation
+This because I didn’t read the documentation thoroughly, not before the question about “how to deploy Jaeger in production” came. So, after that, I revisit Jaeger website and learn about the Architecture and Deployment strategy.
+Jaeger Architecture
+Architecture
+Architecture See also: Jaeger's clients adhere to the data model described in the OpenTracing standard. Reading the…
+www.jaegertracing.io
+
+Although this looks like useless point and all the documentation about this already written in official website, I think it is not that worthless to mention it again.
+As I stated above, we can deploy Jaeger using all-in-one strategy. This means that any Jaeger components can be installed in one high spec machine. But, this is come into problem when we talk about “single point of failure”, and isn’t it kind of weird when we want to trace the large distributed service but send the metrics into only one “monolith” service?
+Isn’t it kind of weird when we want to trace the large distributed service but send the metrics into only one “monolith” service?
+So, I take a look into official documentation, Jaeger can provide two way to deploy as a scalable distributed system:
+Directly write metrics into persistent storage
+Buffer the trace metrics into Kafka before writing into persistent storage
+Directly write metrics into persistent storage
+
+Illustration of direct-to-storage architecture. Image from https://www.jaegertracing.io/docs/1.21/architecture/
+In this deployment strategy, the Jaeger collector directly writes the trace metrics into Database. Then Jaeger UI access DB to visualize the system behavior.
+This scenario works well with small to medium traffic, because Jaeger supports two types of persistent storage that renowned works well under high workloads. Also, both type of storage can be deployed in cluster mode so this will eliminate our concerns about single point of failure in storage. For your additional information, in the official documentation, “For large scale production deployment the Jaeger team recommends Elasticsearch backend over Cassandra.”
+Buffer the trace metrics into Kafka before writing into persistent storage
+
+Illustration of architecture with Kafka as intermediate buffer. Image from https://www.jaegertracing.io/docs/1.21/architecture/
+This is the deployment scenario that I may choose for production because of several reasons.
+First, as far as I know, Kafka can scale and work very well even under big data produced into it. You can learn more about Kafka in my another blog post about Kafka or take a quick look about this benchmark.
+Second, we can decoupled the persistent storage or DB (that will takes time to persist data into disk) from the collector (which may receive hundreds metric per second to be saved).
+Third, as the complement for the first and second reason, we can deploy many Jaeger collector and Jaeger ingester, so that metrics can be seen via Jaeger UI instantly.
+Ok, this third reason may leads to the new question: How we can vertically scale Jaeger collector and ingester? Would it means metrics data spreadly send into multi collector?
+Deployment
+The main Jaeger backend components are released as Docker images on Docker Hub: There are orchestration templates for…
+www.jaegertracing.io
+
+To answer that question, again we must refer to the official Jaeger documentation. Thanks to it’s enough clarity. And yes, metrics data can send into multi collector. Below is the resume how each component should be installed:
+Jaeger Agent
+Jaeger client libraries expect jaeger-agent process to run locally on each host.
+This is clear statement that Agent should be installed in host machine or if you prefer you can directly send your trace metrics directly into Jaeger collector. This also suggested by the creator of Jaeger, Yuri Shkuro in this responses:
+Jaeger agent should always run on the same host as the application, as a sidecar or a host agent. Alternatively, Jaeger clients can be configured to send spans directly to the collector, which then can run anywhere.
+- Yuri Shkuro
+Jaeger agent should always run on the same host as the application, as a sidecar or a host agent.
+Cf. https://medium.com/jaegertracing/deployment-strategies-for-the-jaeger-agent-1d6f91796d09
+medium.com
+
+If you use Kubernetes to deploy your services, you can also refer into this great article:
+Deployment strategies for the Jaeger Agent
+If you’ve been following the evolution of the Kubernetes templates for Jaeger, you might have noticed an important…
+medium.com
+
+Jaeger agent acts as intermediate buffer between your application to the Jaeger collector. Having this close to your application will benefit to your performance since your application will send data using UDP protocol (commonly port 6831) and then buffer it to Jaeger collector using gRPC (commonly port 14250 in Jaeger collector). Because UDP is stateless protocol, it makes sense that installing in same host will reducing the risk of lost of data when sending metrics.
+Jaeger Collector
+The collectors are stateless and thus many instances of jaeger-collector can be run in parallel.
+Actually we can run only once Collector for many Agent, but for scalability we can also deploy it as many as we want
+Jaeger Ingester
+jaeger-ingester is a service which reads span data from Kafka topic and writes it to another storage backend (Elasticsearch or Cassandra).
+Ingester works as a worker to consume Kafka message. We can also deploy many Jaeger ingester to make it more as responsive as possible to write tracing data into our data storage (Elasticsearch) when traces message published into Kafka.
+The only limitation about how many you should deploy Jaeger ingester is how many you setup your Kafka topic partition. This is because when there is more consumer (ingester) than the topic partition, some of the ingester will idle because it will not receives the message. To learn about this, you should learn about the Kafka consumer group id which I explained in Kafka tutorial post.
+Jaeger Query UI
+jaeger-query serves the API endpoints and a React/Javascript UI. The service is stateless and is typically run behind a load balancer, such as NGINX.
+Jaeger Query UI is a dashboard to visualize about the tracing. It connects directly into Elasticsearch (or Cassandra) to query our tracing data. In all-in-one Docker image we may not see any persistent storage and that’s true! In all-in-one binary, we can use In Memory or Badger storage which is not recommended for heavy tracing metrics.
+Example Using Docker Compose
+In the end of the learning, as usual, I always included the working example because common software engineer tend to try the code instead only reading and to give the reader a chance to get their hand dirty too. :)
+This example just give you the idea and proof that multi installation Jaeger Agent, Collector and Ingester is just works fine and answering the first question that the Jaeger components can be scaled.
+In this example I want to create two services, which having architecture design like this (including Jaeger components):
+
+Example services architecture
+We will create two services one named Dora The Explorer (you may familiar with this from my previous blog) and another one is Umbrella service.
+For service Dora we send tracing data into Jaeger Agent port 1111 and for Umbrella’s to 1112. Actually, you must install Jaeger Agent in the same host, so using localhost:6831 for each application will never be conflicted.
+However, since this example we use Docker Compose, we mimicking that application in host 1 is using Jaeger Agent port 1111 and application in host 2 using port 1112.
+Each application send data into their respective Jaeger Agent in the same host through UDP. Each Jaeger Agent then (both in port 1111 and 1112) then send with static load balancing to 2 Jaeger Collector using gRPC protocol in port 14250. Collector then publish message into same Kafka topic.
+This is the part that you must give an attention: you must create more than one partition regarding how many you would deploy Jaeger ingester. For example, if you want to deploy 4 Jaeger Ingester, you need at least 4 partition of Kafka topic to make it work in maximum efforts.
+Let’s try it!
+First, let’s run below docker compose file using this command:
+MY_IP=$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p') docker-compose -f docker-compose-copy.yml up
+
+Clone this repo and checkout into branch with-external-service :
+$ git clone https://github.com/yusufsyaifudin/go-opentracing-example.git
+$ cd go-opentracing-example
+$ git checkout with-external-service
+Run main.go and external_service/main.go in separate terminal. Then do cURL into it:
+curl -X GET 'localhost:1323/dora-the-explorer?is_rainy_day=true'
+You will get something like this:
+
+Running two API service and cURL into it.
+Open browser then go to http://localhost:16686/search, search for newcoming tracing, you will get view something like this:
+
+Jaeger UI shows one trace data already come in 4 minutes ago.
+
+The detail of the request life-span.
+Now, try to run load testing using k6 to proof that even under load test the Jaeger can still receives the tracing data without no error:
+$ k6 run --vus 10 --duration 30s load-testing.js
+Load testing for engineering teams | k6
+Code-driven, JavaScript load tests that fit into our existing tool chain, clean APIs, command line so easy to automate…
+k6.io
+
+
+k6 Load Testing to prove that Jaeger Agent won’t blocking out the request and make the single point of failures.
+After that, you can back into Jaeger UI (http://localhost:16686/) and then check if many tracing span show in Jaeger UI. Please note that it may take a while for Jaeger UI to show the list of tracing. But, in my experience the Jaeger consistently show all span using this deployment strategy (deploying each Jaeger component with different docker image). Back then when I use all-in-one Docker Image, I sometimes find that some spans is missing and I don’t find it again using this new scenario of deployment as far as I observe.
+What Next?
+Again as I stated in the preamble that this post only documented my experience during learning deploying Jaeger components as individual service. We then can conclude that Jaeger can works under high workloads with its ability to deploy in vertical scale.
+Ticketmaster Traces 100 Million Transactions per Day with Jaeger
+Ticketmaster engineers conquer the complexity of their microservices architecture with Jaeger’s distributed tracing…
+medium.com
+
+Some of us may already using Kubernetes in your architecture. For this case, you can learn from Jaeger Medium blog posts:
+Deployment strategies for the Jaeger Agent
+If you’ve been following the evolution of the Kubernetes templates for Jaeger, you might have noticed an important…
+medium.com
+
+A Guide to Deploying Jaeger on Kubernetes in Production
+Deploying Jaeger Tracing on containers with K8s in production involves multiple components with different options and…
+medium.com
+
+Written by Yusuf on Wed 18 — Thu 19, November 2020 during the Covid-19 Pandemic.
+The Startup
+Get smarter at building your thing. Join The Startup’s +795K followers.
+
+
+Follow
+140
+
+
+
+Sign up for Top 10 Stories
