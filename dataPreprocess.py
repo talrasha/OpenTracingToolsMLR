@@ -61,8 +61,8 @@ context = ssl.create_default_context()
 cookies = {'birthtime': '568022401'}
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36', 'Referer': 'https://steamcommunity.com/', 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
 
-df_questions = pd.read_csv('Dataset/questions.csv')
-df_answers = pd.read_csv('Dataset/answers.csv')
+df_questions = pd.read_csv('Dataset/Outcomes/questions.csv')
+df_answers = pd.read_csv('Dataset/Outcomes/answers.csv')
 df_questions.drop_duplicates(subset=['question_id'], inplace=True)
 df_answers.drop_duplicates(subset=['answer_id'], inplace=True)
 df_questions_sent = pd.read_csv('Dataset/questions_sents.csv')
@@ -290,14 +290,14 @@ def mediumfromtextlist2csv(toolappname):
             textmain = textmain.strip()
         else:
             textmain = text.strip()
-        with open('Dataset/medium.csv', 'a', encoding='utf-8') as csvfile:
+        with open('Dataset/Outcomes/medium.csv', 'a', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow([toolappname, textmain])
         count += 1
         print(toolappname+str(count))
 
 def getSentenceLevelDatasetAndTxtMedium():
-    df = pd.read_csv('Dataset/medium.csv')
+    df = pd.read_csv('Dataset/Outcomes/medium.csv')
     for i in range(df.shape[0]):
         print(i+1)
         tempair = df.iloc[i].values.tolist()
@@ -312,7 +312,7 @@ def getSentenceLevelDatasetAndTxtMedium():
                 txtfile.write(sent + '\n')
 
 def getSentenceLevelDatasetAndTxtDzone():
-    df = pd.read_csv('Dataset/dzone.csv')
+    df = pd.read_csv('Dataset/Outcomes/dzone.csv')
     for i in range(df.shape[0]):
         print(i+1)
         tempair = df.iloc[i].values.tolist()
