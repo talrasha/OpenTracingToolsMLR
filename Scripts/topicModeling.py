@@ -58,15 +58,15 @@ pd.set_option('display.max_columns',25)
 df_medium = pd.read_csv('Dataset/medium_sents_ss.csv')
 df_dzone = pd.read_csv('Dataset/dzone_sents_ss.csv')
 df_stack = pd.read_csv('Dataset/stackoverflow_sents_ss.csv')
-with open('Dataset/TrainingData\\informative.txt', 'r', encoding='utf-8') as txtfile:
+with open('../Dataset/TrainingData/informative.txt', 'r', encoding='utf-8') as txtfile:
     inlist = [x.strip('\n') for x in txtfile.readlines()]
-with open('Dataset/TrainingData\\noninformative.txt', 'r', encoding='utf-8') as txtfile:
+with open('../Dataset/TrainingData/noninformative.txt', 'r', encoding='utf-8') as txtfile:
     nlist = [x.strip('\n') for x in txtfile.readlines()]
-with open('Dataset/TrainingData\motivation.txt', 'r', encoding='utf-8') as txtfile:
+with open('../Dataset/TrainingData/motivation.txt', 'r', encoding='utf-8') as txtfile:
     mlist = [x.strip('\n') for x in txtfile.readlines()]
-with open('Dataset/TrainingData\\benefit.txt', 'r', encoding='utf-8') as txtfile:
+with open('../Dataset/TrainingData/benefit.txt', 'r', encoding='utf-8') as txtfile:
     blist = [x.strip('\n') for x in txtfile.readlines()]
-with open('Dataset/TrainingData\issue.txt', 'r', encoding='utf-8') as txtfile:
+with open('../Dataset/TrainingData/issue.txt', 'r', encoding='utf-8') as txtfile:
     islist = [x.strip('\n') for x in txtfile.readlines()]
 
 train_data_n = []

@@ -61,8 +61,8 @@ context = ssl.create_default_context()
 cookies = {'birthtime': '568022401'}
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36', 'Referer': 'https://steamcommunity.com/', 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'}
 
-df_questions = pd.read_csv('Dataset/Outcomes/questions.csv')
-df_answers = pd.read_csv('Dataset/Outcomes/answers.csv')
+df_questions = pd.read_csv('../Dataset/Outcomes/questions.csv')
+df_answers = pd.read_csv('../Dataset/Outcomes/answers.csv')
 df_questions.drop_duplicates(subset=['question_id'], inplace=True)
 df_answers.drop_duplicates(subset=['answer_id'], inplace=True)
 df_questions_sent = pd.read_csv('Dataset/questions_sents.csv')
@@ -290,14 +290,14 @@ def mediumfromtextlist2csv(toolappname):
             textmain = textmain.strip()
         else:
             textmain = text.strip()
-        with open('Dataset/Outcomes/medium.csv', 'a', encoding='utf-8') as csvfile:
+        with open('../Dataset/Outcomes/medium.csv', 'a', encoding='utf-8') as csvfile:
             writer = csv.writer(csvfile, delimiter=',')
             writer.writerow([toolappname, textmain])
         count += 1
         print(toolappname+str(count))
 
 def getSentenceLevelDatasetAndTxtMedium():
-    df = pd.read_csv('Dataset/Outcomes/medium.csv')
+    df = pd.read_csv('../Dataset/Outcomes/medium.csv')
     for i in range(df.shape[0]):
         print(i+1)
         tempair = df.iloc[i].values.tolist()
@@ -312,7 +312,7 @@ def getSentenceLevelDatasetAndTxtMedium():
                 txtfile.write(sent + '\n')
 
 def getSentenceLevelDatasetAndTxtDzone():
-    df = pd.read_csv('Dataset/Outcomes/dzone.csv')
+    df = pd.read_csv('../Dataset/Outcomes/dzone.csv')
     for i in range(df.shape[0]):
         print(i+1)
         tempair = df.iloc[i].values.tolist()
@@ -351,15 +351,15 @@ def getSentenceLevelDatasetAndTxtStackOverflow():
 df_medium = pd.read_csv('Dataset/medium_sents_ss.csv')
 df_dzone = pd.read_csv('Dataset/dzone_sents_ss.csv')
 df_stack = pd.read_csv('Dataset/stackoverflow_sents_ss.csv')
-with open('Dataset/TrainingData\\informative.txt', 'r', encoding='utf-8') as txtfile:
+with open('../Dataset/TrainingData/informative.txt', 'r', encoding='utf-8') as txtfile:
     inlist = [x.strip('\n') for x in txtfile.readlines()]
-with open('Dataset/TrainingData\\noninformative.txt', 'r', encoding='utf-8') as txtfile:
+with open('../Dataset/TrainingData/noninformative.txt', 'r', encoding='utf-8') as txtfile:
     nlist = [x.strip('\n') for x in txtfile.readlines()]
-with open('Dataset/TrainingData\motivation.txt', 'r', encoding='utf-8') as txtfile:
+with open('../Dataset/TrainingData/motivation.txt', 'r', encoding='utf-8') as txtfile:
     mlist = [x.strip('\n') for x in txtfile.readlines()]
-with open('Dataset/TrainingData\\benefit.txt', 'r', encoding='utf-8') as txtfile:
+with open('../Dataset/TrainingData/benefit.txt', 'r', encoding='utf-8') as txtfile:
     blist = [x.strip('\n') for x in txtfile.readlines()]
-with open('Dataset/TrainingData\issue.txt', 'r', encoding='utf-8') as txtfile:
+with open('../Dataset/TrainingData/issue.txt', 'r', encoding='utf-8') as txtfile:
     islist = [x.strip('\n') for x in txtfile.readlines()]
 
 train_data_n = []

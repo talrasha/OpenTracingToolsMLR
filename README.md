@@ -30,3 +30,6 @@ Please cite as *Open Tracing Tools. An Overview and Critical Comparison* [1]
 * [DzoneURLs](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/DzoneURLs): For each open tracing tool, a list of article URLs from Dzone are saved in a separate .txt file with the tool name as the filename in this folder. For example, *datadog.txt* contains the URLs of all the Dzone articles regarding *DataDog*. 
 * [MediumRaw](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/MediumRaw): For each open tracing tool, each article from Medium regarding it is saved as a separate .txt file with the tool name and an index together as the filename in this folder. For example, *appdynamics-23.txt* contains the 23rd article from Medium regarding *AppDynamics*.
 * [TrainingData](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/TrainingData): The training data for classifying the *informative* and *non-informative* sentences using Naive Bayes Classifier. Therein, 1500 informative and 1500 non-informative sentences are manually labelled.
+* [OutComes](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/Outcomes): The collected and organized textual data from each source.
+
+##
