@@ -32,4 +32,6 @@ Please cite as *Open Tracing Tools. An Overview and Critical Comparison* [1]
 * [TrainingData](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/TrainingData): The training data for classifying the *informative* and *non-informative* sentences using Naive Bayes Classifier. Therein, 1500 informative and 1500 non-informative sentences are manually labelled.
 * [OutComes](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/Outcomes): The collected and organized textual data from each source.
 
-##
+## Scripts
+*[dzoneCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/dzonCrawler.py):
+*[mediumCrawler.py]()
