@@ -4,16 +4,16 @@
 * **[Introduction](#Introduction)**
 * **[How To Reference the Work](#How-to-reference-the-work)**
 * Datasets
-  * **[DzoneURLs](#dzoneurls)**
-  * **[MediumRaw](#mediumraw)**
-  * **[TrainingData](#trainingdata)**
-  * **[Outcomes](#outcomes)**
+  * **[DzoneURLs](#Dataset)**
+  * **[MediumRaw](#Dataset)**
+  * **[TrainingData](#Dataset)**
+  * **[Outcomes](#Dataset)**
 * Scripts
-  * **[dzoneCrawler.py](#dzoencrawler)**
-  * **[mediumCrawler.py](#mediumcrawler)**
-  * **[stackoverflowCrawler.py](#stackoverflowcrawler)**
-  * **[dataPreprocess.py](#datapreprocess)**
-  * **[topicModeling.py](#topicmodeling)**
+  * **[dzoneCrawler.py](#Scripts)**
+  * **[mediumCrawler.py](#Scripts)**
+  * **[stackoverflowCrawler.py](#Scripts)**
+  * **[dataPreprocess.py](#Scripts)**
+  * **[topicModeling.py](#Scripts)**
 
 ## Introduction
 Distributed tracing can help to pinpoint where failures occur and what causes poor performance in the system. DevOps teams can monitor, debug and optimize their code of modern distributed software architectures, such as microservices or serverless functions. The publication "*Open Tracing Tools. An Overview and Critical Comparison*" provided an overview and performed a
@@ -33,5 +33,8 @@ Please cite as *Open Tracing Tools. An Overview and Critical Comparison* [1]
 * [OutComes](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/Outcomes): The collected and organized textual data from each source.
 
 ## Scripts
-*[dzoneCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/dzonCrawler.py):
-*[mediumCrawler.py]()
+* [dzoneCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/dzoneCrawler.py): The script to crawl articles from the Dzone URL lists. 
+* [mediumCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/mediumCrawler.py): The script to crawl Medium articles based on tags (new feature, not used in this publication)
+* [stackoverflowCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/stackoverflowCrawler.py): The script to crawl questions and answers from StackOverflow using APIs.
+* [dataPreprocess.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/dataPreprocess.py): The script to pre-process textual data.
+* [topicModeling.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/topicModeling.py): The script to conduct topic modeling on textual data as well as related plotting functions 
