@@ -15,7 +15,7 @@
   * **[dataPreprocess.py](#Scripts)**
   * **[topicModeling.py](#Scripts)**
 * How to Use
-  * **[Step 0. Data Crawling](#datacrawling)**
+  * **[Step 0. Data Crawling](#step-0-data-crawling)**
   * **[Step 1. Preprocessing](#preprocessing)**
   * **[Step 2. Filtering](#filtering)**
   * **[Step 3. Topic Modeling](#topicmodeling)**
@@ -49,3 +49,4 @@ Please cite as *Open Tracing Tools. An Overview and Critical Comparison* [1]
 
 ## How to Use
 
+### Step 0. Data Crawling

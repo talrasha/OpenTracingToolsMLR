@@ -170,8 +170,8 @@ def getArticleUrlListwithTagContinue(thetag):
             except:
                 continue
 
-def makeupforbefore():
-    years = list(range(2010,2015))
+def makeupforbefore(yearfrom, yearto, thetag):
+    years = list(range(yearfrom, yearto))
     for year in years:
         theurl = f"https://medium.com/tag/technical-debt/archive/{year}"
         req = Request(theurl, headers=headers)
@@ -186,8 +186,8 @@ def makeupforbefore():
             tempinput.append(thedate)
             tempinput.append(thetitle)
             tempinput.append(getArticleContent(url))
-            with open(f"technical-debt-medium.csv", 'a') as csvfile:
+            with open(f"{thetag}-medium.csv", 'a') as csvfile:
                 writer = csv.writer(csvfile, delimiter=',')
                 writer.writerow(tempinput)
 
-getArticleUrlListwithTag("deep-learning")
+#getArticleUrlListwithTag("deep-learning")
