@@ -154,19 +154,3 @@ def getStackOverFlowDataset(toollist):
                 has_more = thejson['has_more']
             else:
                 continue
-
-df_questions = pd.read_csv('questions.csv')
-df_answers = pd.read_csv('answers.csv')
-print(df_questions.shape)
-print(df_questions.head())
-print(df_answers.shape)
-print(df_answers.head())
-#getStackOverFlowDataset(['technical debt'])
-
-df_dzone = pd.read_csv('dzone_td.csv')
-print(df_dzone.shape)
-print(df_dzone.head())
-
-df_medium = pd.read_csv('technical-debt-medium.csv')
-print(df_medium.shape)
-print(df_medium.head())

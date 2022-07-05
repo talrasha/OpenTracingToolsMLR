@@ -16,11 +16,11 @@
   * **[topicModeling.py](#Scripts)**
 * How to Use
   * **[Step 0. Data Crawling](#step-0-data-crawling)**
-  * **[Step 1. Preprocessing](#preprocessing)**
-  * **[Step 2. Filtering](#filtering)**
-  * **[Step 3. Topic Modeling](#topicmodeling)**
-  * **[Step 4. Topic Mapping](#topicmapping)**
-  * **[Step 5. Opinion Mining](#opinionmining)**
+  * **[Step 1. Preprocessing](#step-1-preprocessing)**
+  * **[Step 2. Filtering](#step-2-filtering)**
+  * **[Step 3. Topic Modeling](#step-3-topic-modeling)**
+  * **[Step 4. Topic Mapping](#step-4-topic-mapping)**
+  * **[Step 5. Opinion Mining](#step-5-opinion-mining)**
 
 
 ## Introduction
@@ -50,3 +50,25 @@ Please cite as *Open Tracing Tools. An Overview and Critical Comparison* [1]
 ## How to Use
 
 ### Step 0. Data Crawling
+
+For crawling data from **Medium**, use the *getArticleUrlListwithTag()* function in *[mediumCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/mediumCrawler.py)*, if the tool name is archived as tag in Medium, e.g., ['datadog'](https://medium.com/tag/datadog/archive) as a tag. For the tool names that are not tags, the data can be extracted manually. To be noted, in the submission, Medium data was crawled manually.
+
+For crawling data from **Dzone**, first manually extract the URL list of the target articles by searching from the Dzone website and save it as TXT with the title of the tool name. For example, the URL list of articles about *'Zipkin'* is saved in ['zipkin.txt'](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/DzoneURLs/zipkin.txt). Then use the *fromtextlist2csv()* function in *[dzoneCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/dzoneCrawler.py)* to extract and format the data into CSV file.
+
+For crawling data from **Stack Overflow**, use the *getStackOverFlowDataset()* function in *[stackoverflowCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/stackoverflowCrawler.py)* to get the questions and answers data for a list of tools, whose names are the input of the function. 
+
+### Step 1. Preprocessing
+
+For the datasets crawled from different sources in *[OutComes](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/Outcomes)*, use the functions, *getSentenceLevelDatasetAndTxtStackOverflow()*, *getSentenceLevelDatasetAndTxtMedium()* and *getSentenceLevelDatasetAndTxtDzone()* to tokenize and organize the text data into sentence level. 
+
+### Step 2. Filtering
+
+### Step 3. Topic Modeling
+
+### Step 4. Topic Mapping
+
+### Step 5. Opinion Mining
+
+
+
+
