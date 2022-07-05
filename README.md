@@ -45,7 +45,7 @@ Please cite as *Open Tracing Tools. An Overview and Critical Comparison* [1]
 * [mediumCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/mediumCrawler.py): The script to crawl Medium articles based on tags (new feature, not used in this publication)
 * [stackoverflowCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/stackoverflowCrawler.py): The script to crawl questions and answers from StackOverflow using APIs.
 * [dataPreprocess.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/dataPreprocess.py): The script to pre-process textual data.
-* [topicModeling.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/topicModeling.py): The script to conduct topic modeling on textual data as well as related plotting functions 
+* [filteringTopicModeling.ipynb](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/filteringTopicModeling.ipynb): The script to conduct filtering and topic modeling on textual data as well as related plotting functions 
 
 ## How to Use
 
@@ -63,7 +63,7 @@ For the datasets crawled from different sources in *[OutComes](https://github.co
 
 ### Step 2. Filtering
 
-
+To ease the testing and visualization process, the source code is drafted in Jupyter Notebook and was ran in Google Colaboratory. Use the manually labelled training data, [informative.txt](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/TrainingData/informative.txt) and [noninformative.txt](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/TrainingData/noninformative.txt), class *Semi_EM_MultinomialNB* provides the EMNB model training function. *MultinomialNB* model training function is imported from *sklearn.naive_bayes*. Block [13] - [14] test and visualize the different sizes of train-test data and the according performances (generating Figure 5). Block [25] - [27] train the NB model and mark each sentence by either information (i.e., 1) or noninformative (i.e., 0).
 
 ### Step 3. Topic Modeling
 
