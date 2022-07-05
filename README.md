@@ -14,6 +14,14 @@
   * **[stackoverflowCrawler.py](#Scripts)**
   * **[dataPreprocess.py](#Scripts)**
   * **[topicModeling.py](#Scripts)**
+* How to Use
+  * **[Step 0. Data Crawling](#datacrawling)**
+  * **[Step 1. Preprocessing](#preprocessing)**
+  * **[Step 2. Filtering](#filtering)**
+  * **[Step 3. Topic Modeling](#topicmodeling)**
+  * **[Step 4. Topic Mapping](#topicmapping)**
+  * **[Step 5. Opinion Mining](#opinionmining)**
+
 
 ## Introduction
 Distributed tracing can help to pinpoint where failures occur and what causes poor performance in the system. DevOps teams can monitor, debug and optimize their code of modern distributed software architectures, such as microservices or serverless functions. The publication "*Open Tracing Tools. An Overview and Critical Comparison*" provided an overview and performed a
@@ -38,3 +46,6 @@ Please cite as *Open Tracing Tools. An Overview and Critical Comparison* [1]
 * [stackoverflowCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/stackoverflowCrawler.py): The script to crawl questions and answers from StackOverflow using APIs.
 * [dataPreprocess.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/dataPreprocess.py): The script to pre-process textual data.
 * [topicModeling.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/topicModeling.py): The script to conduct topic modeling on textual data as well as related plotting functions 
+
+## How to Use
+

@@ -190,4 +190,4 @@ def makeupforbefore():
                 writer = csv.writer(csvfile, delimiter=',')
                 writer.writerow(tempinput)
 
-getArticleUrlListwithTag('AI')
+getArticleUrlListwithTag("deep-learning")
