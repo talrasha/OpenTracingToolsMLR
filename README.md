@@ -80,6 +80,6 @@ Use function *addsentimentvalues()* in *[dataPreprocess.py](https://github.com/t
 
 The final output dataset is *[df_info_new_with_topics.csv](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/Outcomes/df_info_new_with_topics.csv), which contains all the informative sentences marked with sentiment score, main topic, source, and concerning tool. Use the function *displayToolTopicSentiment()* in *[topicCharts.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/topicCharts.py)* to visualize the results shown in Figure 8.
 
-### *NOTE: The Replication Package will be refactored continuously.*
+### *NOTE: Part of the source code will be refactored continuously for the ease-of-use in the future.*
 
 
