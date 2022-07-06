@@ -45,7 +45,8 @@ Please cite as *Open Tracing Tools. An Overview and Critical Comparison* [1]
 * [mediumCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/mediumCrawler.py): The script to crawl Medium articles based on tags (new feature, not used in this publication)
 * [stackoverflowCrawler.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/stackoverflowCrawler.py): The script to crawl questions and answers from StackOverflow using APIs.
 * [dataPreprocess.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/dataPreprocess.py): The script to pre-process textual data.
-* [filteringTopicModeling.ipynb](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/filteringTopicModeling.ipynb): The script to conduct filtering and topic modeling on textual data as well as related plotting functions 
+* [filteringTopicModeling.ipynb](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/filteringTopicModeling.ipynb): The script to conduct filtering and topic modeling on textual data as well as related plotting functions.
+* [topicCharts.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/topicCharts.py): The script for visualization.
 
 ## How to Use
 
@@ -67,12 +68,18 @@ To ease the testing and visualization process, the source code is drafted in Jup
 
 ### Step 3. Topic Modeling
 
-In the Block [40] of *[filteringTopicModeling.ipynb](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/filteringTopicModeling.ipynb)* function *compute_coherence_values()* calculates the *c_v* coherence measure. Using the *c_v* coherence measure, function *testTopicNumberK()* in Block [49] tests the different numbers of topics, e.g., Block [54] calculates and visulize such outcomes, which is also the method to obtain Figure 6. With the detected topic number (i.e., 9 topics in this case), Block [90] trains the LDA model. The topic model is saved in [TopicModel](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/TopicModel) folder.
+In the Block [40] of *[filteringTopicModeling.ipynb](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/filteringTopicModeling.ipynb)* function *compute_coherence_values()* calculates the *c_v* coherence measure. Using the *c_v* coherence measure, function *testTopicNumberK()* in Block [49] tests the different numbers of topics, e.g., Block [54] calculates and visulize such outcomes, which is also the method to obtain Figure 6. With the detected topic number (i.e., 9 topics in this case), Block [90] trains the LDA model. The topic model is saved in [TopicModel](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/TopicModel) folder and can be used directly via *gensim.models.LdaMulticore.load()*.
 
 ### Step 4. Topic Mapping
 
+Use function *format_topics_sentences()* in Block [117] in *[filteringTopicModeling.ipynb](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/filteringTopicModeling.ipynb)* to detect the main topic for each sentence. 
+
 ### Step 5. Opinion Mining
 
+Use function *addsentimentvalues()* in *[dataPreprocess.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/dataPreprocess.py)* to add sentiment score to each sentence in the input dataset. This step is parallel to the topic modeling and mapping therefore can also be done before those steps. 
 
+The final output dataset is *[df_info_new_with_topics.csv](https://github.com/talrasha/OpenTracingToolsMLR/tree/main/Dataset/Outcomes/df_info_new_with_topics.csv), which contains all the informative sentences marked with sentiment score, main topic, source, and concerning tool. Use the function *displayToolTopicSentiment()* in *[topicCharts.py](https://github.com/talrasha/OpenTracingToolsMLR/blob/main/Scripts/topicCharts.py)* to visualize the results shown in Figure 8.
+
+### *NOTE: The Replication Package will be refactored continuously.*
 
 
